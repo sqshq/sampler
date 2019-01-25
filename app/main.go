@@ -10,7 +10,27 @@ import (
 
 func main() {
 
+	if err := ui.Init(); err != nil {
+		log.Fatalf("failed to initialize termui: %v", err)
+	}
+
+	defer ui.Close()
+
 	cfg := config.Load("/Users/sqshq/config.yml")
+
+	p1 := widgets.NewPlot()
+	p1.Title = "dot-mode line Chart"
+	p1.Marker = widgets.MarkerDot
+	p1.Data = [][]float64{
+		{0, 1, 2, 3},
+		{4, 5, 6, 7},
+	}
+	p1.SetRect(50, 0, 100, 10)
+	p1.DataLabels = []string{"hello"}
+	p1.DotRune = '+'
+	p1.AxesColor = ui.ColorWhite
+	p1.LineColors[0] = ui.ColorCyan
+	p1.DrawDirection = widgets.DrawLeft
 
 	for _, linechart := range cfg.LineCharts {
 		for _, data := range linechart.Data {
@@ -19,7 +39,16 @@ func main() {
 		}
 	}
 
-	printChart()
+	ui.Render(p1)
+
+	uiEvents := ui.PollEvents()
+	for {
+		e := <-uiEvents
+		switch e.ID {
+		case "q", "<C-c>":
+			return
+		}
+	}
 }
 
 func printChart() {
@@ -50,7 +79,7 @@ func printChart() {
 	p1 := widgets.NewPlot()
 	p1.Title = "dot-mode line Chart"
 	p1.Marker = widgets.MarkerDot
-	p1.Data = [][]float64{[]float64{1, 2, 3, 4, 5}}
+	p1.Data = [][]float64{{1, 2, 3, 4, 5}}
 	p1.SetRect(50, 0, 75, 10)
 	p1.DotRune = '+'
 	p1.AxesColor = ui.ColorWhite
