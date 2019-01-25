@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/sqshq/plot-try/app/config"
 	ui "github.com/sqshq/termui"
 	"github.com/sqshq/termui/widgets"
+	"github.com/sqshq/vcmd/app/config"
 	"log"
 	"math"
 )
