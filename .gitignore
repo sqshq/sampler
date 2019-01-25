@@ -1,0 +1,9 @@
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.db
+.idea/
+*.iml
+*.iws

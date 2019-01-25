@@ -1,4 +1,4 @@
-module github.com/sqshq/plot-try
+module github.com/sqshq/vcmd
 
 require (
 	github.com/mattn/go-runewidth v0.0.4 // indirect
