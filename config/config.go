@@ -17,7 +17,7 @@ func Load(location string) *Config {
 		log.Fatalf("Can't read config file: %s", location)
 	}
 
- 	cfg := new(Config)
+	cfg := new(Config)
 	err = yaml.Unmarshal(yamlFile, cfg)
 
 	if err != nil {

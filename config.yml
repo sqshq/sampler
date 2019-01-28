@@ -1,0 +1,24 @@
+theme: dark / bright
+line-charts:
+  - title: curl-latency
+    data:
+      - label: example.com
+        script: curl -o /dev/null -s -w '%{time_total}'  http://example.com
+        color: red
+      - label: google.com
+        script: curl -o /dev/null -s -w '%{time_total}'  http://google.com
+        color: yellow
+    refresh-rate-ms: 100
+    style: dots/lines
+    scale: log
+    position:
+      x: 10
+      y: 20
+    size:
+      x: 100
+      y: 50
+  - title: mongo-count
+    data:
+      - label: posts
+        script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()" | grep 2
+        color: red

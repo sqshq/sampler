@@ -8,8 +8,8 @@ import (
 )
 
 type Data struct {
-	Label string `yaml:"label"`
-	Color string `yaml:"color"`
+	Label  string `yaml:"label"`
+	Color  string `yaml:"color"`
 	Script string `yaml:"script"`
 }
 
