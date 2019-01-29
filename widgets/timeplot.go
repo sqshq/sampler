@@ -97,13 +97,10 @@ func (self *TimePlot) Draw(buf *Buffer) {
 		self.plotAxes(buf)
 	}
 
-	drawArea := self.Inner
-	if self.ShowAxes {
-		drawArea = image.Rect(
-			self.Inner.Min.X+yAxisLabelsWidth+1, self.Inner.Min.Y,
-			self.Inner.Max.X, self.Inner.Max.Y-xAxisLabelsHeight-1,
-		)
-	}
+	drawArea := image.Rect(
+		self.Inner.Min.X+yAxisLabelsWidth+1, self.Inner.Min.Y,
+		self.Inner.Max.X, self.Inner.Max.Y-xAxisLabelsHeight-1,
+	)
 
 	self.renderBraille(buf, drawArea)
 	self.dataMutex.Unlock()

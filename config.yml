@@ -12,11 +12,11 @@ line-charts:
     style: dots/lines
     scale: log
     position:
-      x: 10
-      y: 20
+      x: 0
+      y: 0
     size:
-      x: 100
-      y: 50
+      x: 3
+      y: 2
   - title: mongo-count
     data:
       - label: posts
