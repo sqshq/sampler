@@ -9,14 +9,14 @@ line-charts:
         script: curl -o /dev/null -s -w '%{time_total}'  http://google.com
         color: yellow
     refresh-rate-ms: 100
+    time-scale-sec: 1
     style: dots/lines
-    scale: log
     position:
-      x: 0
-      y: 0
+      x: 1
+      y: 2
     size:
       x: 3
-      y: 2
+      y: 4
   - title: mongo-count
     data:
       - label: posts

@@ -18,9 +18,10 @@ type TimePlot struct {
 	DotRune           rune
 	HorizontalScale   int
 	Marker            PlotMarker
-	timePoints        []TimePoint
-	dataMutex         *sync.Mutex
-	grid              PlotGrid
+
+	timePoints []TimePoint
+	dataMutex  *sync.Mutex
+	grid       PlotGrid
 }
 
 const (

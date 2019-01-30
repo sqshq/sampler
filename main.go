@@ -21,9 +21,13 @@ func main() {
 
 	p1 := widgets.NewTimePlot()
 	p1.Title = " CURL LATENCY STATISTICS (sec) "
-	p1.SetRect(0, 20, 148, 40)
 	p1.LineColors[0] = ui.ColorYellow
 	p1.Marker = widgets.MarkerBraille
+
+	p2 := widgets.NewTimePlot()
+	p2.Title = " CURL LATENCY STATISTICS 2 (sec) "
+	p2.LineColors[0] = ui.ColorYellow
+	p2.Marker = widgets.MarkerBraille
 
 	if err := ui.Init(); err != nil {
 		//log.Fatalf("failed to initialize termui: %v", err)
@@ -31,6 +35,10 @@ func main() {
 
 	defer ui.Close()
 	uiEvents := ui.PollEvents()
+
+	layout := widgets.NewLayout(ui.TerminalDimensions())
+	layout.AddItem(p1, 0, 0, 6, 6)
+	layout.AddItem(p2, 0, 6, 6, 12)
 
 	dataTicker := time.NewTicker(200 * time.Millisecond)
 	uiTicker := time.NewTicker(50 * time.Millisecond)
@@ -48,6 +56,7 @@ func main() {
 						break
 					}
 					p1.AddValue(value)
+					p2.AddValue(value)
 				}
 			}
 		}
@@ -59,6 +68,9 @@ func main() {
 			switch e.ID {
 			case "q", "<C-c>": // press 'q' or 'C-c' to quit
 				return
+			case "<Resize>":
+				payload := e.Payload.(ui.Resize)
+				layout.ChangeDimensions(payload.Width, payload.Height)
 			}
 			//case "<MouseLeft>":
 			//	payload := e.Payload.(ui.Mouse)
@@ -69,38 +81,21 @@ func main() {
 			case ui.KeyboardEvent: // handle all key presses
 				//log.Printf("key: %v", e.ID)
 				switch e.ID {
-				// TODO refactor + control moving out of range
 				case "<Left>":
-					rect := p1.GetRect()
-					min := rect.Min
-					max := rect.Max
-					p1.SetRect(min.X-1, min.Y, max.X-1, max.Y)
-					ui.Clear()
+					layout.MoveItem(-1, 0)
 				case "<Right>":
-					rect := p1.GetRect()
-					min := rect.Min
-					max := rect.Max
-					p1.SetRect(min.X+1, min.Y, max.X+1, max.Y)
-					ui.Clear()
+					layout.MoveItem(1, 0)
 				case "<Down>":
-					rect := p1.GetRect()
-					min := rect.Min
-					max := rect.Max
-					p1.SetRect(min.X, min.Y+1, max.X, max.Y+1)
-					ui.Clear()
+					layout.MoveItem(0, 1)
 				case "<Up>":
-					rect := p1.GetRect()
-					min := rect.Min
-					max := rect.Max
-					p1.SetRect(min.X, min.Y-1, max.X, max.Y-1)
-					ui.Clear()
+					layout.MoveItem(0, -1)
 				case "p":
 					pause = !pause
 				}
 			}
 		case <-uiTicker.C:
 			if !pause {
-				ui.Render(p1)
+				ui.Render(layout)
 			}
 		}
 	}
