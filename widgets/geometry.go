@@ -9,10 +9,10 @@ const (
 	yBrailleMultiplier = 4
 )
 
-func braille(point image.Point) image.Point {
+func braillePoint(point image.Point) image.Point {
 	return image.Point{X: point.X * xBrailleMultiplier, Y: point.Y * yBrailleMultiplier}
 }
 
-func deBraille(point image.Point) image.Point {
+func debraillePoint(point image.Point) image.Point {
 	return image.Point{X: point.X / xBrailleMultiplier, Y: point.Y / yBrailleMultiplier}
 }

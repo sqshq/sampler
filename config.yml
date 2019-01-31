@@ -4,21 +4,27 @@ line-charts:
     data:
       - label: example.com
         script: curl -o /dev/null -s -w '%{time_total}'  http://example.com
-        color: red
       - label: google.com
         script: curl -o /dev/null -s -w '%{time_total}'  http://google.com
-        color: yellow
-    refresh-rate-ms: 100
+    refresh-rate-ms: 200
     time-scale-sec: 1
     style: dots/lines
     position:
-      x: 1
-      y: 2
+      x: 0
+      y: 0
     size:
-      x: 3
-      y: 4
+      x: 15
+      y: 15
   - title: mongo-count
     data:
       - label: posts
         script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()" | grep 2
         color: red
+    refresh-rate-ms: 200
+    time-scale-sec: 1
+    position:
+      x: 15
+      y: 0
+    size:
+      x: 15
+      y: 15

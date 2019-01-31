@@ -3,21 +3,21 @@ package widgets
 import (
 	"fmt"
 	"image"
+	"log"
+	"strconv"
 	"sync"
 	"time"
 
 	. "github.com/sqshq/termui"
 )
 
-type TimePlot struct {
+type TimePlot struct { // TODO rename to linechart
 	Block
 	DataLabels        []string
 	MaxValueTimePoint TimePoint
 	LineColors        []Color
-	ShowAxes          bool
 	DotRune           rune
 	HorizontalScale   int
-	Marker            PlotMarker
 
 	timePoints []TimePoint
 	dataMutex  *sync.Mutex
@@ -37,21 +37,15 @@ type TimePoint struct {
 	Time  time.Time
 }
 
-type PlotMarker uint
-
-const (
-	MarkerBraille PlotMarker = iota
-	MarkerDot
-)
-
-func NewTimePlot() *TimePlot {
+func NewTimePlot(title string) *TimePlot {
+	block := *NewBlock()
+	block.Title = title
+	//self.LineColors[0] = ui.ColorYellow
 	return &TimePlot{
-		Block:           *NewBlock(),
+		Block:           block,
 		LineColors:      Theme.Plot.Lines,
 		DotRune:         DOT,
 		HorizontalScale: 1,
-		ShowAxes:        true,
-		Marker:          MarkerBraille,
 		timePoints:      make([]TimePoint, 0),
 		dataMutex:       &sync.Mutex{},
 	}
@@ -93,10 +87,7 @@ func (self *TimePlot) Draw(buf *Buffer) {
 	self.dataMutex.Lock()
 	self.Block.Draw(buf)
 	self.grid = self.newPlotGrid()
-
-	if self.ShowAxes {
-		self.plotAxes(buf)
-	}
+	self.plotAxes(buf)
 
 	drawArea := image.Rect(
 		self.Inner.Min.X+yAxisLabelsWidth+1, self.Inner.Min.Y,
@@ -107,11 +98,21 @@ func (self *TimePlot) Draw(buf *Buffer) {
 	self.dataMutex.Unlock()
 }
 
-func (self *TimePlot) AddValue(value float64) {
+func (self *TimePlot) ConsumeValue(value string, label string) {
+
+	float, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		log.Fatalf("Expected float number, but got %v", value) // TODO visual notification
+	}
+
 	self.dataMutex.Lock()
-	self.timePoints = append(self.timePoints, TimePoint{Value: value, Time: time.Now()})
+	self.timePoints = append(self.timePoints, TimePoint{Value: float, Time: time.Now()})
 	self.trimOutOfRangeValues()
 	self.dataMutex.Unlock()
+}
+
+func (self *TimePlot) ConsumeError(err error) {
+	// TODO visual notification
 }
 
 func (self *TimePlot) trimOutOfRangeValues() {
@@ -175,8 +176,8 @@ func (self *TimePlot) renderBraille(buf *Buffer, drawArea image.Rectangle) {
 		//)
 
 		canvas.Line(
-			braille(previousPoint),
-			braille(currentPoint),
+			braillePoint(previousPoint),
+			braillePoint(currentPoint),
 			SelectColor(self.LineColors, 0), //i
 		)
 	}

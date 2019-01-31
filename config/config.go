@@ -1,13 +1,28 @@
 package config
 
 import (
+	. "github.com/sqshq/vcmd/layout"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 )
 
 type Config struct {
-	LineCharts []LineChartConfig `yaml:"line-charts"`
+	LineChartConfigs []LineChartConfig `yaml:"line-charts"`
+}
+
+type DataConfig struct {
+	Script string `yaml:"script"`
+	Label  string `yaml:"label"`
+}
+
+type LineChartConfig struct {
+	Title         string       `yaml:"title"`
+	DataConfig    []DataConfig `yaml:"data"`
+	Position      Position     `yaml:"position"`
+	Size          Size         `yaml:"size"`
+	RefreshRateMs int          `yaml:"refresh-rate-ms"`
+	TimeScaleSec  int          `yaml:"time-scale-sec"`
 }
 
 func Load(location string) *Config {
