@@ -10,14 +10,8 @@ import (
 	"time"
 )
 
-/*
- TODO validation
- - title uniquness and mandatory within a single type of widget
- - label uniqueness and mandatory (if > 1 data bullets)
-*/
 func main() {
 
-	// todo error handling + validation
 	cfg := config.Load("/Users/sqshq/Go/src/github.com/sqshq/vcmd/config.yml")
 
 	if err := ui.Init(); err != nil {
@@ -35,9 +29,9 @@ func main() {
 		chart := widgets.NewRunChart(chartConfig.Title)
 		lout.AddItem(chart, chartConfig.Position, chartConfig.Size)
 
-		for _, chartData := range chartConfig.DataConfig {
+		for _, item := range chartConfig.Items {
 			pollers = append(pollers,
-				data.NewPoller(chart, chartData.Script, chartData.Label, chartConfig.RefreshRateMs))
+				data.NewPoller(chart, item, chartConfig.RefreshRateMs))
 		}
 	}
 

@@ -1,6 +1,6 @@
 package data
 
 type Consumer interface {
-	ConsumeValue(value string, label string)
-	ConsumeError(err error)
+	ConsumeValue(item Item, value string)
+	ConsumeError(item Item, err error)
 }

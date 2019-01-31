@@ -1,22 +1,19 @@
 package data
 
 import (
-	"os/exec"
-	"strings"
 	"time"
 )
 
 type Poller struct {
 	consumer Consumer
-	script   string
-	label    string
+	item     Item
 	pause    bool
 }
 
-func NewPoller(consumer Consumer, script string, label string, rateMs int) Poller {
+func NewPoller(consumer Consumer, item Item, rateMs int) Poller {
 
 	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
-	poller := Poller{consumer, script, label, false}
+	poller := Poller{consumer, item, false}
 
 	go func() {
 		for {
@@ -40,12 +37,11 @@ func (self *Poller) poll() {
 		return
 	}
 
-	output, err := exec.Command("sh", "-c", self.script).Output()
+	value, err := self.item.nextValue()
 
 	if err != nil {
-		self.consumer.ConsumeError(err)
+		self.consumer.ConsumeError(self.item, err)
 	}
 
-	value := strings.TrimSpace(string(output))
-	self.consumer.ConsumeValue(value, self.label)
+	self.consumer.ConsumeValue(self.item, value)
 }

@@ -1,12 +1,14 @@
-theme: dark / bright
+theme: dark
 run-charts:
   - title: curl-latency
     data:
-      - label: example.com
-        script: curl -o /dev/null -s -w '%{time_total}'  http://example.com
       - label: google.com
         script: curl -o /dev/null -s -w '%{time_total}'  http://google.com
-    refresh-rate-ms: 200
+      - label: yahoo.com
+        script: curl -o /dev/null -s -w '%{time_total}'  http://yahoo.com
+      - label: example.com
+        script: curl -o /dev/null -s -w '%{time_total}'  http://example.com
+    refresh-rate-ms: 300
     time-scale-sec: 1
     style: dots/lines
     position:
@@ -19,7 +21,7 @@ run-charts:
     data:
       - label: posts
         script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()" | grep 2
-        color: red
+        color: 3
     refresh-rate-ms: 200
     time-scale-sec: 1
     position:

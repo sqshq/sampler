@@ -2,6 +2,8 @@ package widgets
 
 import (
 	"fmt"
+	"github.com/sqshq/vcmd/data"
+	"github.com/sqshq/vcmd/settings"
 	"image"
 	"log"
 	"math"
@@ -22,7 +24,7 @@ const (
 
 type RunChart struct {
 	Block
-	items []ChartItem
+	lines []TimeLine
 	grid  ChartGrid
 	mutex *sync.Mutex
 }
@@ -32,10 +34,9 @@ type TimePoint struct {
 	Time  time.Time
 }
 
-type ChartItem struct {
-	timePoints []TimePoint
-	label      string
-	color      Color
+type TimeLine struct {
+	points []TimePoint
+	item   data.Item
 }
 
 type ChartGrid struct {
@@ -62,7 +63,7 @@ func NewRunChart(title string) *RunChart {
 	block.Title = title
 	return &RunChart{
 		Block: block,
-		items: []ChartItem{},
+		lines: []TimeLine{},
 		mutex: &sync.Mutex{},
 	}
 }
@@ -78,7 +79,7 @@ func (self *RunChart) newChartGrid() ChartGrid {
 		paddingWidth:    xAxisLabelsGap + xAxisLabelsWidth,
 		maxTimeWidth:    self.Inner.Max.X - xAxisLabelsWidth/2 - xAxisLabelsGap,
 		timeExtremum:    GetTimeExtremum(linesCount, paddingDuration),
-		valueExtremum:   GetValueExtremum(self.items),
+		valueExtremum:   GetValueExtremum(self.lines),
 	}
 }
 
@@ -98,7 +99,7 @@ func (self *RunChart) Draw(buf *Buffer) {
 	self.mutex.Unlock()
 }
 
-func (self *RunChart) ConsumeValue(value string, label string) {
+func (self *RunChart) ConsumeValue(item data.Item, value string) {
 
 	float, err := strconv.ParseFloat(value, 64)
 	if err != nil {
@@ -109,44 +110,43 @@ func (self *RunChart) ConsumeValue(value string, label string) {
 	self.mutex.Lock()
 	itemExists := false
 
-	for i, item := range self.items {
-		if item.label == label {
-			item.timePoints = append(item.timePoints, timePoint)
-			self.items[i] = item
+	for i, line := range self.lines {
+		if line.item.Label == item.Label {
+			line.points = append(line.points, timePoint)
+			self.lines[i] = line
 			itemExists = true
 		}
 	}
 
 	if !itemExists {
-		item := &ChartItem{
-			timePoints: []TimePoint{timePoint},
-			label:      label,
-			color:      ColorYellow,
+		item := &TimeLine{
+			points: []TimePoint{timePoint},
+			item:   item,
 		}
-		self.items = append(self.items, *item)
+		self.lines = append(self.lines, *item)
 	}
 
 	self.trimOutOfRangeValues()
 	self.mutex.Unlock()
 }
 
-func (self *RunChart) ConsumeError(err error) {
+func (self *RunChart) ConsumeError(item data.Item, err error) {
 	// TODO visual notification
 }
 
 func (self *RunChart) trimOutOfRangeValues() {
-	for i, item := range self.items {
+	for i, item := range self.lines {
 		lastOutOfRangeValueIndex := -1
 
-		for j, timePoint := range item.timePoints {
+		for j, timePoint := range item.points {
 			if !self.isTimePointInRange(timePoint) {
 				lastOutOfRangeValueIndex = j
 			}
 		}
 
 		if lastOutOfRangeValueIndex > 0 {
-			item.timePoints = append(item.timePoints[:0], item.timePoints[lastOutOfRangeValueIndex+1:]...)
-			self.items[i] = item
+			item.points = append(item.points[:0], item.points[lastOutOfRangeValueIndex+1:]...)
+			self.lines[i] = item
 		}
 	}
 }
@@ -156,23 +156,23 @@ func (self *RunChart) renderItems(buf *Buffer, drawArea image.Rectangle) {
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
 
-	for _, item := range self.items {
+	for _, line := range self.lines {
 
 		xToPoint := make(map[int]image.Point)
 		pointsOrder := make([]int, 0)
 
-		for _, timePoint := range item.timePoints {
+		for _, point := range line.points {
 
-			if !self.isTimePointInRange(timePoint) {
+			if !self.isTimePointInRange(point) {
 				continue
 			}
 
-			timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.Time)
+			timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(point.Time)
 			deltaToPaddingRelation := float64(timeDeltaWithGridMaxTime.Nanoseconds()) / float64(self.grid.paddingDuration.Nanoseconds())
 			x := self.grid.maxTimeWidth - (int(float64(self.grid.paddingWidth) * deltaToPaddingRelation))
 
 			valuePerYDot := (self.grid.valueExtremum.max - self.grid.valueExtremum.min) / float64(drawArea.Dy()-1)
-			y := int(float64(timePoint.Value-self.grid.valueExtremum.min) / valuePerYDot)
+			y := int(float64(point.Value-self.grid.valueExtremum.min) / valuePerYDot)
 
 			if _, exists := xToPoint[x]; exists {
 				continue
@@ -201,7 +201,7 @@ func (self *RunChart) renderItems(buf *Buffer, drawArea image.Rectangle) {
 			canvas.Line(
 				braillePoint(previousPoint),
 				braillePoint(currentPoint),
-				item.color,
+				line.item.Color,
 			)
 		}
 	}
@@ -232,7 +232,7 @@ func (self *RunChart) plotAxes(buf *Buffer) {
 	for y := 0; y < self.Inner.Dy()-xAxisLabelsHeight-1; y = y + 2 {
 		for x := 0; x < self.grid.linesCount; x++ {
 			buf.SetCell(
-				NewCell(VERTICAL_DASH, NewStyle(ColorDarkGrey)),
+				NewCell(VERTICAL_DASH, NewStyle(settings.ColorDarkGrey)),
 				image.Pt(self.grid.maxTimeWidth-x*self.grid.paddingWidth, y+self.Inner.Min.Y+1),
 			)
 		}
@@ -267,7 +267,7 @@ func (self *RunChart) plotAxes(buf *Buffer) {
 	}
 }
 
-func GetValueExtremum(items []ChartItem) ValueExtremum {
+func GetValueExtremum(items []TimeLine) ValueExtremum {
 
 	if len(items) == 0 {
 		return ValueExtremum{0, 0}
@@ -276,7 +276,7 @@ func GetValueExtremum(items []ChartItem) ValueExtremum {
 	var max, min = -math.MaxFloat64, math.MaxFloat64
 
 	for _, item := range items {
-		for _, point := range item.timePoints {
+		for _, point := range item.points {
 			if point.Value > max {
 				max = point.Value
 			}
