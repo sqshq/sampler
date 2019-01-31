@@ -41,7 +41,7 @@ func main() {
 		}
 	}
 
-	ticker := time.NewTicker(50 * time.Millisecond)
+	ticker := time.NewTicker(30 * time.Millisecond)
 
 	for {
 		select {

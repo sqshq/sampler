@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"math"
 	"strconv"
 	"sync"
 	"time"
@@ -21,17 +22,9 @@ const (
 
 type RunChart struct {
 	Block
-	DataLabels []string
-	LineColors []Color
-	timePoints []TimePoint
-	dataMutex  *sync.Mutex
-	grid       ChartGrid
-}
-
-type Item struct {
-	timePoints []TimePoint
-	color      Color
-	label      string
+	items []ChartItem
+	grid  ChartGrid
+	mutex *sync.Mutex
 }
 
 type TimePoint struct {
@@ -39,16 +32,10 @@ type TimePoint struct {
 	Time  time.Time
 }
 
-func NewRunChart(title string) *RunChart {
-	block := *NewBlock()
-	block.Title = title
-	//self.LineColors[0] = ui.ColorYellow
-	return &RunChart{
-		Block:      block,
-		LineColors: Theme.Plot.Lines,
-		timePoints: make([]TimePoint, 0),
-		dataMutex:  &sync.Mutex{},
-	}
+type ChartItem struct {
+	timePoints []TimePoint
+	label      string
+	color      Color
 }
 
 type ChartGrid struct {
@@ -70,6 +57,16 @@ type ValueExtremum struct {
 	min float64
 }
 
+func NewRunChart(title string) *RunChart {
+	block := *NewBlock()
+	block.Title = title
+	return &RunChart{
+		Block: block,
+		items: []ChartItem{},
+		mutex: &sync.Mutex{},
+	}
+}
+
 func (self *RunChart) newChartGrid() ChartGrid {
 
 	linesCount := (self.Inner.Max.X - self.Inner.Min.X) / (xAxisLabelsGap + xAxisLabelsWidth)
@@ -81,13 +78,13 @@ func (self *RunChart) newChartGrid() ChartGrid {
 		paddingWidth:    xAxisLabelsGap + xAxisLabelsWidth,
 		maxTimeWidth:    self.Inner.Max.X - xAxisLabelsWidth/2 - xAxisLabelsGap,
 		timeExtremum:    GetTimeExtremum(linesCount, paddingDuration),
-		valueExtremum:   GetValueExtremum(self.timePoints),
+		valueExtremum:   GetValueExtremum(self.items),
 	}
 }
 
 func (self *RunChart) Draw(buf *Buffer) {
 
-	self.dataMutex.Lock()
+	self.mutex.Lock()
 	self.Block.Draw(buf)
 	self.grid = self.newChartGrid()
 	self.plotAxes(buf)
@@ -97,8 +94,8 @@ func (self *RunChart) Draw(buf *Buffer) {
 		self.Inner.Max.X, self.Inner.Max.Y-xAxisLabelsHeight-1,
 	)
 
-	self.renderBraille(buf, drawArea)
-	self.dataMutex.Unlock()
+	self.renderItems(buf, drawArea)
+	self.mutex.Unlock()
 }
 
 func (self *RunChart) ConsumeValue(value string, label string) {
@@ -108,10 +105,29 @@ func (self *RunChart) ConsumeValue(value string, label string) {
 		log.Fatalf("Expected float number, but got %v", value) // TODO visual notification
 	}
 
-	self.dataMutex.Lock()
-	self.timePoints = append(self.timePoints, TimePoint{Value: float, Time: time.Now()})
+	timePoint := TimePoint{Value: float, Time: time.Now()}
+	self.mutex.Lock()
+	itemExists := false
+
+	for i, item := range self.items {
+		if item.label == label {
+			item.timePoints = append(item.timePoints, timePoint)
+			self.items[i] = item
+			itemExists = true
+		}
+	}
+
+	if !itemExists {
+		item := &ChartItem{
+			timePoints: []TimePoint{timePoint},
+			label:      label,
+			color:      ColorYellow,
+		}
+		self.items = append(self.items, *item)
+	}
+
 	self.trimOutOfRangeValues()
-	self.dataMutex.Unlock()
+	self.mutex.Unlock()
 }
 
 func (self *RunChart) ConsumeError(err error) {
@@ -119,70 +135,75 @@ func (self *RunChart) ConsumeError(err error) {
 }
 
 func (self *RunChart) trimOutOfRangeValues() {
+	for i, item := range self.items {
+		lastOutOfRangeValueIndex := -1
 
-	lastOutOfRangeValueIndex := -1
-
-	for i, timePoint := range self.timePoints {
-		if !self.isTimePointInRange(timePoint) {
-			lastOutOfRangeValueIndex = i
+		for j, timePoint := range item.timePoints {
+			if !self.isTimePointInRange(timePoint) {
+				lastOutOfRangeValueIndex = j
+			}
 		}
-	}
 
-	if lastOutOfRangeValueIndex > 0 {
-		self.timePoints = append(self.timePoints[:0], self.timePoints[lastOutOfRangeValueIndex+1:]...)
+		if lastOutOfRangeValueIndex > 0 {
+			item.timePoints = append(item.timePoints[:0], item.timePoints[lastOutOfRangeValueIndex+1:]...)
+			self.items[i] = item
+		}
 	}
 }
 
-func (self *RunChart) renderBraille(buf *Buffer, drawArea image.Rectangle) {
+func (self *RunChart) renderItems(buf *Buffer, drawArea image.Rectangle) {
 
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
 
-	pointPerX := make(map[int]image.Point)
-	pointsOrder := make([]int, 0)
+	for _, item := range self.items {
 
-	for _, timePoint := range self.timePoints {
+		xToPoint := make(map[int]image.Point)
+		pointsOrder := make([]int, 0)
 
-		if !self.isTimePointInRange(timePoint) {
-			continue
+		for _, timePoint := range item.timePoints {
+
+			if !self.isTimePointInRange(timePoint) {
+				continue
+			}
+
+			timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.Time)
+			deltaToPaddingRelation := float64(timeDeltaWithGridMaxTime.Nanoseconds()) / float64(self.grid.paddingDuration.Nanoseconds())
+			x := self.grid.maxTimeWidth - (int(float64(self.grid.paddingWidth) * deltaToPaddingRelation))
+
+			valuePerYDot := (self.grid.valueExtremum.max - self.grid.valueExtremum.min) / float64(drawArea.Dy()-1)
+			y := int(float64(timePoint.Value-self.grid.valueExtremum.min) / valuePerYDot)
+
+			if _, exists := xToPoint[x]; exists {
+				continue
+			}
+
+			xToPoint[x] = image.Pt(x, drawArea.Max.Y-y-1)
+			pointsOrder = append(pointsOrder, x)
 		}
 
-		timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.Time)
-		deltaToPaddingRelation := float64(timeDeltaWithGridMaxTime.Nanoseconds()) / float64(self.grid.paddingDuration.Nanoseconds())
-		x := self.grid.maxTimeWidth - (int(float64(self.grid.paddingWidth) * deltaToPaddingRelation))
+		for i, x := range pointsOrder {
 
-		valuePerYDot := (self.grid.valueExtremum.max - self.grid.valueExtremum.min) / float64(drawArea.Dy()-1)
-		y := int(float64(timePoint.Value-self.grid.valueExtremum.min) / valuePerYDot)
+			currentPoint := xToPoint[x]
+			var previousPoint image.Point
 
-		if _, exists := pointPerX[x]; exists {
-			continue
+			if i == 0 {
+				previousPoint = currentPoint
+			} else {
+				previousPoint = xToPoint[pointsOrder[i-1]]
+			}
+
+			//buf.SetCell(
+			//	NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, 0))),
+			//	currentPoint,
+			//)
+
+			canvas.Line(
+				braillePoint(previousPoint),
+				braillePoint(currentPoint),
+				item.color,
+			)
 		}
-
-		pointPerX[x] = image.Pt(x, drawArea.Max.Y-y-1)
-		pointsOrder = append(pointsOrder, x)
-	}
-
-	for i, x := range pointsOrder {
-
-		currentPoint := pointPerX[x]
-		var previousPoint image.Point
-
-		if i == 0 {
-			previousPoint = currentPoint
-		} else {
-			previousPoint = pointPerX[pointsOrder[i-1]]
-		}
-
-		//buf.SetCell(
-		//	NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, 0))),
-		//	currentPoint,
-		//)
-
-		canvas.Line(
-			braillePoint(previousPoint),
-			braillePoint(currentPoint),
-			SelectColor(self.LineColors, 0), //i
-		)
 	}
 
 	canvas.Draw(buf)
@@ -246,24 +267,26 @@ func (self *RunChart) plotAxes(buf *Buffer) {
 	}
 }
 
-func GetValueExtremum(points []TimePoint) ValueExtremum {
+func GetValueExtremum(items []ChartItem) ValueExtremum {
 
-	if len(points) == 0 {
+	if len(items) == 0 {
 		return ValueExtremum{0, 0}
 	}
 
-	var max, min = points[0], points[0]
+	var max, min = -math.MaxFloat64, math.MaxFloat64
 
-	for _, point := range points {
-		if point.Value > max.Value {
-			max = point
-		}
-		if point.Value < min.Value {
-			min = point
+	for _, item := range items {
+		for _, point := range item.timePoints {
+			if point.Value > max {
+				max = point.Value
+			}
+			if point.Value < min {
+				min = point.Value
+			}
 		}
 	}
 
-	return ValueExtremum{max: max.Value, min: min.Value}
+	return ValueExtremum{max: max, min: min}
 }
 
 func GetTimeExtremum(linesCount int, paddingDuration time.Duration) TimeExtremum {
