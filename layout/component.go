@@ -4,8 +4,8 @@ import (
 	. "github.com/sqshq/termui"
 )
 
-type Item struct {
-	Data     Drawable
+type Component struct {
+	Drawable Drawable
 	Position Position
 	Size     Size
 }
@@ -20,12 +20,12 @@ type Size struct {
 	Y int `yaml:"y"`
 }
 
-func (self *Item) MoveItem(x, y int) {
+func (self *Component) Move(x, y int) {
 	self.Position.X += x
 	self.Position.Y += y
 }
 
-func (self *Item) ResizeItem(x, y int) {
+func (self *Component) Resize(x, y int) {
 	self.Size.X += x
 	self.Size.Y += y
 }

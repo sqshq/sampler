@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	LineChartConfigs []LineChartConfig `yaml:"line-charts"`
+	RunCharts []RunChart `yaml:"run-charts"`
 }
 
 type DataConfig struct {
@@ -16,7 +16,7 @@ type DataConfig struct {
 	Label  string `yaml:"label"`
 }
 
-type LineChartConfig struct {
+type RunChart struct {
 	Title         string       `yaml:"title"`
 	DataConfig    []DataConfig `yaml:"data"`
 	Position      Position     `yaml:"position"`

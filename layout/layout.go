@@ -6,7 +6,7 @@ import (
 
 type Layout struct {
 	Block
-	items []Item
+	components []Component
 }
 
 const (
@@ -20,13 +20,13 @@ func NewLayout(width, height int) *Layout {
 	block.SetRect(0, 0, width, height)
 
 	return &Layout{
-		Block: block,
-		items: make([]Item, 0),
+		Block:      block,
+		components: make([]Component, 0),
 	}
 }
 
 func (self *Layout) AddItem(drawable Drawable, position Position, size Size) {
-	self.items = append(self.items, Item{drawable, position, size})
+	self.components = append(self.components, Component{drawable, position, size})
 }
 
 func (self *Layout) ChangeDimensions(width, height int) {
@@ -38,14 +38,14 @@ func (self *Layout) Draw(buf *Buffer) {
 	columnWidth := float64(self.GetRect().Dx()) / columnsCount
 	rowHeight := float64(self.GetRect().Dy()) / rowsCount
 
-	for _, item := range self.items {
+	for _, component := range self.components {
 
-		x1 := float64(item.Position.X) * columnWidth
-		y1 := float64(item.Position.Y) * rowHeight
-		x2 := x1 + float64(item.Size.X)*columnWidth
-		y2 := y1 + float64(item.Size.Y)*rowHeight
+		x1 := float64(component.Position.X) * columnWidth
+		y1 := float64(component.Position.Y) * rowHeight
+		x2 := x1 + float64(component.Size.X)*columnWidth
+		y2 := y1 + float64(component.Size.Y)*rowHeight
 
-		item.Data.SetRect(int(x1), int(y1), int(x2), int(y2))
-		item.Data.Draw(buf)
+		component.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
+		component.Drawable.Draw(buf)
 	}
 }

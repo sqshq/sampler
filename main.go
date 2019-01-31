@@ -30,9 +30,9 @@ func main() {
 	pollers := make([]data.Poller, 0)
 	lout := layout.NewLayout(ui.TerminalDimensions())
 
-	for _, chartConfig := range cfg.LineChartConfigs {
+	for _, chartConfig := range cfg.RunCharts {
 
-		chart := widgets.NewTimePlot(chartConfig.Title)
+		chart := widgets.NewRunChart(chartConfig.Title)
 		lout.AddItem(chart, chartConfig.Position, chartConfig.Size)
 
 		for _, chartData := range chartConfig.DataConfig {
@@ -62,13 +62,13 @@ func main() {
 				switch e.ID {
 				case "<Left>":
 					// here we are going to move selection (special type of layout item)
-					//lout.GetItem("").MoveItem(-1, 0)
+					//lout.GetItem("").Move(-1, 0)
 				case "<Right>":
-					//lout.GetItem(0).MoveItem(1, 0)
+					//lout.GetItem(0).Move(1, 0)
 				case "<Down>":
-					//lout.GetItem(0).MoveItem(0, 1)
+					//lout.GetItem(0).Move(0, 1)
 				case "<Up>":
-					//lout.GetItem(0).MoveItem(0, -1)
+					//lout.GetItem(0).Move(0, -1)
 				case "p":
 					for _, poller := range pollers {
 						poller.TogglePause()

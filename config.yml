@@ -1,5 +1,5 @@
 theme: dark / bright
-line-charts:
+run-charts:
   - title: curl-latency
     data:
       - label: example.com
