@@ -20,6 +20,7 @@ const (
 	xAxisLabelsGap    = 2
 	yAxisLabelsWidth  = 5
 	yAxisLabelsGap    = 1
+	xAxisLegendWidth  = 15
 )
 
 type RunChart struct {
@@ -79,7 +80,7 @@ func (self *RunChart) newChartGrid() ChartGrid {
 		paddingWidth:    xAxisLabelsGap + xAxisLabelsWidth,
 		maxTimeWidth:    self.Inner.Max.X - xAxisLabelsWidth/2 - xAxisLabelsGap,
 		timeExtremum:    GetTimeExtremum(linesCount, paddingDuration),
-		valueExtremum:   GetValueExtremum(self.lines),
+		valueExtremum:   GetChartValueExtremum(self.lines),
 	}
 }
 
@@ -88,7 +89,7 @@ func (self *RunChart) Draw(buf *Buffer) {
 	self.mutex.Lock()
 	self.Block.Draw(buf)
 	self.grid = self.newChartGrid()
-	self.plotAxes(buf)
+	self.renderAxes(buf)
 
 	drawArea := image.Rect(
 		self.Inner.Min.X+yAxisLabelsWidth+1, self.Inner.Min.Y,
@@ -96,6 +97,7 @@ func (self *RunChart) Draw(buf *Buffer) {
 	)
 
 	self.renderItems(buf, drawArea)
+	self.renderLegend(buf, drawArea)
 	self.mutex.Unlock()
 }
 
@@ -151,7 +153,61 @@ func (self *RunChart) trimOutOfRangeValues() {
 	}
 }
 
-func (self *RunChart) renderItems(buf *Buffer, drawArea image.Rectangle) {
+func (self *RunChart) renderAxes(buffer *Buffer) {
+	// draw origin cell
+	buffer.SetCell(
+		NewCell(BOTTOM_LEFT, NewStyle(ColorWhite)),
+		image.Pt(self.Inner.Min.X+yAxisLabelsWidth, self.Inner.Max.Y-xAxisLabelsHeight-1),
+	)
+
+	// draw x axis line
+	for i := yAxisLabelsWidth + 1; i < self.Inner.Dx(); i++ {
+		buffer.SetCell(
+			NewCell(HORIZONTAL_DASH, NewStyle(ColorWhite)),
+			image.Pt(i+self.Inner.Min.X, self.Inner.Max.Y-xAxisLabelsHeight-1),
+		)
+	}
+
+	// draw grid
+	for y := 0; y < self.Inner.Dy()-xAxisLabelsHeight-1; y = y + 2 {
+		for x := 0; x < self.grid.linesCount; x++ {
+			buffer.SetCell(
+				NewCell(VERTICAL_DASH, NewStyle(settings.ColorDarkGrey)),
+				image.Pt(self.grid.maxTimeWidth-x*self.grid.paddingWidth, y+self.Inner.Min.Y+1),
+			)
+		}
+	}
+
+	// draw y axis line
+	for i := 0; i < self.Inner.Dy()-xAxisLabelsHeight-1; i++ {
+		buffer.SetCell(
+			NewCell(VERTICAL_DASH, NewStyle(ColorWhite)),
+			image.Pt(self.Inner.Min.X+yAxisLabelsWidth, i+self.Inner.Min.Y),
+		)
+	}
+
+	// draw x axis time labels
+	for i := 0; i < self.grid.linesCount; i++ {
+		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * time.Second)
+		buffer.SetString(
+			labelTime.Format("15:04:05"),
+			NewStyle(ColorWhite),
+			image.Pt(self.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(self.grid.paddingWidth), self.Inner.Max.Y-1),
+		)
+	}
+
+	// draw y axis labels
+	verticalScale := self.grid.valueExtremum.max - self.grid.valueExtremum.min/float64(self.Inner.Dy()-xAxisLabelsHeight-1)
+	for i := 1; i*(yAxisLabelsGap+1) <= self.Inner.Dy()-1; i++ {
+		buffer.SetString(
+			fmt.Sprintf("%.3f", float64(i)*self.grid.valueExtremum.min*verticalScale*(yAxisLabelsGap+1)),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Min.X, self.Inner.Max.Y-(i*(yAxisLabelsGap+1))-2),
+		)
+	}
+}
+
+func (self *RunChart) renderItems(buffer *Buffer, drawArea image.Rectangle) {
 
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
@@ -193,7 +249,7 @@ func (self *RunChart) renderItems(buf *Buffer, drawArea image.Rectangle) {
 				previousPoint = xToPoint[pointsOrder[i-1]]
 			}
 
-			//buf.SetCell(
+			//buffer.SetCell(
 			//	NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, 0))),
 			//	currentPoint,
 			//)
@@ -206,68 +262,47 @@ func (self *RunChart) renderItems(buf *Buffer, drawArea image.Rectangle) {
 		}
 	}
 
-	canvas.Draw(buf)
+	canvas.Draw(buffer)
+}
+
+func (self *RunChart) renderLegend(buffer *Buffer, rectangle image.Rectangle) {
+	for i, line := range self.lines {
+
+		extremum := GetLineValueExtremum(line.points)
+
+		buffer.SetString(
+			fmt.Sprintf("•"),
+			NewStyle(line.item.Color),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth-2, self.Inner.Min.Y+1+i*5),
+		)
+		buffer.SetString(
+			fmt.Sprintf("%s", line.item.Label),
+			NewStyle(line.item.Color),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+1+i*5),
+		)
+		buffer.SetString(
+			fmt.Sprintf("max %.3f", extremum.max),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+2+i*5),
+		)
+		buffer.SetString(
+			fmt.Sprintf("min %.3f", extremum.min),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+3+i*5),
+		)
+		buffer.SetString(
+			fmt.Sprintf("cur %.3f", line.points[len(line.points)-1].Value),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+4+i*5),
+		)
+	}
 }
 
 func (self *RunChart) isTimePointInRange(point TimePoint) bool {
 	return point.Time.After(self.grid.timeExtremum.min.Add(self.grid.paddingDuration))
 }
 
-func (self *RunChart) plotAxes(buf *Buffer) {
-	// draw origin cell
-	buf.SetCell(
-		NewCell(BOTTOM_LEFT, NewStyle(ColorWhite)),
-		image.Pt(self.Inner.Min.X+yAxisLabelsWidth, self.Inner.Max.Y-xAxisLabelsHeight-1),
-	)
-
-	// draw x axis line
-	for i := yAxisLabelsWidth + 1; i < self.Inner.Dx(); i++ {
-		buf.SetCell(
-			NewCell(HORIZONTAL_DASH, NewStyle(ColorWhite)),
-			image.Pt(i+self.Inner.Min.X, self.Inner.Max.Y-xAxisLabelsHeight-1),
-		)
-	}
-
-	// draw grid
-	for y := 0; y < self.Inner.Dy()-xAxisLabelsHeight-1; y = y + 2 {
-		for x := 0; x < self.grid.linesCount; x++ {
-			buf.SetCell(
-				NewCell(VERTICAL_DASH, NewStyle(settings.ColorDarkGrey)),
-				image.Pt(self.grid.maxTimeWidth-x*self.grid.paddingWidth, y+self.Inner.Min.Y+1),
-			)
-		}
-	}
-
-	// draw y axis line
-	for i := 0; i < self.Inner.Dy()-xAxisLabelsHeight-1; i++ {
-		buf.SetCell(
-			NewCell(VERTICAL_DASH, NewStyle(ColorWhite)),
-			image.Pt(self.Inner.Min.X+yAxisLabelsWidth, i+self.Inner.Min.Y),
-		)
-	}
-
-	// draw x axis time labels
-	for i := 0; i < self.grid.linesCount; i++ {
-		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * time.Second)
-		buf.SetString(
-			labelTime.Format("15:04:05"),
-			NewStyle(ColorWhite),
-			image.Pt(self.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(self.grid.paddingWidth), self.Inner.Max.Y-1),
-		)
-	}
-
-	// draw y axis labels
-	verticalScale := self.grid.valueExtremum.max - self.grid.valueExtremum.min/float64(self.Inner.Dy()-xAxisLabelsHeight-1)
-	for i := 1; i*(yAxisLabelsGap+1) <= self.Inner.Dy()-1; i++ {
-		buf.SetString(
-			fmt.Sprintf("%.3f", float64(i)*self.grid.valueExtremum.min*verticalScale*(yAxisLabelsGap+1)),
-			NewStyle(ColorWhite),
-			image.Pt(self.Inner.Min.X, self.Inner.Max.Y-(i*(yAxisLabelsGap+1))-2),
-		)
-	}
-}
-
-func GetValueExtremum(items []TimeLine) ValueExtremum {
+func GetChartValueExtremum(items []TimeLine) ValueExtremum {
 
 	if len(items) == 0 {
 		return ValueExtremum{0, 0}
@@ -283,6 +318,26 @@ func GetValueExtremum(items []TimeLine) ValueExtremum {
 			if point.Value < min {
 				min = point.Value
 			}
+		}
+	}
+
+	return ValueExtremum{max: max, min: min}
+}
+
+func GetLineValueExtremum(points []TimePoint) ValueExtremum {
+
+	if len(points) == 0 {
+		return ValueExtremum{0, 0}
+	}
+
+	var max, min = -math.MaxFloat64, math.MaxFloat64
+
+	for _, point := range points {
+		if point.Value > max {
+			max = point.Value
+		}
+		if point.Value < min {
+			min = point.Value
 		}
 	}
 

@@ -7,13 +7,12 @@ import (
 type Poller struct {
 	consumer Consumer
 	item     Item
-	pause    bool
 }
 
 func NewPoller(consumer Consumer, item Item, rateMs int) Poller {
 
 	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
-	poller := Poller{consumer, item, false}
+	poller := Poller{consumer, item}
 
 	go func() {
 		for {
@@ -27,15 +26,7 @@ func NewPoller(consumer Consumer, item Item, rateMs int) Poller {
 	return poller
 }
 
-func (self *Poller) TogglePause() {
-	self.pause = !self.pause
-}
-
 func (self *Poller) poll() {
-
-	if self.pause {
-		return
-	}
 
 	value, err := self.item.nextValue()
 

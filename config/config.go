@@ -2,19 +2,19 @@ package config
 
 import (
 	"github.com/sqshq/vcmd/data"
-	. "github.com/sqshq/vcmd/layout"
 	"github.com/sqshq/vcmd/settings"
+	. "github.com/sqshq/vcmd/widgets"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 )
 
 type Config struct {
-	Theme     settings.Theme `yaml:"theme"`
-	RunCharts []RunChart     `yaml:"run-charts"`
+	Theme     settings.Theme   `yaml:"theme"`
+	RunCharts []RunChartConfig `yaml:"run-charts"`
 }
 
-type RunChart struct {
+type RunChartConfig struct {
 	Title         string      `yaml:"title"`
 	Items         []data.Item `yaml:"data"`
 	Position      Position    `yaml:"position"`

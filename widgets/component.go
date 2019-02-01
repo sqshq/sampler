@@ -1,4 +1,4 @@
-package layout
+package widgets
 
 import (
 	. "github.com/sqshq/termui"

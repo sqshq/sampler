@@ -1,22 +1,26 @@
 theme: dark
 run-charts:
-  - title: curl-latency
+  - title: CURL-LATENCY
     data:
-      - label: google.com
+      - label: GOOGLE
         script: curl -o /dev/null -s -w '%{time_total}'  http://google.com
-      - label: yahoo.com
+      - label: YAHOO
         script: curl -o /dev/null -s -w '%{time_total}'  http://yahoo.com
-      - label: example.com
-        script: curl -o /dev/null -s -w '%{time_total}'  http://example.com
+      - label: YANDEX
+        script: curl -o /dev/null -s -w '%{time_total}'  http://yandex.com
     refresh-rate-ms: 300
     time-scale-sec: 1
+    decimal-places: 1
+    legend:
+      labels: true
+      details: true
     position:
       x: 0
       y: 0
     size:
       x: 15
       y: 15
-  - title: mongo-count
+  - title: MONGO-COUNT
     data:
       - label: posts
         script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()" | grep 2

@@ -4,13 +4,15 @@ import (
 	ui "github.com/sqshq/termui"
 	"github.com/sqshq/vcmd/config"
 	"github.com/sqshq/vcmd/data"
-	"github.com/sqshq/vcmd/layout"
+	"github.com/sqshq/vcmd/settings"
 	"github.com/sqshq/vcmd/widgets"
 	"log"
 	"time"
 )
 
 func main() {
+
+	print("\033]0;vcmd\007")
 
 	cfg := config.Load("/Users/sqshq/Go/src/github.com/sqshq/vcmd/config.yml")
 
@@ -22,7 +24,7 @@ func main() {
 	events := ui.PollEvents()
 
 	pollers := make([]data.Poller, 0)
-	lout := layout.NewLayout(ui.TerminalDimensions())
+	lout := widgets.NewLayout(ui.TerminalDimensions())
 
 	for _, chartConfig := range cfg.RunCharts {
 
@@ -36,17 +38,18 @@ func main() {
 	}
 
 	ticker := time.NewTicker(30 * time.Millisecond)
+	pause := false
 
 	for {
 		select {
 		case e := <-events:
 			switch e.ID {
-			case "q", "<C-c>":
+			case settings.EventQuit, settings.EventExit:
 				return
-			case "<Resize>":
+			case settings.EventResize:
 				payload := e.Payload.(ui.Resize)
 				lout.ChangeDimensions(payload.Width, payload.Height)
-			case "<MouseLeft>":
+			case settings.EventMouseClick:
 				//payload := e.Payload.(ui.Mouse)
 				//x, y := payload.X, payload.Y
 				//log.Printf("x: %v, y: %v", x, y)
@@ -54,23 +57,23 @@ func main() {
 			switch e.Type {
 			case ui.KeyboardEvent:
 				switch e.ID {
-				case "<Left>":
+				case settings.EventKeyboardLeft:
 					// here we are going to move selection (special type of layout item)
 					//lout.GetItem("").Move(-1, 0)
-				case "<Right>":
+				case settings.EventKeyboardRight:
 					//lout.GetItem(0).Move(1, 0)
-				case "<Down>":
+				case settings.EventKeyboardDown:
 					//lout.GetItem(0).Move(0, 1)
-				case "<Up>":
+				case settings.EventKeyboardUp:
 					//lout.GetItem(0).Move(0, -1)
-				case "p":
-					for _, poller := range pollers {
-						poller.TogglePause()
-					}
+				case settings.EventPause:
+					pause = !pause
 				}
 			}
 		case <-ticker.C:
-			ui.Render(lout)
+			if !pause {
+				ui.Render(lout)
+			}
 		}
 	}
 }
