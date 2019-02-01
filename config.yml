@@ -10,7 +10,6 @@ run-charts:
         script: curl -o /dev/null -s -w '%{time_total}'  http://example.com
     refresh-rate-ms: 300
     time-scale-sec: 1
-    style: dots/lines
     position:
       x: 0
       y: 0
@@ -22,8 +21,6 @@ run-charts:
       - label: posts
         script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()" | grep 2
         color: 3
-    refresh-rate-ms: 200
-    time-scale-sec: 1
     position:
       x: 15
       y: 0
