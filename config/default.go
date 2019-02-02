@@ -1,11 +1,13 @@
 package config
 
-import "github.com/sqshq/vcmd/settings"
+import (
+	"github.com/sqshq/vcmd/console"
+)
 
 const (
 	defaultRefreshRateMs = 300
 	defaultTimeScaleSec  = 1
-	defaultTheme         = settings.ThemeDark
+	defaultTheme         = console.ThemeDark
 )
 
 func (self *Config) setDefaultValues() {
@@ -31,7 +33,7 @@ func (config *Config) setDefaultLayout() {
 
 func (config *Config) setDefaultColors() {
 
-	palette := settings.GetPalette(config.Theme)
+	palette := console.GetPalette(config.Theme)
 
 	for i, chart := range config.RunCharts {
 		for j, item := range chart.Items {

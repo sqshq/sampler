@@ -1,4 +1,4 @@
-package settings
+package event
 
 type Event string
 

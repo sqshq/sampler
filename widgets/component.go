@@ -8,7 +8,14 @@ type Component struct {
 	Drawable Drawable
 	Position Position
 	Size     Size
+	Type     ComponentType
 }
+
+type ComponentType string
+
+const (
+	TypeRunChart ComponentType = "runchart"
+)
 
 type Position struct {
 	X int `yaml:"x"`

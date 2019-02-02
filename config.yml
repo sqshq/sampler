@@ -22,9 +22,8 @@ run-charts:
       y: 15
   - title: MONGO-COUNT
     data:
-      - label: posts
-        script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()" | grep 2
-        color: 3
+      - label: POSTS
+        script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"
     position:
       x: 15
       y: 0

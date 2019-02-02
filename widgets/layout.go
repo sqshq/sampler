@@ -25,8 +25,21 @@ func NewLayout(width, height int) *Layout {
 	}
 }
 
-func (self *Layout) AddItem(drawable Drawable, position Position, size Size) {
-	self.components = append(self.components, Component{drawable, position, size})
+func (self *Layout) AddComponent(drawable Drawable, position Position, size Size, Type ComponentType) {
+	self.components = append(self.components, Component{drawable, position, size, Type})
+}
+
+func (self *Layout) GetComponents(Type ComponentType) []Drawable {
+
+	var components []Drawable
+
+	for _, component := range self.components {
+		if component.Type == Type {
+			components = append(components, component.Drawable)
+		}
+	}
+
+	return components
 }
 
 func (self *Layout) ChangeDimensions(width, height int) {

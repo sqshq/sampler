@@ -1,8 +1,8 @@
 package config
 
 import (
+	"github.com/sqshq/vcmd/console"
 	"github.com/sqshq/vcmd/data"
-	"github.com/sqshq/vcmd/settings"
 	. "github.com/sqshq/vcmd/widgets"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	Theme     settings.Theme   `yaml:"theme"`
+	Theme     console.Theme    `yaml:"theme"`
 	RunCharts []RunChartConfig `yaml:"run-charts"`
 }
 
