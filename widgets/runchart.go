@@ -273,7 +273,7 @@ func (self *RunChart) renderAxes(buffer *Buffer) {
 
 	// draw x axis time labels
 	for i := 1; i <= self.grid.linesCount; i++ {
-		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * time.Second)
+		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * self.grid.paddingDuration)
 		buffer.SetString(
 			labelTime.Format("15:04:05"),
 			NewStyle(ColorWhite),
