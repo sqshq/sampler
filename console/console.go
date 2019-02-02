@@ -9,7 +9,7 @@ import (
 
 const (
 	RenderRate = 30 * time.Millisecond
-	Title      = "vcmd"
+	Title      = "sampler"
 )
 
 type Console struct{}
