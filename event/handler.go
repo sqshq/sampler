@@ -1,8 +1,8 @@
 package event
 
 import (
+	"github.com/sqshq/sampler/widgets"
 	ui "github.com/sqshq/termui"
-	"github.com/sqshq/vcmd/widgets"
 	"time"
 )
 

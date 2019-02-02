@@ -1,4 +1,4 @@
-module github.com/sqshq/vcmd
+module github.com/sqshq/sampler
 
 require (
 	github.com/mattn/go-runewidth v0.0.4 // indirect

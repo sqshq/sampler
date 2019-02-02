@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/sqshq/vcmd/console"
-	"github.com/sqshq/vcmd/data"
-	. "github.com/sqshq/vcmd/widgets"
+	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/data"
+	. "github.com/sqshq/sampler/widgets"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"

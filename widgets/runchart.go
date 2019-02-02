@@ -2,8 +2,8 @@ package widgets
 
 import (
 	"fmt"
-	"github.com/sqshq/vcmd/console"
-	"github.com/sqshq/vcmd/data"
+	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/data"
 	"image"
 	"log"
 	"math"

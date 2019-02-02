@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/sqshq/vcmd/console"
+	"github.com/sqshq/sampler/console"
 )
 
 const (

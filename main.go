@@ -1,18 +1,18 @@
 package main
 
 import (
+	"github.com/sqshq/sampler/config"
+	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/data"
+	"github.com/sqshq/sampler/event"
+	"github.com/sqshq/sampler/widgets"
 	ui "github.com/sqshq/termui"
-	"github.com/sqshq/vcmd/config"
-	"github.com/sqshq/vcmd/console"
-	"github.com/sqshq/vcmd/data"
-	"github.com/sqshq/vcmd/event"
-	"github.com/sqshq/vcmd/widgets"
 	"time"
 )
 
 func main() {
 
-	cfg := config.Load("/Users/sqshq/Go/src/github.com/sqshq/vcmd/config.yml")
+	cfg := config.Load("/Users/sqshq/Go/src/github.com/sqshq/sampler/config.yml")
 	csl := console.Console{}
 	csl.Init()
 	defer csl.Close()
