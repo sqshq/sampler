@@ -46,7 +46,7 @@ func (self *Layout) ChangeDimensions(width, height int) {
 	self.SetRect(0, 0, width, height)
 }
 
-func (self *Layout) Draw(buf *Buffer) {
+func (self *Layout) Draw(buffer *Buffer) {
 
 	columnWidth := float64(self.GetRect().Dx()) / columnsCount
 	rowHeight := float64(self.GetRect().Dy()) / rowsCount
@@ -59,6 +59,6 @@ func (self *Layout) Draw(buf *Buffer) {
 		y2 := y1 + float64(component.Size.Y)*rowHeight
 
 		component.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
-		component.Drawable.Draw(buf)
+		component.Drawable.Draw(buffer)
 	}
 }

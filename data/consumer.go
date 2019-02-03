@@ -1,6 +1,14 @@
 package data
 
+import . "github.com/sqshq/termui"
+
 type Consumer interface {
-	ConsumeValue(item Item, value string)
-	ConsumeError(item Item, err error)
+	ConsumeSample(sample Sample)
+}
+
+type Sample struct {
+	Label string
+	Color Color
+	Value string
+	Error error
 }

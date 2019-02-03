@@ -30,9 +30,12 @@ func (self *Poller) poll() {
 
 	value, err := self.item.nextValue()
 
-	if err != nil {
-		self.consumer.ConsumeError(self.item, err)
+	sample := Sample{
+		Value: value,
+		Error: err,
+		Color: self.item.Color,
+		Label: self.item.Label,
 	}
 
-	self.consumer.ConsumeValue(self.item, value)
+	self.consumer.ConsumeSample(sample)
 }

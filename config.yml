@@ -8,7 +8,7 @@ run-charts:
         script: curl -o /dev/null -s -w '%{time_total}'  http://yahoo.com
       - label: YANDEX
         script: curl -o /dev/null -s -w '%{time_total}'  http://yandex.com
-    refresh-rate-ms: 300
+    refresh-rate-ms: 200 # TODO consider remove time-scale-sec property, and adjust it automatically based on refresh-rate-ms
     time-scale-sec: 1
     decimal-places: 1
     legend:

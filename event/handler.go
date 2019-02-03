@@ -51,6 +51,6 @@ func (self *Handler) HandleEvents() {
 func (self *Handler) handleMouseClick(x, y int) {
 	for _, chart := range self.Layout.GetComponents(widgets.TypeRunChart) {
 		runChart := chart.(*widgets.RunChart)
-		runChart.SelectValue(x, y)
+		runChart.SelectPoint(x, y)
 	}
 }
