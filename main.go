@@ -25,7 +25,7 @@ func main() {
 		layout.AddComponent(chart, chartConfig.Position, chartConfig.Size, widgets.TypeRunChart)
 
 		for _, item := range chartConfig.Items {
-			data.NewPoller(chart, item, chartConfig.RefreshRateMs)
+			data.NewSampler(chart, item, chartConfig.RefreshRateMs)
 		}
 	}
 

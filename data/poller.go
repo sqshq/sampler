@@ -4,29 +4,29 @@ import (
 	"time"
 )
 
-type Poller struct {
+type Sampler struct {
 	consumer Consumer
 	item     Item
 }
 
-func NewPoller(consumer Consumer, item Item, rateMs int) Poller {
+func NewSampler(consumer Consumer, item Item, rateMs int) Sampler {
 
 	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
-	poller := Poller{consumer, item}
+	sampler := Sampler{consumer, item}
 
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				poller.poll()
+				sampler.sample()
 			}
 		}
 	}()
 
-	return poller
+	return sampler
 }
 
-func (self *Poller) poll() {
+func (self *Sampler) sample() {
 
 	value, err := self.item.nextValue()
 
