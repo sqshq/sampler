@@ -1,18 +1,25 @@
 theme: dark
-run-charts:
-  - title: CURL-LATENCY
-    data:
+runcharts:
+  - title: SEARCH ENGINE RESPONSE TIME (sec)
+    items:
       - label: GOOGLE
-        script: curl -o /dev/null -s -w '%{time_total}'  http://google.com
+        script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
       - label: YAHOO
-        script: curl -o /dev/null -s -w '%{time_total}'  http://yahoo.com
-      - label: YANDEX
-        script: curl -o /dev/null -s -w '%{time_total}'  http://yandex.com
-    refresh-rate-ms: 200 # TODO consider remove time-scale-sec property, and adjust it automatically based on refresh-rate-ms
-    time-scale-sec: 1
+        script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
+      - label: BING
+        script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
+    refresh-rate-ms: 200
     decimal-places: 1
+    alert:
+      value:
+        more-than: 0.231
+        less-than: 0.123
+        equal: 0.144
+      indicator:
+        terminal: true
+        beep: true
     legend:
-      labels: true
+      enabled: true
       details: true
     position:
       x: 0
@@ -20,8 +27,8 @@ run-charts:
     size:
       x: 15
       y: 15
-  - title: MONGO-COUNT
-    data:
+  - title: MONGO COLLECTIONS COUNT
+    items:
       - label: POSTS
         script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"
     position:
@@ -30,3 +37,15 @@ run-charts:
     size:
       x: 15
       y: 15
+barcharts:
+  none
+sparklines:
+  none
+gauges:
+  none
+lists:
+  none
+textboxes:
+  none
+asciiboxes:
+  none

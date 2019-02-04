@@ -11,16 +11,15 @@ import (
 
 type Config struct {
 	Theme     console.Theme    `yaml:"theme"`
-	RunCharts []RunChartConfig `yaml:"run-charts"`
+	RunCharts []RunChartConfig `yaml:"runcharts"`
 }
 
 type RunChartConfig struct {
 	Title         string      `yaml:"title"`
-	Items         []data.Item `yaml:"data"`
+	Items         []data.Item `yaml:"items"`
 	Position      Position    `yaml:"position"`
 	Size          Size        `yaml:"size"`
 	RefreshRateMs int         `yaml:"refresh-rate-ms"`
-	TimeScaleSec  int         `yaml:"time-scale-sec"`
 }
 
 func Load(location string) *Config {
