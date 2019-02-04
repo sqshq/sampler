@@ -21,7 +21,7 @@ func main() {
 
 	for _, chartConfig := range cfg.RunCharts {
 
-		chart := widgets.NewRunChart(chartConfig.Title)
+		chart := widgets.NewRunChart(chartConfig.Title, chartConfig.Precision, chartConfig.RefreshRateMs)
 		layout.AddComponent(chart, chartConfig.Position, chartConfig.Size, widgets.TypeRunChart)
 
 		for _, item := range chartConfig.Items {

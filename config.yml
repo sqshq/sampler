@@ -9,7 +9,7 @@ runcharts:
       - label: BING
         script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
     refresh-rate-ms: 200
-    decimal-places: 1
+    decimal-places: 3
     alert:
       value:
         more-than: 0.231

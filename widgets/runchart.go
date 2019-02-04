@@ -15,13 +15,16 @@ import (
 )
 
 const (
-	chartHistoryReserve = 10
-	xAxisLabelsHeight   = 1
-	xAxisLabelsWidth    = 8
-	xAxisLabelsGap      = 2
-	yAxisLabelsHeight   = 1
-	yAxisLabelsGap      = 1
-	xAxisLegendWidth    = 20
+	xAxisLegendWidth  = 20
+	xAxisLabelsHeight = 1
+	xAxisLabelsWidth  = 8
+	xAxisLabelsGap    = 2
+	xAxisGridWidth    = xAxisLabelsGap + xAxisLabelsWidth
+
+	yAxisLabelsHeight = 1
+	yAxisLabelsGap    = 1
+
+	chartHistoryReserve = 5
 )
 
 type RunChart struct {
@@ -29,6 +32,7 @@ type RunChart struct {
 	lines     []TimeLine
 	grid      ChartGrid
 	precision int
+	timescale time.Duration
 	selection *time.Time
 	mutex     *sync.Mutex
 }
@@ -46,13 +50,12 @@ type TimeLine struct {
 }
 
 type ChartGrid struct {
-	linesCount      int
-	paddingDuration time.Duration
-	paddingWidth    int
-	maxTimeWidth    int
-	minTimeWidth    int
-	valueExtremum   ValueExtremum
-	timeExtremum    TimeExtremum
+	linesCount    int
+	paddingWidth  int
+	maxTimeWidth  int
+	minTimeWidth  int
+	valueExtremum ValueExtremum
+	timeExtremum  TimeExtremum
 }
 
 type TimeExtremum struct {
@@ -65,30 +68,29 @@ type ValueExtremum struct {
 	min float64
 }
 
-func NewRunChart(title string) *RunChart {
+func NewRunChart(title string, precision int, refreshRateMs int) *RunChart {
 	block := *NewBlock()
 	block.Title = title
 	return &RunChart{
 		Block:     block,
 		lines:     []TimeLine{},
 		mutex:     &sync.Mutex{},
-		precision: 2, // TODO move to config
+		precision: precision,
+		timescale: calculateTimescale(refreshRateMs),
 	}
 }
 
 func (self *RunChart) newChartGrid() ChartGrid {
 
-	linesCount := (self.Inner.Max.X - self.Inner.Min.X - self.grid.minTimeWidth) / (xAxisLabelsGap + xAxisLabelsWidth)
-	paddingDuration := time.Duration(time.Second) // TODO support others and/or adjust automatically depending on refresh rate
+	linesCount := (self.Inner.Max.X - self.Inner.Min.X - self.grid.minTimeWidth) / xAxisGridWidth
 
 	return ChartGrid{
-		linesCount:      linesCount,
-		paddingDuration: paddingDuration,
-		paddingWidth:    xAxisLabelsGap + xAxisLabelsWidth,
-		maxTimeWidth:    self.Inner.Max.X,
-		minTimeWidth:    self.getMaxValueLength(),
-		timeExtremum:    GetTimeExtremum(linesCount, paddingDuration),
-		valueExtremum:   GetChartValueExtremum(self.lines),
+		linesCount:    linesCount,
+		paddingWidth:  xAxisGridWidth,
+		maxTimeWidth:  self.Inner.Max.X,
+		minTimeWidth:  self.getMaxValueLength(),
+		timeExtremum:  getTimeExtremum(linesCount, self.timescale),
+		valueExtremum: getChartValueExtremum(self.lines),
 	}
 }
 
@@ -159,8 +161,8 @@ func (self *RunChart) SelectPoint(x int, y int) {
 		return
 	}
 
-	timeDeltaToPaddingRelation := (self.grid.maxTimeWidth - x) / self.grid.paddingWidth
-	timeDeltaWithGridMaxTime := timeDeltaToPaddingRelation * int(self.grid.paddingDuration.Nanoseconds())
+	timeDeltaToPaddingRelation := (self.grid.maxTimeWidth - x) / xAxisGridWidth
+	timeDeltaWithGridMaxTime := timeDeltaToPaddingRelation * int(self.timescale.Nanoseconds())
 	selection := self.grid.timeExtremum.max.Add(-time.Duration(timeDeltaWithGridMaxTime) * time.Nanosecond)
 
 	self.selection = &selection
@@ -200,7 +202,7 @@ func (self *RunChart) getSelectedTimePoints() []TimePoint {
 
 func (self *RunChart) trimOutOfRangeValues() {
 
-	historyReserve := self.grid.paddingDuration * time.Duration(self.grid.linesCount) * chartHistoryReserve
+	historyReserve := self.timescale * time.Duration(self.grid.linesCount) * chartHistoryReserve
 	minRangeTime := self.grid.timeExtremum.min.Add(-historyReserve)
 
 	for i, item := range self.lines {
@@ -232,8 +234,8 @@ func (self *RunChart) renderItems(buffer *Buffer, drawArea image.Rectangle) {
 		for _, timePoint := range line.points {
 
 			timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.time).Nanoseconds()
-			timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.grid.paddingDuration.Nanoseconds())
-			x := self.grid.maxTimeWidth - (int(float64(self.grid.paddingWidth) * timeDeltaToPaddingRelation))
+			timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.timescale.Nanoseconds())
+			x := self.grid.maxTimeWidth - (int(float64(xAxisGridWidth) * timeDeltaToPaddingRelation))
 
 			var y int
 			if self.grid.valueExtremum.max-self.grid.valueExtremum.min == 0 {
@@ -299,7 +301,7 @@ func (self *RunChart) renderAxes(buffer *Buffer) {
 		for x := 1; x <= self.grid.linesCount; x++ {
 			buffer.SetCell(
 				NewCell(VERTICAL_DASH, NewStyle(console.ColorDarkGrey)),
-				image.Pt(self.grid.maxTimeWidth-x*self.grid.paddingWidth, y+self.Inner.Min.Y+1),
+				image.Pt(self.grid.maxTimeWidth-x*xAxisGridWidth, y+self.Inner.Min.Y+1),
 			)
 		}
 	}
@@ -314,11 +316,11 @@ func (self *RunChart) renderAxes(buffer *Buffer) {
 
 	// draw x axis time labels
 	for i := 1; i <= self.grid.linesCount; i++ {
-		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * self.grid.paddingDuration)
+		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * self.timescale)
 		buffer.SetString(
 			labelTime.Format("15:04:05"),
 			NewStyle(ColorWhite),
-			image.Pt(self.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(self.grid.paddingWidth), self.Inner.Max.Y-1),
+			image.Pt(self.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(xAxisGridWidth), self.Inner.Max.Y-1),
 		)
 	}
 
@@ -380,7 +382,7 @@ func (self *RunChart) renderLegend(buffer *Buffer, rectangle image.Rectangle, se
 				)
 			}
 		} else {
-			extremum := GetLineValueExtremum(line.points)
+			extremum := getLineValueExtremum(line.points)
 
 			buffer.SetString(
 				fmt.Sprintf("cur %s", formatValue(line.points[len(line.points)-1].value, self.precision)),
@@ -406,8 +408,8 @@ func (self *RunChart) renderSelection(buffer *Buffer, drawArea image.Rectangle, 
 	for _, timePoint := range selectedPoints {
 
 		timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.time).Nanoseconds()
-		timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.grid.paddingDuration.Nanoseconds())
-		x := self.grid.maxTimeWidth - (int(float64(self.grid.paddingWidth) * timeDeltaToPaddingRelation))
+		timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.timescale.Nanoseconds())
+		x := self.grid.maxTimeWidth - (int(float64(xAxisGridWidth) * timeDeltaToPaddingRelation))
 
 		var y int
 		if self.grid.valueExtremum.max-self.grid.valueExtremum.min == 0 {
@@ -446,7 +448,7 @@ func formatValue(value float64, precision int) string {
 	return fmt.Sprintf(format, value)
 }
 
-func GetChartValueExtremum(items []TimeLine) ValueExtremum {
+func getChartValueExtremum(items []TimeLine) ValueExtremum {
 
 	if len(items) == 0 {
 		return ValueExtremum{0, 0}
@@ -468,7 +470,7 @@ func GetChartValueExtremum(items []TimeLine) ValueExtremum {
 	return ValueExtremum{max: max, min: min}
 }
 
-func GetLineValueExtremum(points []TimePoint) ValueExtremum {
+func getLineValueExtremum(points []TimePoint) ValueExtremum {
 
 	if len(points) == 0 {
 		return ValueExtremum{0, 0}
@@ -488,10 +490,22 @@ func GetLineValueExtremum(points []TimePoint) ValueExtremum {
 	return ValueExtremum{max: max, min: min}
 }
 
-func GetTimeExtremum(linesCount int, paddingDuration time.Duration) TimeExtremum {
+func getTimeExtremum(linesCount int, scale time.Duration) TimeExtremum {
 	maxTime := time.Now()
 	return TimeExtremum{
 		max: maxTime,
-		min: maxTime.Add(-time.Duration(paddingDuration.Nanoseconds() * int64(linesCount))),
+		min: maxTime.Add(-time.Duration(scale.Nanoseconds() * int64(linesCount))),
+	}
+}
+
+func calculateTimescale(refreshRateMs int) time.Duration {
+
+	multiplier := refreshRateMs * xAxisGridWidth / 2
+	timescale := time.Duration(time.Millisecond * time.Duration(multiplier)).Round(time.Second)
+
+	if timescale.Seconds() == 0 {
+		return time.Second
+	} else {
+		return timescale
 	}
 }

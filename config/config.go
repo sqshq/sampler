@@ -20,6 +20,7 @@ type RunChartConfig struct {
 	Position      Position    `yaml:"position"`
 	Size          Size        `yaml:"size"`
 	RefreshRateMs int         `yaml:"refresh-rate-ms"`
+	Precision     int         `yaml:"decimal-places"`
 }
 
 func Load(location string) *Config {

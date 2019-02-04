@@ -6,6 +6,7 @@ import (
 
 const (
 	defaultRefreshRateMs = 300
+	defaultPrecision     = 1
 	defaultTheme         = console.ThemeDark
 )
 
@@ -18,6 +19,9 @@ func (self *Config) setDefaultValues() {
 	for i, chart := range self.RunCharts {
 		if chart.RefreshRateMs == 0 {
 			chart.RefreshRateMs = defaultRefreshRateMs
+		}
+		if chart.Precision == 0 {
+			chart.Precision = defaultPrecision
 		}
 		self.RunCharts[i] = chart
 	}
