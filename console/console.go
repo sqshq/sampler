@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	RenderRate = 50 * time.Millisecond // TODO not a constant, should be dynamically chosen based on min X scale (per each chart? should be tested). if it is 1 sec, it should be 100 ms, if 2 - 200 ms, if 3 - 300, 4 - 400, 5 - 500 and 500 is max. smth like that.
+	RenderRate = 25 * time.Millisecond
 	Title      = "sampler"
 )
 

@@ -38,7 +38,7 @@ func (config *Config) setDefaultColors() {
 	for i, chart := range config.RunCharts {
 		for j, item := range chart.Items {
 			if item.Color == 0 {
-				item.Color = palette.Colors[i+j]
+				item.Color = palette.Colors[i+j] // TODO handle out of range case
 				chart.Items[j] = item
 			}
 		}

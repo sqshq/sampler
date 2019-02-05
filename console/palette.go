@@ -21,14 +21,15 @@ const (
 
 type Palette struct {
 	Colors []ui.Color
+	// TODO Menu colors, like Dark, Medium, Light etc
 }
 
 func GetPalette(theme Theme) Palette {
 	switch theme {
 	case ThemeDark:
-		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink}}
+		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorOlive, ColorDeepSkyBlue, ColorDeepPink}}
 	case ThemeLight:
-		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink}}
+		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorOlive, ColorDeepSkyBlue, ColorDeepPink}}
 	default:
 		panic(fmt.Sprintf("Following theme is not supported: %v", theme))
 	}

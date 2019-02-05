@@ -27,6 +27,33 @@ runcharts:
     size:
       x: 15
       y: 15
+  - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
+    items:
+      - label: GOOGLE
+        script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
+      - label: YAHOO
+        script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
+      - label: BING
+        script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
+    refresh-rate-ms: 5000
+    decimal-places: 3
+    alert:
+      value:
+        more-than: 0.231
+        less-than: 0.123
+        equal: 0.144
+      indicator:
+        terminal: true
+        beep: true
+    legend:
+      enabled: true
+      details: true
+    position:
+      x: 0
+      y: 15
+    size:
+      x: 15
+      y: 15
   - title: MONGO COLLECTIONS COUNT
     items:
       - label: POSTS
