@@ -33,7 +33,6 @@ type RunChart struct {
 	grid      ChartGrid
 	precision int
 	timescale time.Duration
-	selection *time.Time
 	mutex     *sync.Mutex
 }
 
@@ -105,12 +104,9 @@ func (self *RunChart) Draw(buffer *Buffer) {
 		self.Inner.Max.X, self.Inner.Max.Y-xAxisLabelsHeight-1,
 	)
 
-	selectedPoints := self.getSelectedTimePoints()
-
 	self.renderAxes(buffer)
-	self.renderItems(buffer, drawArea)
-	self.renderSelection(buffer, drawArea, selectedPoints)
-	self.renderLegend(buffer, drawArea, selectedPoints)
+	self.renderLines(buffer, drawArea)
+	self.renderLegend(buffer, drawArea)
 	self.mutex.Unlock()
 }
 
@@ -152,54 +148,6 @@ func (self *RunChart) ConsumeSample(sample data.Sample) {
 	self.mutex.Unlock()
 }
 
-func (self *RunChart) SelectPoint(x int, y int) {
-
-	point := image.Point{X: x, Y: y}
-
-	if !point.In(self.Rectangle) {
-		self.selection = nil
-		return
-	}
-
-	timeDeltaToPaddingRelation := (self.grid.maxTimeWidth - x) / xAxisGridWidth
-	timeDeltaWithGridMaxTime := timeDeltaToPaddingRelation * int(self.timescale.Nanoseconds())
-	selection := self.grid.timeExtremum.max.Add(-time.Duration(timeDeltaWithGridMaxTime) * time.Nanosecond)
-
-	self.selection = &selection
-}
-
-func (self *RunChart) getSelectedTimePoints() []TimePoint {
-
-	selected := []TimePoint{}
-
-	if self.selection == nil {
-		return selected
-	}
-
-	for _, line := range self.lines {
-
-		if len(line.points) == 0 {
-			continue
-		}
-
-		closest := line.points[0]
-
-		for _, point := range line.points {
-
-			diffWithClosest := math.Abs(float64(self.selection.UnixNano() - closest.time.UnixNano()))
-			diffWithCurrent := math.Abs(float64(self.selection.UnixNano() - point.time.UnixNano()))
-
-			if diffWithClosest > diffWithCurrent {
-				closest = point
-			}
-		}
-
-		selected = append(selected, closest)
-	}
-
-	return selected
-}
-
 func (self *RunChart) trimOutOfRangeValues() {
 
 	historyReserve := self.timescale * time.Duration(self.grid.linesCount) * chartHistoryReserve
@@ -221,7 +169,7 @@ func (self *RunChart) trimOutOfRangeValues() {
 	}
 }
 
-func (self *RunChart) renderItems(buffer *Buffer, drawArea image.Rectangle) {
+func (self *RunChart) renderLines(buffer *Buffer, drawArea image.Rectangle) {
 
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
@@ -344,9 +292,11 @@ func (self *RunChart) renderAxes(buffer *Buffer) {
 	}
 }
 
-func (self *RunChart) renderLegend(buffer *Buffer, rectangle image.Rectangle, selectedPoints []TimePoint) {
+func (self *RunChart) renderLegend(buffer *Buffer, rectangle image.Rectangle) {
 
 	for i, line := range self.lines {
+
+		extremum := getLineValueExtremum(line.points)
 
 		buffer.SetString(
 			string(DOT),
@@ -358,72 +308,21 @@ func (self *RunChart) renderLegend(buffer *Buffer, rectangle image.Rectangle, se
 			NewStyle(line.color),
 			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+1+i*5),
 		)
-
-		if len(selectedPoints) > 0 {
-
-			index := -1
-
-			for i, p := range selectedPoints {
-				if p.line.label == line.label {
-					index = i
-				}
-			}
-
-			if index != -1 {
-				buffer.SetString(
-					fmt.Sprintf("time:  %v", selectedPoints[index].time.Format("15:04:05.000")),
-					NewStyle(ColorWhite),
-					image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+2+i*5),
-				)
-				buffer.SetString(
-					fmt.Sprintf("value: %s", formatValue(selectedPoints[index].value, self.precision)),
-					NewStyle(ColorWhite),
-					image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+3+i*5),
-				)
-			}
-		} else {
-			extremum := getLineValueExtremum(line.points)
-
-			buffer.SetString(
-				fmt.Sprintf("cur %s", formatValue(line.points[len(line.points)-1].value, self.precision)),
-				NewStyle(ColorWhite),
-				image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+2+i*5),
-			)
-			buffer.SetString(
-				fmt.Sprintf("max %s", formatValue(extremum.max, self.precision)),
-				NewStyle(ColorWhite),
-				image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+3+i*5),
-			)
-			buffer.SetString(
-				fmt.Sprintf("min %s", formatValue(extremum.min, self.precision)),
-				NewStyle(ColorWhite),
-				image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+4+i*5),
-			)
-		}
-	}
-}
-
-func (self *RunChart) renderSelection(buffer *Buffer, drawArea image.Rectangle, selectedPoints []TimePoint) {
-
-	for _, timePoint := range selectedPoints {
-
-		timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.time).Nanoseconds()
-		timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.timescale.Nanoseconds())
-		x := self.grid.maxTimeWidth - (int(float64(xAxisGridWidth) * timeDeltaToPaddingRelation))
-
-		var y int
-		if self.grid.valueExtremum.max-self.grid.valueExtremum.min == 0 {
-			y = (drawArea.Dy() - 2) / 2
-		} else {
-			valuePerY := (self.grid.valueExtremum.max - self.grid.valueExtremum.min) / float64(drawArea.Dy()-2)
-			y = int(float64(timePoint.value-self.grid.valueExtremum.min) / valuePerY)
-		}
-
-		point := image.Pt(x, drawArea.Max.Y-y-1)
-
-		if point.In(drawArea) {
-			buffer.SetCell(NewCell('▲', NewStyle(timePoint.line.color)), point)
-		}
+		buffer.SetString(
+			fmt.Sprintf("cur %s", formatValue(line.points[len(line.points)-1].value, self.precision)),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+2+i*5),
+		)
+		buffer.SetString(
+			fmt.Sprintf("max %s", formatValue(extremum.max, self.precision)),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+3+i*5),
+		)
+		buffer.SetString(
+			fmt.Sprintf("min %s", formatValue(extremum.min, self.precision)),
+			NewStyle(ColorWhite),
+			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+4+i*5),
+		)
 	}
 }
 

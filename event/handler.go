@@ -32,8 +32,7 @@ func (self *Handler) HandleEvents() {
 				payload := e.Payload.(ui.Resize)
 				self.Layout.ChangeDimensions(payload.Width, payload.Height)
 			case EventMouseClick:
-				payload := e.Payload.(ui.Mouse)
-				self.handleMouseClick(payload.X, payload.Y)
+				//payload := e.Payload.(ui.Mouse)
 			case EventKeyboardLeft:
 				// here we are going to move selection (special type of layout item)
 				//layout.GetItem("").Move(-1, 0)
@@ -45,12 +44,5 @@ func (self *Handler) HandleEvents() {
 				//layout.GetItem(0).Move(0, -1)
 			}
 		}
-	}
-}
-
-func (self *Handler) handleMouseClick(x, y int) {
-	for _, chart := range self.Layout.GetComponents(widgets.TypeRunChart) {
-		runChart := chart.(*widgets.RunChart)
-		runChart.SelectPoint(x, y)
 	}
 }
