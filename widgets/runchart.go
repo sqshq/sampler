@@ -5,15 +5,15 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
-	"log"
 	"math"
 	"strconv"
 	"sync"
 	"time"
 
-	. "github.com/sqshq/termui"
+	ui "github.com/sqshq/termui"
 )
 
+// TODO split into runchart, grid, legend files
 const (
 	xAxisLegendWidth  = 20
 	xAxisLabelsHeight = 1
@@ -28,72 +28,82 @@ const (
 )
 
 type RunChart struct {
-	Block
-	lines     []TimeLine
-	grid      ChartGrid
+	ui.Block
+	lines     []timeLine
+	grid      chartGrid
 	precision int
 	timescale time.Duration
 	mutex     *sync.Mutex
 }
 
-type TimePoint struct {
-	time  time.Time
-	value float64
-	line  *TimeLine
+type chartGrid struct {
+	valueExtrema valueExtrema
+	timeRange    timeRange
+	linesCount   int
+	paddingWidth int
+	maxTimeWidth int
+	minTimeWidth int
 }
 
-type TimeLine struct {
-	points []TimePoint
-	color  Color
+type timePoint struct {
+	value          float64
+	time           time.Time
+	timeCoordinate int
+}
+
+type timeLine struct {
+	points []timePoint
+	color  ui.Color
 	label  string
 }
 
-type ChartGrid struct {
-	linesCount    int
-	paddingWidth  int
-	maxTimeWidth  int
-	minTimeWidth  int
-	valueExtremum ValueExtremum
-	timeExtremum  TimeExtremum
-}
-
-type TimeExtremum struct {
+type timeRange struct {
 	max time.Time
 	min time.Time
 }
 
-type ValueExtremum struct {
+type valueExtrema struct {
 	max float64
 	min float64
 }
 
 func NewRunChart(title string, precision int, refreshRateMs int) *RunChart {
-	block := *NewBlock()
+	block := *ui.NewBlock()
 	block.Title = title
 	return &RunChart{
 		Block:     block,
-		lines:     []TimeLine{},
+		lines:     []timeLine{},
 		mutex:     &sync.Mutex{},
 		precision: precision,
 		timescale: calculateTimescale(refreshRateMs),
 	}
 }
 
-func (self *RunChart) newChartGrid() ChartGrid {
+func (self *RunChart) newChartGrid() chartGrid {
 
 	linesCount := (self.Inner.Max.X - self.Inner.Min.X - self.grid.minTimeWidth) / xAxisGridWidth
+	timeRange := getTimeRange(linesCount, self.timescale)
 
-	return ChartGrid{
-		linesCount:    linesCount,
-		paddingWidth:  xAxisGridWidth,
-		maxTimeWidth:  self.Inner.Max.X,
-		minTimeWidth:  self.getMaxValueLength(),
-		timeExtremum:  getTimeExtremum(linesCount, self.timescale),
-		valueExtremum: getChartValueExtremum(self.lines),
+	return chartGrid{
+		timeRange:    timeRange,
+		valueExtrema: getValueExtrema(self.lines, timeRange),
+		linesCount:   linesCount,
+		paddingWidth: xAxisGridWidth,
+		maxTimeWidth: self.Inner.Max.X,
+		minTimeWidth: self.getMaxValueLength(),
 	}
 }
 
-func (self *RunChart) Draw(buffer *Buffer) {
+func (self *RunChart) newTimePoint(value float64) timePoint {
+	now := time.Now()
+	return timePoint{
+		value:          value,
+		time:           now,
+		timeCoordinate: self.calculateTimeCoordinate(now),
+	}
+}
+
+func (self *RunChart) Draw(buffer *ui.Buffer) {
 
 	self.mutex.Lock()
 	self.Block.Draw(buffer)
@@ -115,7 +125,7 @@ func (self *RunChart) ConsumeSample(sample data.Sample) {
 	float, err := strconv.ParseFloat(sample.Value, 64)
 
 	if err != nil {
-		log.Printf("Expected float number, but got %v", sample.Value) // TODO visual notification + check sample.Error
+		// TODO visual notification + check sample.Error
 	}
 
 	self.mutex.Lock()
@@ -129,8 +139,8 @@ func (self *RunChart) ConsumeSample(sample data.Sample) {
 	}
 
 	if lineIndex == -1 {
-		line := &TimeLine{
-			points: []TimePoint{},
+		line := &timeLine{
+			points: []timePoint{},
 			color:  sample.Color,
 			label:  sample.Label,
 		}
@@ -139,8 +149,7 @@ func (self *RunChart) ConsumeSample(sample data.Sample) {
 	}
 
 	line := self.lines[lineIndex]
-
-	timePoint := TimePoint{value: float, time: time.Now(), line: &line}
+	timePoint := self.newTimePoint(float)
 	line.points = append(line.points, timePoint)
 	self.lines[lineIndex] = line
 
@@ -148,54 +157,39 @@ func (self *RunChart) ConsumeSample(sample data.Sample) {
 	self.mutex.Unlock()
 }
 
-func (self *RunChart) trimOutOfRangeValues() {
+func (self *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 
-	historyReserve := self.timescale * time.Duration(self.grid.linesCount) * chartHistoryReserve
-	minRangeTime := self.grid.timeExtremum.min.Add(-historyReserve)
-
-	for i, item := range self.lines {
-		lastOutOfRangeValueIndex := -1
-
-		for j, point := range item.points {
-			if point.time.Before(minRangeTime) {
-				lastOutOfRangeValueIndex = j
-			}
-		}
-
-		if lastOutOfRangeValueIndex > 0 {
-			item.points = append(item.points[:0], item.points[lastOutOfRangeValueIndex+1:]...)
-			self.lines[i] = item
-		}
-	}
-}
-
-func (self *RunChart) renderLines(buffer *Buffer, drawArea image.Rectangle) {
-
-	canvas := NewCanvas()
+	canvas := ui.NewCanvas()
 	canvas.Rectangle = drawArea
+
+	if len(self.lines) == 0 || len(self.lines[0].points) == 0 {
+		return
+	}
+
+	probe := self.lines[0].points[0]
+	delta := ui.AbsInt(self.calculateTimeCoordinate(probe.time) - probe.timeCoordinate)
 
 	for _, line := range self.lines {
 
 		xToPoint := make(map[int]image.Point)
 		pointsOrder := make([]int, 0)
 
-		for _, timePoint := range line.points {
+		for i, timePoint := range line.points {
 
-			timeDeltaWithGridMaxTime := self.grid.timeExtremum.max.Sub(timePoint.time).Nanoseconds()
-			timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.timescale.Nanoseconds())
-			x := self.grid.maxTimeWidth - (int(float64(xAxisGridWidth) * timeDeltaToPaddingRelation))
+			timePoint.timeCoordinate = timePoint.timeCoordinate - delta
+			line.points[i] = timePoint
 
 			var y int
-			if self.grid.valueExtremum.max-self.grid.valueExtremum.min == 0 {
+			if self.grid.valueExtrema.max == self.grid.valueExtrema.min {
 				y = (drawArea.Dy() - 2) / 2
 			} else {
-				valuePerY := (self.grid.valueExtremum.max - self.grid.valueExtremum.min) / float64(drawArea.Dy()-2)
-				y = int(float64(timePoint.value-self.grid.valueExtremum.min) / valuePerY)
+				valuePerY := (self.grid.valueExtrema.max - self.grid.valueExtrema.min) / float64(drawArea.Dy()-2)
+				y = int(float64(timePoint.value-self.grid.valueExtrema.min) / valuePerY)
 			}
 
-			point := image.Pt(x, drawArea.Max.Y-y-1)
+			point := image.Pt(timePoint.timeCoordinate, drawArea.Max.Y-y-1)
 
-			if _, exists := xToPoint[x]; exists {
+			if _, exists := xToPoint[point.X]; exists {
 				continue
 			}
 
@@ -203,8 +197,8 @@ func (self *RunChart) renderLines(buffer *Buffer, drawArea image.Rectangle) {
 				continue
 			}
 
-			xToPoint[x] = point
-			pointsOrder = append(pointsOrder, x)
+			xToPoint[point.X] = point
+			pointsOrder = append(pointsOrder, point.X)
 		}
 
 		for i, x := range pointsOrder {
@@ -229,17 +223,17 @@ func (self *RunChart) renderLines(buffer *Buffer, drawArea image.Rectangle) {
 	canvas.Draw(buffer)
 }
 
-func (self *RunChart) renderAxes(buffer *Buffer) {
+func (self *RunChart) renderAxes(buffer *ui.Buffer) {
 	// draw origin cell
 	buffer.SetCell(
-		NewCell(BOTTOM_LEFT, NewStyle(ColorWhite)),
+		ui.NewCell(ui.BOTTOM_LEFT, ui.NewStyle(ui.ColorWhite)),
 		image.Pt(self.Inner.Min.X+self.grid.minTimeWidth, self.Inner.Max.Y-xAxisLabelsHeight-1),
 	)
 
 	// draw x axis line
 	for i := self.grid.minTimeWidth + 1; i < self.Inner.Dx(); i++ {
 		buffer.SetCell(
-			NewCell(HORIZONTAL_DASH, NewStyle(ColorWhite)),
+			ui.NewCell(ui.HORIZONTAL_DASH, ui.NewStyle(ui.ColorWhite)),
 			image.Pt(i+self.Inner.Min.X, self.Inner.Max.Y-xAxisLabelsHeight-1),
 		)
 	}
@@ -248,7 +242,7 @@ func (self *RunChart) renderAxes(buffer *Buffer) {
 	for y := 0; y < self.Inner.Dy()-xAxisLabelsHeight-2; y = y + 2 {
 		for x := 1; x <= self.grid.linesCount; x++ {
 			buffer.SetCell(
-				NewCell(VERTICAL_DASH, NewStyle(console.ColorDarkGrey)),
+				ui.NewCell(ui.VERTICAL_DASH, ui.NewStyle(console.ColorDarkGrey)),
 				image.Pt(self.grid.maxTimeWidth-x*xAxisGridWidth, y+self.Inner.Min.Y+1),
 			)
 		}
@@ -257,73 +251,83 @@ func (self *RunChart) renderAxes(buffer *Buffer) {
 	// draw y axis line
 	for i := 0; i < self.Inner.Dy()-xAxisLabelsHeight-1; i++ {
 		buffer.SetCell(
-			NewCell(VERTICAL_DASH, NewStyle(ColorWhite)),
+			ui.NewCell(ui.VERTICAL_DASH, ui.NewStyle(ui.ColorWhite)),
 			image.Pt(self.Inner.Min.X+self.grid.minTimeWidth, i+self.Inner.Min.Y),
 		)
 	}
 
 	// draw x axis time labels
 	for i := 1; i <= self.grid.linesCount; i++ {
-		labelTime := self.grid.timeExtremum.max.Add(time.Duration(-i) * self.timescale)
+		labelTime := self.grid.timeRange.max.Add(time.Duration(-i) * self.timescale)
 		buffer.SetString(
 			labelTime.Format("15:04:05"),
-			NewStyle(ColorWhite),
+			ui.NewStyle(ui.ColorWhite),
 			image.Pt(self.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(xAxisGridWidth), self.Inner.Max.Y-1),
 		)
 	}
 
 	// draw y axis labels
-	if self.grid.valueExtremum.max != self.grid.valueExtremum.min {
+	if self.grid.valueExtrema.max != self.grid.valueExtrema.min {
 		labelsCount := (self.Inner.Dy() - xAxisLabelsHeight - 1) / (yAxisLabelsGap + yAxisLabelsHeight)
-		valuePerY := (self.grid.valueExtremum.max - self.grid.valueExtremum.min) / float64(self.Inner.Dy()-xAxisLabelsHeight-3)
+		valuePerY := (self.grid.valueExtrema.max - self.grid.valueExtrema.min) / float64(self.Inner.Dy()-xAxisLabelsHeight-3)
 		for i := 0; i < int(labelsCount); i++ {
-			value := self.grid.valueExtremum.max - (valuePerY * float64(i) * (yAxisLabelsGap + yAxisLabelsHeight))
+			value := self.grid.valueExtrema.max - (valuePerY * float64(i) * (yAxisLabelsGap + yAxisLabelsHeight))
 			buffer.SetString(
 				formatValue(value, self.precision),
-				NewStyle(ColorWhite),
+				ui.NewStyle(ui.ColorWhite),
 				image.Pt(self.Inner.Min.X, 1+self.Inner.Min.Y+i*(yAxisLabelsGap+yAxisLabelsHeight)),
 			)
 		}
 	} else {
 		buffer.SetString(
-			formatValue(self.grid.valueExtremum.max, self.precision),
-			NewStyle(ColorWhite),
+			formatValue(self.grid.valueExtrema.max, self.precision),
+			ui.NewStyle(ui.ColorWhite),
 			image.Pt(self.Inner.Min.X, self.Inner.Dy()/2))
 	}
 }
 
-func (self *RunChart) renderLegend(buffer *Buffer, rectangle image.Rectangle) {
+func (self *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 	for i, line := range self.lines {
 
 		extremum := getLineValueExtremum(line.points)
 
 		buffer.SetString(
-			string(DOT),
-			NewStyle(line.color),
+			string(ui.DOT),
+			ui.NewStyle(line.color),
 			image.Pt(self.Inner.Max.X-xAxisLegendWidth-2, self.Inner.Min.Y+1+i*5),
 		)
 		buffer.SetString(
 			fmt.Sprintf("%s", line.label),
-			NewStyle(line.color),
+			ui.NewStyle(line.color),
 			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+1+i*5),
 		)
 		buffer.SetString(
 			fmt.Sprintf("cur %s", formatValue(line.points[len(line.points)-1].value, self.precision)),
-			NewStyle(ColorWhite),
+			ui.NewStyle(ui.ColorWhite),
 			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+2+i*5),
 		)
 		buffer.SetString(
 			fmt.Sprintf("max %s", formatValue(extremum.max, self.precision)),
-			NewStyle(ColorWhite),
+			ui.NewStyle(ui.ColorWhite),
 			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+3+i*5),
 		)
 		buffer.SetString(
 			fmt.Sprintf("min %s", formatValue(extremum.min, self.precision)),
-			NewStyle(ColorWhite),
+			ui.NewStyle(ui.ColorWhite),
 			image.Pt(self.Inner.Max.X-xAxisLegendWidth, self.Inner.Min.Y+4+i*5),
 		)
 	}
+}
+
+func (self *RunChart) trimOutOfRangeValues() {
+	// TODO use hard limit
+}
+
+func (self *RunChart) calculateTimeCoordinate(t time.Time) int {
+	timeDeltaWithGridMaxTime := self.grid.timeRange.max.Sub(t).Nanoseconds()
+	timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.timescale.Nanoseconds())
+	return self.grid.maxTimeWidth - (int(float64(xAxisGridWidth) * timeDeltaToPaddingRelation))
 }
 
 func (self *RunChart) getMaxValueLength() int {
@@ -347,32 +351,36 @@ func formatValue(value float64, precision int) string {
 	return fmt.Sprintf(format, value)
 }
 
-func getChartValueExtremum(items []TimeLine) ValueExtremum {
+func getValueExtrema(items []timeLine, timeRange timeRange) valueExtrema {
 
 	if len(items) == 0 {
-		return ValueExtremum{0, 0}
+		return valueExtrema{0, 0}
 	}
 
 	var max, min = -math.MaxFloat64, math.MaxFloat64
 
 	for _, item := range items {
 		for _, point := range item.points {
-			if point.value > max {
+			if point.value > max && timeRange.isInRange(point.time) {
 				max = point.value
 			}
-			if point.value < min {
+			if point.value < min && timeRange.isInRange(point.time) {
 				min = point.value
 			}
 		}
 	}
 
-	return ValueExtremum{max: max, min: min}
+	return valueExtrema{max: max, min: min}
 }
 
-func getLineValueExtremum(points []TimePoint) ValueExtremum {
+func (r *timeRange) isInRange(time time.Time) bool {
+	return time.After(r.min) && time.Before(r.max)
+}
+
+func getLineValueExtremum(points []timePoint) valueExtrema {
 
 	if len(points) == 0 {
-		return ValueExtremum{0, 0}
+		return valueExtrema{0, 0}
 	}
 
 	var max, min = -math.MaxFloat64, math.MaxFloat64
@@ -386,12 +394,12 @@ func getLineValueExtremum(points []TimePoint) ValueExtremum {
 		}
 	}
 
-	return ValueExtremum{max: max, min: min}
+	return valueExtrema{max: max, min: min}
 }
 
-func getTimeExtremum(linesCount int, scale time.Duration) TimeExtremum {
+func getTimeRange(linesCount int, scale time.Duration) timeRange {
 	maxTime := time.Now()
-	return TimeExtremum{
+	return timeRange{
 		max: maxTime,
 		min: maxTime.Add(-time.Duration(scale.Nanoseconds() * int64(linesCount))),
 	}
