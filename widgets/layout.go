@@ -42,6 +42,11 @@ func (self *Layout) GetComponents(Type ComponentType) []Drawable {
 	return components
 }
 
+// temp function until ui item selection is implemented
+func (self *Layout) GetComponent(i int) *RunChart {
+	return self.components[i].Drawable.(*RunChart)
+}
+
 func (self *Layout) ChangeDimensions(width, height int) {
 	self.SetRect(0, 0, width, height)
 }

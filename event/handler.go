@@ -31,13 +31,12 @@ func (self *Handler) HandleEvents() {
 			case EventResize:
 				payload := e.Payload.(ui.Resize)
 				self.Layout.ChangeDimensions(payload.Width, payload.Height)
-			case EventMouseClick:
-				//payload := e.Payload.(ui.Mouse)
+			case "a":
+				self.Layout.GetComponent(0).DisableSelection()
 			case EventKeyboardLeft:
-				// here we are going to move selection (special type of layout item)
-				//layout.GetItem("").Move(-1, 0)
+				self.Layout.GetComponent(0).MoveSelection(-1)
 			case EventKeyboardRight:
-				//layout.GetItem(0).Move(1, 0)
+				self.Layout.GetComponent(0).MoveSelection(+1)
 			case EventKeyboardDown:
 				//layout.GetItem(0).Move(0, 1)
 			case EventKeyboardUp:

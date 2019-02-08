@@ -20,49 +20,56 @@ const (
 	xAxisLabelsWidth  = 8
 	xAxisLabelsGap    = 2
 	xAxisGridWidth    = xAxisLabelsGap + xAxisLabelsWidth
-
 	yAxisLabelsHeight = 1
 	yAxisLabelsGap    = 1
+)
 
-	chartHistoryReserve = 5
+type ScrollMode int
+
+const (
+	Auto   ScrollMode = 0
+	Manual ScrollMode = 1
 )
 
 type RunChart struct {
 	ui.Block
-	lines     []timeLine
-	grid      chartGrid
-	precision int
-	timescale time.Duration
-	mutex     *sync.Mutex
+	lines      []TimeLine
+	grid       ChartGrid
+	timescale  time.Duration
+	mutex      *sync.Mutex
+	scrollMode ScrollMode
+	selection  time.Time
+	precision  int
 }
 
-type chartGrid struct {
-	valueExtrema valueExtrema
-	timeRange    timeRange
+type ChartGrid struct {
+	timeRange    TimeRange
+	timePerPoint time.Duration
+	valueExtrema ValueExtrema
 	linesCount   int
-	paddingWidth int
 	maxTimeWidth int
 	minTimeWidth int
 }
 
-type timePoint struct {
-	value          float64
-	time           time.Time
-	timeCoordinate int
+type TimePoint struct {
+	value      float64
+	time       time.Time
+	coordinate int
 }
 
-type timeLine struct {
-	points []timePoint
-	color  ui.Color
-	label  string
+type TimeLine struct {
+	points    []TimePoint
+	color     ui.Color
+	label     string
+	selection int
 }
 
-type timeRange struct {
+type TimeRange struct {
 	max time.Time
 	min time.Time
 }
 
-type valueExtrema struct {
+type ValueExtrema struct {
 	max float64
 	min float64
 }
@@ -71,35 +78,36 @@ func NewRunChart(title string, precision int, refreshRateMs int) *RunChart {
 	block := *ui.NewBlock()
 	block.Title = title
 	return &RunChart{
-		Block:     block,
-		lines:     []timeLine{},
-		mutex:     &sync.Mutex{},
-		precision: precision,
-		timescale: calculateTimescale(refreshRateMs),
+		Block:      block,
+		lines:      []TimeLine{},
+		timescale:  calculateTimescale(refreshRateMs),
+		mutex:      &sync.Mutex{},
+		precision:  precision,
+		scrollMode: Auto,
 	}
 }
 
-func (self *RunChart) newChartGrid() chartGrid {
+func (self *RunChart) newChartGrid() ChartGrid {
 
 	linesCount := (self.Inner.Max.X - self.Inner.Min.X - self.grid.minTimeWidth) / xAxisGridWidth
-	timeRange := getTimeRange(linesCount, self.timescale)
+	timeRange := self.getTimeRange(linesCount)
 
-	return chartGrid{
+	return ChartGrid{
 		timeRange:    timeRange,
+		timePerPoint: self.timescale / time.Duration(xAxisGridWidth),
 		valueExtrema: getValueExtrema(self.lines, timeRange),
 		linesCount:   linesCount,
-		paddingWidth: xAxisGridWidth,
 		maxTimeWidth: self.Inner.Max.X,
 		minTimeWidth: self.getMaxValueLength(),
 	}
 }
 
-func (self *RunChart) newTimePoint(value float64) timePoint {
+func (self *RunChart) newTimePoint(value float64) TimePoint {
 	now := time.Now()
-	return timePoint{
-		value:          value,
-		time:           now,
-		timeCoordinate: self.calculateTimeCoordinate(now),
+	return TimePoint{
+		value:      value,
+		time:       now,
+		coordinate: self.calculateTimeCoordinate(now),
 	}
 }
 
@@ -139,8 +147,8 @@ func (self *RunChart) ConsumeSample(sample data.Sample) {
 	}
 
 	if lineIndex == -1 {
-		line := &timeLine{
-			points: []timePoint{},
+		line := &TimeLine{
+			points: []TimePoint{},
 			color:  sample.Color,
 			label:  sample.Label,
 		}
@@ -166,18 +174,26 @@ func (self *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 		return
 	}
 
+	selectionCoordinate := self.calculateTimeCoordinate(self.selection)
+	selectionPoints := make(map[int]image.Point)
+
 	probe := self.lines[0].points[0]
-	delta := ui.AbsInt(self.calculateTimeCoordinate(probe.time) - probe.timeCoordinate)
+	delta := ui.AbsInt(self.calculateTimeCoordinate(probe.time) - probe.coordinate)
 
-	for _, line := range self.lines {
+	for i, line := range self.lines { // TODO start from right side, break on out of range
 
-		xToPoint := make(map[int]image.Point)
-		pointsOrder := make([]int, 0)
+		xPoint := make(map[int]image.Point)
+		xOrder := make([]int, 0)
 
-		for i, timePoint := range line.points {
+		if line.selection != 0 {
+			line.selection -= delta
+			self.lines[i].selection = line.selection
+		}
 
-			timePoint.timeCoordinate = timePoint.timeCoordinate - delta
-			line.points[i] = timePoint
+		for j, timePoint := range line.points {
+
+			timePoint.coordinate -= delta
+			line.points[j] = timePoint
 
 			var y int
 			if self.grid.valueExtrema.max == self.grid.valueExtrema.min {
@@ -187,9 +203,9 @@ func (self *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 				y = int(float64(timePoint.value-self.grid.valueExtrema.min) / valuePerY)
 			}
 
-			point := image.Pt(timePoint.timeCoordinate, drawArea.Max.Y-y-1)
+			point := image.Pt(timePoint.coordinate, drawArea.Max.Y-y-1)
 
-			if _, exists := xToPoint[point.X]; exists {
+			if _, exists := xPoint[point.X]; exists {
 				continue
 			}
 
@@ -197,19 +213,29 @@ func (self *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 				continue
 			}
 
-			xToPoint[point.X] = point
-			pointsOrder = append(pointsOrder, point.X)
+			if line.selection == 0 {
+				if len(line.points) > j+1 && ui.AbsInt(timePoint.coordinate-selectionCoordinate) > ui.AbsInt(line.points[j+1].coordinate-selectionCoordinate) {
+					selectionPoints[i] = point
+				}
+			} else {
+				if timePoint.coordinate == line.selection {
+					selectionPoints[i] = point
+				}
+			}
+
+			xPoint[point.X] = point
+			xOrder = append(xOrder, point.X)
 		}
 
-		for i, x := range pointsOrder {
+		for i, x := range xOrder {
 
-			currentPoint := xToPoint[x]
+			currentPoint := xPoint[x]
 			var previousPoint image.Point
 
 			if i == 0 {
 				previousPoint = currentPoint
 			} else {
-				previousPoint = xToPoint[pointsOrder[i-1]]
+				previousPoint = xPoint[xOrder[i-1]]
 			}
 
 			canvas.Line(
@@ -221,6 +247,15 @@ func (self *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 	}
 
 	canvas.Draw(buffer)
+
+	if self.scrollMode == Manual {
+		for lineIndex, point := range selectionPoints {
+			buffer.SetCell(ui.NewCell(console.SymbolSelection, ui.NewStyle(self.lines[lineIndex].color)), point)
+			if self.lines[lineIndex].selection == 0 {
+				self.lines[lineIndex].selection = point.X
+			}
+		}
+	}
 }
 
 func (self *RunChart) renderAxes(buffer *ui.Buffer) {
@@ -282,7 +317,7 @@ func (self *RunChart) renderAxes(buffer *ui.Buffer) {
 		buffer.SetString(
 			formatValue(self.grid.valueExtrema.max, self.precision),
 			ui.NewStyle(ui.ColorWhite),
-			image.Pt(self.Inner.Min.X, self.Inner.Dy()/2))
+			image.Pt(self.Inner.Min.X, self.Inner.Min.Y+self.Inner.Dy()/2))
 	}
 }
 
@@ -327,7 +362,7 @@ func (self *RunChart) trimOutOfRangeValues() {
 func (self *RunChart) calculateTimeCoordinate(t time.Time) int {
 	timeDeltaWithGridMaxTime := self.grid.timeRange.max.Sub(t).Nanoseconds()
 	timeDeltaToPaddingRelation := float64(timeDeltaWithGridMaxTime) / float64(self.timescale.Nanoseconds())
-	return self.grid.maxTimeWidth - (int(float64(xAxisGridWidth) * timeDeltaToPaddingRelation))
+	return self.grid.maxTimeWidth - int(math.Ceil(float64(xAxisGridWidth)*timeDeltaToPaddingRelation))
 }
 
 func (self *RunChart) getMaxValueLength() int {
@@ -346,15 +381,47 @@ func (self *RunChart) getMaxValueLength() int {
 	return maxValueLength
 }
 
+func (self *RunChart) MoveSelection(shift int) {
+
+	if self.scrollMode == Auto {
+		self.scrollMode = Manual
+		self.selection = getMidRangeTime(self.grid.timeRange)
+		return
+	} else {
+		self.selection = self.selection.Add(self.grid.timePerPoint * time.Duration(shift))
+		if self.selection.After(self.grid.timeRange.max) {
+			self.selection = self.grid.timeRange.max
+		} else if self.selection.Before(self.grid.timeRange.min) {
+			self.selection = self.grid.timeRange.min
+		}
+	}
+
+	for i := range self.lines {
+		self.lines[i].selection = 0
+	}
+}
+
+func (self *RunChart) DisableSelection() {
+	if self.scrollMode == Manual {
+		self.scrollMode = Auto
+		return
+	}
+}
+
+func getMidRangeTime(r TimeRange) time.Time {
+	delta := r.max.Sub(r.min)
+	return r.max.Add(-delta / 2)
+}
+
 func formatValue(value float64, precision int) string {
 	format := "%." + strconv.Itoa(precision) + "f"
 	return fmt.Sprintf(format, value)
 }
 
-func getValueExtrema(items []timeLine, timeRange timeRange) valueExtrema {
+func getValueExtrema(items []TimeLine, timeRange TimeRange) ValueExtrema {
 
 	if len(items) == 0 {
-		return valueExtrema{0, 0}
+		return ValueExtrema{0, 0}
 	}
 
 	var max, min = -math.MaxFloat64, math.MaxFloat64
@@ -370,17 +437,17 @@ func getValueExtrema(items []timeLine, timeRange timeRange) valueExtrema {
 		}
 	}
 
-	return valueExtrema{max: max, min: min}
+	return ValueExtrema{max: max, min: min}
 }
 
-func (r *timeRange) isInRange(time time.Time) bool {
+func (r *TimeRange) isInRange(time time.Time) bool {
 	return time.After(r.min) && time.Before(r.max)
 }
 
-func getLineValueExtremum(points []timePoint) valueExtrema {
+func getLineValueExtremum(points []TimePoint) ValueExtrema {
 
 	if len(points) == 0 {
-		return valueExtrema{0, 0}
+		return ValueExtrema{0, 0}
 	}
 
 	var max, min = -math.MaxFloat64, math.MaxFloat64
@@ -394,17 +461,25 @@ func getLineValueExtremum(points []timePoint) valueExtrema {
 		}
 	}
 
-	return valueExtrema{max: max, min: min}
+	return ValueExtrema{max: max, min: min}
 }
 
-func getTimeRange(linesCount int, scale time.Duration) timeRange {
-	maxTime := time.Now()
-	return timeRange{
-		max: maxTime,
-		min: maxTime.Add(-time.Duration(scale.Nanoseconds() * int64(linesCount))),
+func (self *RunChart) getTimeRange(linesCount int) TimeRange {
+
+	if self.scrollMode == Manual {
+		return self.grid.timeRange
+	}
+
+	width := time.Duration(self.timescale.Nanoseconds() * int64(linesCount))
+	max := time.Now()
+
+	return TimeRange{
+		max: max,
+		min: max.Add(-width),
 	}
 }
 
+// time duration between grid lines
 func calculateTimescale(refreshRateMs int) time.Duration {
 
 	multiplier := refreshRateMs * xAxisGridWidth / 2
