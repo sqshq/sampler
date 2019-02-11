@@ -60,15 +60,6 @@ func (l *Layout) GetComponents(Type ComponentType) []ui.Drawable {
 	return components
 }
 
-// TODO func to get prev/next component navigating left/right/top/bottom
-func (l *Layout) getComponent(i int) Component {
-	return l.components[i]
-}
-
-func (l *Layout) getSelectedComponent() *Component {
-	return &l.components[l.selection]
-}
-
 func (l *Layout) HandleConsoleEvent(e string) {
 	switch e {
 	case console.KeyEnter:
@@ -173,6 +164,15 @@ func (l *Layout) HandleConsoleEvent(e string) {
 
 func (l *Layout) ChangeDimensions(width, height int) {
 	l.SetRect(0, 0, width, height)
+}
+
+// TODO func to get prev/next component navigating left/right/top/bottom
+func (l *Layout) getComponent(i int) Component {
+	return l.components[i]
+}
+
+func (l *Layout) getSelectedComponent() *Component {
+	return &l.components[l.selection]
 }
 
 func (l *Layout) Draw(buffer *ui.Buffer) {

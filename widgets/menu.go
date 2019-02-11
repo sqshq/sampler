@@ -116,25 +116,34 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 	m.printAllDirectionsArrowSign(buffer, -2)
 
 	arrowsText := "Use arrows for selection"
-	buffer.SetString(
-		arrowsText,
-		ui.NewStyle(console.ColorDarkGrey),
-		getMiddlePoint(m.Block, arrowsText, 2),
-	)
+	arrowsTextPoint := getMiddlePoint(m.Block, arrowsText, 2)
+	if arrowsTextPoint.In(m.Rectangle) {
+		buffer.SetString(
+			arrowsText,
+			ui.NewStyle(console.ColorDarkGrey),
+			arrowsTextPoint,
+		)
+	}
 
 	optionsText := "<ENTER> to view options"
-	buffer.SetString(
-		optionsText,
-		ui.NewStyle(console.ColorDarkGrey),
-		getMiddlePoint(m.Block, optionsText, 3),
-	)
+	optionsTextPoint := getMiddlePoint(m.Block, optionsText, 3)
+	if optionsTextPoint.In(m.Rectangle) {
+		buffer.SetString(
+			optionsText,
+			ui.NewStyle(console.ColorDarkGrey),
+			getMiddlePoint(m.Block, optionsText, 3),
+		)
+	}
 
 	resumeText := "<ESC> to resume"
-	buffer.SetString(
-		resumeText,
-		ui.NewStyle(console.ColorDarkGrey),
-		getMiddlePoint(m.Block, resumeText, 4),
-	)
+	resumeTextPoint := getMiddlePoint(m.Block, resumeText, 4)
+	if resumeTextPoint.In(m.Rectangle) {
+		buffer.SetString(
+			resumeText,
+			ui.NewStyle(console.ColorDarkGrey),
+			resumeTextPoint,
+		)
+	}
 }
 
 func (m *Menu) renderMoveAndResize(buffer *ui.Buffer) {
@@ -142,12 +151,12 @@ func (m *Menu) renderMoveAndResize(buffer *ui.Buffer) {
 	m.printAllDirectionsArrowSign(buffer, -2)
 
 	saveText := "<ENTER> to save changes"
-	textPoint := getMiddlePoint(m.Block, saveText, 4)
-	if textPoint.In(m.Rectangle) {
+	saveTextPoint := getMiddlePoint(m.Block, saveText, 4)
+	if saveTextPoint.In(m.Rectangle) {
 		buffer.SetString(
 			saveText,
 			ui.NewStyle(console.ColorDarkGrey),
-			textPoint,
+			saveTextPoint,
 		)
 	}
 }

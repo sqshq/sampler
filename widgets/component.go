@@ -29,12 +29,29 @@ type Size struct {
 	Y int `yaml:"y"`
 }
 
-func (self *Component) Move(x, y int) {
-	self.Position.X += x
-	self.Position.Y += y
+func (c *Component) Move(x, y int) {
+	c.Position.X += x
+	c.Position.Y += y
+	c.normalize()
 }
 
-func (self *Component) Resize(x, y int) {
-	self.Size.X += x
-	self.Size.Y += y
+func (c *Component) Resize(x, y int) {
+	c.Size.X += x
+	c.Size.Y += y
+	c.normalize()
+}
+
+func (c *Component) normalize() {
+	if c.Size.X < 0 {
+		c.Size.X = 0
+	}
+	if c.Size.Y < 0 {
+		c.Size.Y = 0
+	}
+	if c.Position.X < 0 {
+		c.Position.X = 0
+	}
+	if c.Position.Y < 0 {
+		c.Position.Y = 0
+	}
 }

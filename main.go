@@ -20,13 +20,13 @@ func main() {
 	width, height := ui.TerminalDimensions()
 	layout := widgets.NewLayout(width, height, widgets.NewMenu())
 
-	for _, chartConfig := range cfg.RunCharts {
+	for _, c := range cfg.RunCharts {
 
-		chart := widgets.NewRunChart(chartConfig.Title, chartConfig.Precision, chartConfig.RefreshRateMs)
-		layout.AddComponent(chart, chartConfig.Title, chartConfig.Position, chartConfig.Size, widgets.TypeRunChart)
+		chart := widgets.NewRunChart(c.Title, c.Precision, c.RefreshRateMs)
+		layout.AddComponent(chart, c.Title, c.Position, c.Size, widgets.TypeRunChart)
 
-		for _, item := range chartConfig.Items {
-			data.NewSampler(chart, item, chartConfig.RefreshRateMs)
+		for _, item := range c.Items {
+			data.NewSampler(chart, item, c.RefreshRateMs)
 		}
 	}
 

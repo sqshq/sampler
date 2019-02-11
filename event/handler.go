@@ -29,11 +29,9 @@ func (self *Handler) HandleEvents() {
 				return
 			case console.KeyPause:
 				pause = !pause
-			case console.KeyResize:
+			case console.SignalResize:
 				payload := e.Payload.(ui.Resize)
 				self.Layout.ChangeDimensions(payload.Width, payload.Height)
-			//case "a":
-			//	self.Layout.GetComponent(0).DisableSelection()
 			default:
 				self.Layout.HandleConsoleEvent(e.ID)
 			}
