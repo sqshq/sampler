@@ -17,6 +17,9 @@ const (
 	ColorDeepSkyBlue ui.Color = 39
 	ColorDeepPink    ui.Color = 162
 	ColorDarkGrey    ui.Color = 240
+	ColorWhite       ui.Color = 7
+	ColorBlack       ui.Color = 0
+	ColorClear       ui.Color = -1
 )
 
 type Palette struct {

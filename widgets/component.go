@@ -6,15 +6,17 @@ import (
 
 type Component struct {
 	Drawable Drawable
+	Title    string
 	Position Position
 	Size     Size
 	Type     ComponentType
 }
 
-type ComponentType string
+type ComponentType rune
 
 const (
-	TypeRunChart ComponentType = "runchart"
+	TypeRunChart ComponentType = 0
+	TypeBarChart ComponentType = 1
 )
 
 type Position struct {

@@ -17,12 +17,13 @@ func main() {
 	csl.Init()
 	defer csl.Close()
 
-	layout := widgets.NewLayout(ui.TerminalDimensions())
+	width, height := ui.TerminalDimensions()
+	layout := widgets.NewLayout(width, height, widgets.NewMenu())
 
 	for _, chartConfig := range cfg.RunCharts {
 
 		chart := widgets.NewRunChart(chartConfig.Title, chartConfig.Precision, chartConfig.RefreshRateMs)
-		layout.AddComponent(chart, chartConfig.Position, chartConfig.Size, widgets.TypeRunChart)
+		layout.AddComponent(chart, chartConfig.Title, chartConfig.Position, chartConfig.Size, widgets.TypeRunChart)
 
 		for _, item := range chartConfig.Items {
 			data.NewSampler(chart, item, chartConfig.RefreshRateMs)

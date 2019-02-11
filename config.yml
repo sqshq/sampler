@@ -8,7 +8,7 @@ runcharts:
         script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
       - label: BING
         script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
-    refresh-rate-ms: 500
+    refresh-rate-ms: 200
     decimal-places: 3
     alert:
       value:
@@ -52,8 +52,8 @@ runcharts:
       x: 0
       y: 15
     size:
-      x: 15
-      y: 15
+      x: 4
+      y: 4
   - title: MONGO COLLECTIONS COUNT
     items:
       - label: POSTS

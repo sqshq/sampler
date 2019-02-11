@@ -1,6 +1,7 @@
 package event
 
 import (
+	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/widgets"
 	ui "github.com/sqshq/termui"
 	"time"
@@ -24,23 +25,17 @@ func (self *Handler) HandleEvents() {
 			}
 		case e := <-self.ConsoleEvents:
 			switch e.ID {
-			case EventQuit, EventExit:
+			case console.KeyQuit, console.KeyExit:
 				return
-			case EventPause:
+			case console.KeyPause:
 				pause = !pause
-			case EventResize:
+			case console.KeyResize:
 				payload := e.Payload.(ui.Resize)
 				self.Layout.ChangeDimensions(payload.Width, payload.Height)
-			case "a":
-				self.Layout.GetComponent(0).DisableSelection()
-			case EventKeyboardLeft:
-				self.Layout.GetComponent(0).MoveSelection(-1)
-			case EventKeyboardRight:
-				self.Layout.GetComponent(0).MoveSelection(+1)
-			case EventKeyboardDown:
-				//layout.GetItem(0).Move(0, 1)
-			case EventKeyboardUp:
-				//layout.GetItem(0).Move(0, -1)
+			//case "a":
+			//	self.Layout.GetComponent(0).DisableSelection()
+			default:
+				self.Layout.HandleConsoleEvent(e.ID)
 			}
 		}
 	}
