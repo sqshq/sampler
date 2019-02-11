@@ -29,7 +29,7 @@ const (
 	MenuOptionMove     MenuOption = "MOVE"
 	MenuOptionResize   MenuOption = "RESIZE"
 	MenuOptionPinpoint MenuOption = "PINPOINT"
-	MenuOptionExit     MenuOption = "EXIT"
+	MenuOptionResume   MenuOption = "RESUME"
 )
 
 func NewMenu() *Menu {
@@ -38,7 +38,7 @@ func NewMenu() *Menu {
 	block.BorderStyle = ui.NewStyle(console.ColorDarkGrey)
 	return &Menu{
 		Block:   block,
-		options: []MenuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionExit},
+		options: []MenuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionResume},
 		mode:    MenuModeIdle,
 		option:  MenuOptionMove,
 	}
@@ -181,7 +181,7 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 	// TODO extract styles to console.Palette
-	highlightedStyle := ui.NewStyle(console.ColorWhite, console.ColorClear, ui.ModifierReverse)
+	highlightedStyle := ui.NewStyle(console.ColorOlive, console.ColorBlack, ui.ModifierReverse)
 	regularStyle := ui.NewStyle(console.ColorWhite)
 
 	offset := 1
@@ -194,11 +194,10 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 		if option != MenuOptionPinpoint || m.component.Type == TypeRunChart {
 			offset += 2
-			buffer.SetString(
-				string(option),
-				style,
-				getMiddlePoint(m.Block, string(option), offset-5),
-			)
+			point := getMiddlePoint(m.Block, string(option), offset-5)
+			if point.In(m.GetRect()) {
+				buffer.SetString(string(option), style, point)
+			}
 		}
 	}
 }

@@ -52,8 +52,8 @@ runcharts:
       x: 0
       y: 15
     size:
-      x: 4
-      y: 4
+      x: 15
+      y: 15
   - title: MONGO COLLECTIONS COUNT
     items:
       - label: POSTS

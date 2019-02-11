@@ -81,7 +81,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 				l.menu.idle()
 				chart := l.getSelectedComponent().Drawable.(*RunChart)
 				chart.MoveSelection(0)
-			case MenuOptionExit:
+			case MenuOptionResume:
 				l.mode = ModeDefault
 				l.menu.idle()
 			}
