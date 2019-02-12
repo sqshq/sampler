@@ -22,6 +22,8 @@ const (
 	xAxisGridWidth    = xAxisLabelsGap + xAxisLabelsWidth
 	yAxisLabelsHeight = 1
 	yAxisLabelsGap    = 1
+
+	historyReserveHrs = 1
 )
 
 type ScrollMode int
@@ -180,7 +182,7 @@ func (self *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 	probe := self.lines[0].points[0]
 	delta := ui.AbsInt(self.calculateTimeCoordinate(probe.time) - probe.coordinate)
 
-	for i, line := range self.lines { // TODO start from right side, break on out of range
+	for i, line := range self.lines {
 
 		xPoint := make(map[int]image.Point)
 		xOrder := make([]int, 0)
@@ -356,7 +358,23 @@ func (self *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle)
 }
 
 func (self *RunChart) trimOutOfRangeValues() {
-	// TODO use hard limit
+
+	minRangeTime := self.grid.timeRange.min.Add(-time.Hour * time.Duration(historyReserveHrs))
+
+	for i, item := range self.lines {
+		lastOutOfRangeValueIndex := -1
+
+		for j, point := range item.points {
+			if point.time.Before(minRangeTime) {
+				lastOutOfRangeValueIndex = j
+			}
+		}
+
+		if lastOutOfRangeValueIndex > 0 {
+			item.points = append(item.points[:0], item.points[lastOutOfRangeValueIndex+1:]...)
+			self.lines[i] = item
+		}
+	}
 }
 
 func (self *RunChart) calculateTimeCoordinate(t time.Time) int {

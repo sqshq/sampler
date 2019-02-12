@@ -15,7 +15,7 @@ const (
 const (
 	ColorOlive       ui.Color = 178
 	ColorDeepSkyBlue ui.Color = 39
-	ColorDeepPink    ui.Color = 162
+	ColorDeepPink    ui.Color = 198
 	ColorDarkGrey    ui.Color = 240
 	ColorWhite       ui.Color = 7
 	ColorBlack       ui.Color = 0
