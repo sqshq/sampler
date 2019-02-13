@@ -7,12 +7,13 @@ import (
 	"github.com/sqshq/sampler/event"
 	"github.com/sqshq/sampler/widgets"
 	ui "github.com/sqshq/termui"
+	"os"
 	"time"
 )
 
 func main() {
 
-	cfg := config.Load("/Users/sqshq/Go/src/github.com/sqshq/sampler/config.yml")
+	cfg := config.Load(os.Args)
 	csl := console.Console{}
 	csl.Init()
 	defer csl.Close()

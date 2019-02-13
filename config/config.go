@@ -1,12 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	. "github.com/sqshq/sampler/widgets"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 type Config struct {
@@ -23,9 +25,14 @@ type RunChartConfig struct {
 	Precision     int         `yaml:"decimal-places"`
 }
 
-func Load(location string) *Config {
+func Load(args []string) *Config {
 
-	cfg := readFile(location)
+	if len(args) < 2 {
+		fmt.Fprintf(os.Stderr, "Please specify config file location. See www.github.com/sqshq/sampler for the reference\n")
+		os.Exit(0)
+	}
+
+	cfg := readFile(args[1])
 	cfg.validate()
 	cfg.setDefaultValues()
 	cfg.setDefaultColors()
