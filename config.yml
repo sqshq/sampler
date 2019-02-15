@@ -8,7 +8,7 @@ runcharts:
         script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
       - label: BING
         script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
-    refresh-rate-ms: 500
+    refresh-rate-ms: 200
     decimal-places: 3
     alert:
       value:
@@ -20,7 +20,7 @@ runcharts:
         beep: true
     legend:
       enabled: true
-      details: true
+      details: false
     position:
       x: 0
       y: 0

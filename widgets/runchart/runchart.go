@@ -30,8 +30,8 @@ const (
 type Mode int
 
 const (
-	Default  Mode = 0
-	Pinpoint Mode = 1
+	ModeDefault  Mode = 0
+	ModePinpoint Mode = 1
 )
 
 type RunChart struct {
@@ -79,7 +79,7 @@ func NewRunChart(title string, precision int, refreshRateMs int, legend Legend) 
 		timescale: calculateTimescale(refreshRateMs),
 		mutex:     &sync.Mutex{},
 		precision: precision,
-		mode:      Default,
+		mode:      ModeDefault,
 		legend:    legend,
 	}
 }
@@ -230,7 +230,7 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 
 	canvas.Draw(buffer)
 
-	if c.mode == Pinpoint {
+	if c.mode == ModePinpoint {
 		for lineIndex, point := range selectionPoints {
 			buffer.SetCell(ui.NewCell(console.SymbolSelection, ui.NewStyle(c.lines[lineIndex].color)), point)
 			if c.lines[lineIndex].selection == 0 {
@@ -285,8 +285,8 @@ func (c *RunChart) getMaxValueLength() int {
 
 func (c *RunChart) MoveSelection(shift int) {
 
-	if c.mode == Default {
-		c.mode = Pinpoint
+	if c.mode == ModeDefault {
+		c.mode = ModePinpoint
 		c.selection = getMidRangeTime(c.grid.timeRange)
 		return
 	} else {
@@ -304,8 +304,8 @@ func (c *RunChart) MoveSelection(shift int) {
 }
 
 func (c *RunChart) DisableSelection() {
-	if c.mode == Pinpoint {
-		c.mode = Default
+	if c.mode == ModePinpoint {
+		c.mode = ModeDefault
 		return
 	}
 }

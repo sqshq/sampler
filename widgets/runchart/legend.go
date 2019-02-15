@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	xAxisLegendIndent   = 10
-	yAxisLegendIndent   = 1
-	heightWithLabelOnly = 3
-	heightWithDetails   = 7
+	xAxisLegendIndent = 10
+	yAxisLegendIndent = 1
+	heightOnDefault   = 2
+	heightOnPinpoint  = 4
+	heightOnDetails   = 6
 )
 
 type Legend struct {
@@ -25,9 +26,12 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 		return
 	}
 
-	height := heightWithLabelOnly
-	if c.legend.Details {
-		height = heightWithDetails
+	height := heightOnDefault
+
+	if c.mode == ModePinpoint {
+		height = heightOnPinpoint
+	} else if c.legend.Details {
+		height = heightOnDetails
 	}
 
 	rowCount := (c.Dx() - yAxisLegendIndent) / (height + yAxisLegendIndent)
@@ -44,14 +48,19 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 			line := c.lines[row+rowCount*col]
 			extrema := getLineValueExtrema(line.points)
+
 			x := c.Inner.Max.X - (columnWidth+xAxisLegendIndent)*(col+1)
-			y := c.Inner.Min.Y + yAxisLegendIndent + row*(height)
+			y := c.Inner.Min.Y + yAxisLegendIndent + row*height
 
 			titleStyle := ui.NewStyle(line.color)
 			detailsStyle := ui.NewStyle(ui.ColorWhite)
 
 			buffer.SetString(string(ui.DOT), titleStyle, image.Pt(x-2, y))
 			buffer.SetString(line.label, titleStyle, image.Pt(x, y))
+
+			if c.mode == ModePinpoint {
+				continue
+			}
 
 			if !c.legend.Details {
 				continue

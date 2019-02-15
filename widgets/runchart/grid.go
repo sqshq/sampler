@@ -97,7 +97,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 
 func (c *RunChart) getTimeRange(linesCount int) TimeRange {
 
-	if c.mode == Pinpoint {
+	if c.mode == ModePinpoint {
 		return c.grid.timeRange
 	}
 
