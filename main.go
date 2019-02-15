@@ -6,14 +6,14 @@ import (
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
 	"github.com/sqshq/sampler/widgets"
+	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
-	"os"
 	"time"
 )
 
 func main() {
 
-	cfg := config.Load(os.Args)
+	cfg := config.Load()
 	csl := console.Console{}
 	csl.Init()
 	defer csl.Close()
@@ -23,7 +23,8 @@ func main() {
 
 	for _, c := range cfg.RunCharts {
 
-		chart := widgets.NewRunChart(c.Title, c.Precision, c.RefreshRateMs)
+		legend := runchart.Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details}
+		chart := runchart.NewRunChart(c.Title, c.Precision, c.RefreshRateMs, legend)
 		layout.AddComponent(chart, c.Title, c.Position, c.Size, widgets.TypeRunChart)
 
 		for _, item := range c.Items {

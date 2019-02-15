@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
 )
 
@@ -79,7 +80,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			case MenuOptionPinpoint:
 				l.mode = ModeChartPinpoint
 				l.menu.idle()
-				chart := l.getSelectedComponent().Drawable.(*RunChart)
+				chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 				chart.MoveSelection(0)
 			case MenuOptionResume:
 				l.mode = ModeDefault
@@ -94,7 +95,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 	case console.KeyEsc:
 		switch l.mode {
 		case ModeChartPinpoint:
-			chart := l.getSelectedComponent().Drawable.(*RunChart)
+			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.DisableSelection()
 			fallthrough
 		case ModeComponentSelect:
@@ -110,7 +111,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
-			chart := l.getSelectedComponent().Drawable.(*RunChart)
+			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(-1)
 		case ModeComponentSelect:
 			if l.selection > 0 {
@@ -129,7 +130,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
-			chart := l.getSelectedComponent().Drawable.(*RunChart)
+			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(1)
 		case ModeComponentSelect:
 			if l.selection < len(l.components)-1 {

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	. "github.com/sqshq/sampler/widgets"
@@ -17,22 +16,28 @@ type Config struct {
 }
 
 type RunChartConfig struct {
-	Title         string      `yaml:"title"`
-	Items         []data.Item `yaml:"items"`
-	Position      Position    `yaml:"position"`
-	Size          Size        `yaml:"size"`
-	RefreshRateMs int         `yaml:"refresh-rate-ms"`
-	Precision     int         `yaml:"decimal-places"`
+	Title         string       `yaml:"title"`
+	Items         []data.Item  `yaml:"items"`
+	Position      Position     `yaml:"position"`
+	Size          Size         `yaml:"size"`
+	RefreshRateMs int          `yaml:"refresh-rate-ms"`
+	Precision     int          `yaml:"decimal-places"`
+	Legend        LegendConfig `yaml:"legend"`
 }
 
-func Load(args []string) *Config {
+type LegendConfig struct {
+	Enabled bool `yaml:"enabled"`
+	Details bool `yaml:"details"`
+}
 
-	if len(args) < 2 {
-		fmt.Fprintf(os.Stderr, "Please specify config file location. See www.github.com/sqshq/sampler for the reference\n")
+func Load() *Config {
+
+	if len(os.Args) < 2 {
+		println("Please specify config file location. See www.github.com/sqshq/sampler for the reference")
 		os.Exit(0)
 	}
 
-	cfg := readFile(args[1])
+	cfg := readFile(os.Args[1])
 	cfg.validate()
 	cfg.setDefaultValues()
 	cfg.setDefaultColors()
