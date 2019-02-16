@@ -144,6 +144,15 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		}
 	case console.KeyUp:
 		switch l.mode {
+		case ModeDefault:
+			l.mode = ModeComponentSelect
+			l.selection = 0
+			l.menu.highlight(l.getComponent(l.selection))
+		case ModeComponentSelect:
+			if l.selection > 0 {
+				l.selection--
+			}
+			l.menu.highlight(l.getComponent(l.selection))
 		case ModeMenuOptionSelect:
 			l.menu.up()
 		case ModeComponentMove:
@@ -153,6 +162,15 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		}
 	case console.KeyDown:
 		switch l.mode {
+		case ModeDefault:
+			l.mode = ModeComponentSelect
+			l.selection = 0
+			l.menu.highlight(l.getComponent(l.selection))
+		case ModeComponentSelect:
+			if l.selection < len(l.components)-1 {
+				l.selection++
+			}
+			l.menu.highlight(l.getComponent(l.selection))
 		case ModeMenuOptionSelect:
 			l.menu.down()
 		case ModeComponentMove:

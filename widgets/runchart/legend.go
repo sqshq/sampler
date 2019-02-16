@@ -36,7 +36,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 		height = heightOnDetails
 	}
 
-	rowCount := (c.Dx() - yAxisLegendIndent) / (height + yAxisLegendIndent)
+	rowCount := (c.Dy() - 2*yAxisLegendIndent) / (height + yAxisLegendIndent)
 	columnCount := int(math.Ceil(float64(len(c.lines)) / float64(rowCount)))
 	columnWidth := getColumnWidth(c.mode, c.lines, c.precision)
 
@@ -71,9 +71,9 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 			details := [4]string{
 				fmt.Sprintf("cur %s", formatValue(getCurrentValue(line), c.precision)),
+				fmt.Sprintf("dlt %s", formatValue(getDiffWithPreviousValue(line), c.precision)),
 				fmt.Sprintf("max %s", formatValue(line.extrema.max, c.precision)),
 				fmt.Sprintf("min %s", formatValue(line.extrema.min, c.precision)),
-				fmt.Sprintf("dif %s", formatValue(getDiffWithPreviousValue(line), c.precision)),
 			}
 
 			for i, detail := range details {
