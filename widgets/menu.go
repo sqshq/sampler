@@ -35,7 +35,7 @@ const (
 func NewMenu() *Menu {
 	block := *ui.NewBlock()
 	block.Border = true
-	block.BorderStyle = ui.NewStyle(console.ColorDarkGrey)
+	//block.BorderStyle = ui.NewStyle(console.ColorDarkGrey)
 	return &Menu{
 		Block:   block,
 		options: []MenuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionResume},
@@ -94,7 +94,7 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 	m.updateDimensions()
 
 	buffer.Fill(
-		ui.NewCell(' ', ui.NewStyle(ui.ColorClear, ui.ColorBlack)),
+		ui.NewCell(' ', ui.NewStyle(ui.ColorBlack)),
 		m.GetRect(),
 	)
 
