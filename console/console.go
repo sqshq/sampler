@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	RenderRate = 25 * time.Millisecond
+	RenderRate = 100 * time.Millisecond
 	Title      = "sampler"
 )
 

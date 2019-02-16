@@ -35,7 +35,6 @@ const (
 func NewMenu() *Menu {
 	block := *ui.NewBlock()
 	block.Border = true
-	//block.BorderStyle = ui.NewStyle(console.ColorDarkGrey)
 	return &Menu{
 		Block:   block,
 		options: []MenuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionResume},
