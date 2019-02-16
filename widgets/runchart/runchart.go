@@ -53,11 +53,12 @@ type TimePoint struct {
 }
 
 type TimeLine struct {
-	points    []TimePoint
-	extrema   ValueExtrema
-	color     ui.Color
-	label     string
-	selection int
+	points              []TimePoint
+	extrema             ValueExtrema
+	color               ui.Color
+	label               string
+	selectionCoordinate int
+	selectionPoint      TimePoint
 }
 
 type TimeRange struct {
@@ -130,15 +131,25 @@ func (c *RunChart) ConsumeSample(sample data.Sample) {
 
 	if lineIndex == -1 {
 		line := &TimeLine{
-			points: []TimePoint{},
-			color:  sample.Color,
-			label:  sample.Label,
+			points:  []TimePoint{},
+			color:   sample.Color,
+			label:   sample.Label,
+			extrema: ValueExtrema{max: float, min: float},
 		}
 		c.lines = append(c.lines, *line)
 		lineIndex = len(c.lines) - 1
 	}
 
 	line := c.lines[lineIndex]
+
+	if float < line.extrema.min {
+		line.extrema.min = float
+	}
+
+	if float > line.extrema.max {
+		line.extrema.max = float
+	}
+
 	timePoint := c.newTimePoint(float)
 	line.points = append(line.points, timePoint)
 	c.lines[lineIndex] = line
@@ -167,9 +178,10 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 		xPoint := make(map[int]image.Point)
 		xOrder := make([]int, 0)
 
-		if line.selection != 0 {
-			line.selection -= delta
-			c.lines[i].selection = line.selection
+		// move selection on a delta, if it was instantiated after cursor move
+		if line.selectionCoordinate != 0 {
+			line.selectionCoordinate -= delta
+			c.lines[i].selectionCoordinate = line.selectionCoordinate
 		}
 
 		for j, timePoint := range line.points {
@@ -195,14 +207,14 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 				continue
 			}
 
-			if line.selection == 0 {
+			if line.selectionCoordinate == 0 {
+				// instantiate selection coordinate as the closest point to the cursor time
 				if len(line.points) > j+1 && ui.AbsInt(timePoint.coordinate-selectionCoordinate) > ui.AbsInt(line.points[j+1].coordinate-selectionCoordinate) {
 					selectionPoints[i] = point
+					c.lines[i].selectionPoint = timePoint
 				}
-			} else {
-				if timePoint.coordinate == line.selection {
-					selectionPoints[i] = point
-				}
+			} else if timePoint.coordinate == line.selectionCoordinate {
+				selectionPoints[i] = point
 			}
 
 			xPoint[point.X] = point
@@ -233,8 +245,8 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 	if c.mode == ModePinpoint {
 		for lineIndex, point := range selectionPoints {
 			buffer.SetCell(ui.NewCell(console.SymbolSelection, ui.NewStyle(c.lines[lineIndex].color)), point)
-			if c.lines[lineIndex].selection == 0 {
-				c.lines[lineIndex].selection = point.X
+			if c.lines[lineIndex].selectionCoordinate == 0 {
+				c.lines[lineIndex].selectionCoordinate = point.X
 			}
 		}
 	}
@@ -299,7 +311,7 @@ func (c *RunChart) MoveSelection(shift int) {
 	}
 
 	for i := range c.lines {
-		c.lines[i].selection = 0
+		c.lines[i].selectionCoordinate = 0
 	}
 }
 

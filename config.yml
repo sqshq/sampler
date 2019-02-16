@@ -20,7 +20,7 @@ runcharts:
         beep: true
     legend:
       enabled: true
-      details: false
+      details: true
     position:
       x: 0
       y: 0
@@ -47,7 +47,7 @@ runcharts:
         beep: true
     legend:
       enabled: true
-      details: true
+      details: false
     position:
       x: 0
       y: 15

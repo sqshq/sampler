@@ -13,6 +13,8 @@ const (
 	heightOnDefault   = 2
 	heightOnPinpoint  = 4
 	heightOnDetails   = 6
+
+	timeFormat = "15:04:05.000"
 )
 
 type Legend struct {
@@ -36,7 +38,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 	rowCount := (c.Dx() - yAxisLegendIndent) / (height + yAxisLegendIndent)
 	columnCount := int(math.Ceil(float64(len(c.lines)) / float64(rowCount)))
-	columnWidth := getColumnWidth(c.lines, c.precision)
+	columnWidth := getColumnWidth(c.mode, c.lines, c.precision)
 
 	for col := 0; col < columnCount; col++ {
 		for row := 0; row < rowCount; row++ {
@@ -47,7 +49,6 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			}
 
 			line := c.lines[row+rowCount*col]
-			extrema := getLineValueExtrema(line.points)
 
 			x := c.Inner.Max.X - (columnWidth+xAxisLegendIndent)*(col+1)
 			y := c.Inner.Min.Y + yAxisLegendIndent + row*height
@@ -59,6 +60,8 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			buffer.SetString(line.label, titleStyle, image.Pt(x, y))
 
 			if c.mode == ModePinpoint {
+				buffer.SetString(fmt.Sprintf("time  %s", line.selectionPoint.time.Format("15:04:05.000")), detailsStyle, image.Pt(x, y+1))
+				buffer.SetString(fmt.Sprintf("value %s", formatValue(line.selectionPoint.value, c.precision)), detailsStyle, image.Pt(x, y+2))
 				continue
 			}
 
@@ -67,10 +70,10 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			}
 
 			details := [4]string{
-				fmt.Sprintf("cur %s", formatValue(line.points[len(line.points)-1].value, c.precision)),
-				fmt.Sprintf("max %s", formatValue(extrema.max, c.precision)),
-				fmt.Sprintf("min %s", formatValue(extrema.min, c.precision)),
-				fmt.Sprintf("dif %s", formatValue(1, c.precision)),
+				fmt.Sprintf("cur %s", formatValue(getCurrentValue(line), c.precision)),
+				fmt.Sprintf("max %s", formatValue(line.extrema.max, c.precision)),
+				fmt.Sprintf("min %s", formatValue(line.extrema.min, c.precision)),
+				fmt.Sprintf("dif %s", formatValue(getDiffWithPreviousValue(line), c.precision)),
 			}
 
 			for i, detail := range details {
@@ -80,7 +83,12 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 	}
 }
 
-func getColumnWidth(lines []TimeLine, precision int) int {
+func getColumnWidth(mode Mode, lines []TimeLine, precision int) int {
+
+	if mode == ModePinpoint {
+		return len(timeFormat)
+	}
+
 	width := len(formatValue(0, precision))
 	for _, line := range lines {
 		if len(line.label) > width {
@@ -90,23 +98,14 @@ func getColumnWidth(lines []TimeLine, precision int) int {
 	return width
 }
 
-// TODO remove and use the one from line
-func getLineValueExtrema(points []TimePoint) ValueExtrema {
-
-	if len(points) == 0 {
-		return ValueExtrema{0, 0}
+func getDiffWithPreviousValue(line TimeLine) float64 {
+	if len(line.points) < 2 {
+		return 0
+	} else {
+		return math.Abs(line.points[len(line.points)-1].value - line.points[len(line.points)-2].value)
 	}
+}
 
-	var max, min = -math.MaxFloat64, math.MaxFloat64
-
-	for _, point := range points {
-		if point.value > max {
-			max = point.value
-		}
-		if point.value < min {
-			min = point.value
-		}
-	}
-
-	return ValueExtrema{max: max, min: min}
+func getCurrentValue(line TimeLine) float64 {
+	return line.points[len(line.points)-1].value
 }
