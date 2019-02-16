@@ -28,6 +28,7 @@ func main() {
 		layout.AddComponent(chart, c.Title, c.Position, c.Size, widgets.TypeRunChart)
 
 		for _, item := range c.Items {
+			chart.AddLine(item.Label, item.Color)
 			data.NewSampler(chart, item, c.RefreshRateMs)
 		}
 	}

@@ -1,15 +1,15 @@
 package data
 
 import (
-	. "github.com/sqshq/termui"
+	ui "github.com/sqshq/termui"
 	"os/exec"
 	"strings"
 )
 
 type Item struct {
-	Script string `yaml:"script"`
-	Label  string `yaml:"label"`
-	Color  Color  `yaml:"color"`
+	Script string   `yaml:"script"`
+	Label  string   `yaml:"label"`
+	Color  ui.Color `yaml:"color"`
 }
 
 func (self *Item) nextValue() (value string, err error) {

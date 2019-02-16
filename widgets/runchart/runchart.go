@@ -111,6 +111,16 @@ func (c *RunChart) Draw(buffer *ui.Buffer) {
 	c.mutex.Unlock()
 }
 
+func (c *RunChart) AddLine(Label string, color ui.Color) {
+	line := TimeLine{
+		points:  []TimePoint{},
+		color:   color,
+		label:   Label,
+		extrema: ValueExtrema{max: -math.MaxFloat64, min: math.MaxFloat64},
+	}
+	c.lines = append(c.lines, line)
+}
+
 func (c *RunChart) ConsumeSample(sample data.Sample) {
 
 	float, err := strconv.ParseFloat(sample.Value, 64)
@@ -121,40 +131,30 @@ func (c *RunChart) ConsumeSample(sample data.Sample) {
 
 	c.mutex.Lock()
 
-	lineIndex := -1
-
+	index := -1
 	for i, line := range c.lines {
 		if line.label == sample.Label {
-			lineIndex = i
+			index = i
 		}
 	}
 
-	if lineIndex == -1 {
-		line := &TimeLine{
-			points:  []TimePoint{},
-			color:   sample.Color,
-			label:   sample.Label,
-			extrema: ValueExtrema{max: float, min: float},
-		}
-		c.lines = append(c.lines, *line)
-		lineIndex = len(c.lines) - 1
-	}
-
-	line := c.lines[lineIndex]
+	line := c.lines[index]
 
 	if float < line.extrema.min {
 		line.extrema.min = float
 	}
-
 	if float > line.extrema.max {
 		line.extrema.max = float
 	}
 
-	timePoint := c.newTimePoint(float)
-	line.points = append(line.points, timePoint)
-	c.lines[lineIndex] = line
+	line.points = append(line.points, c.newTimePoint(float))
+	c.lines[index] = line
 
-	c.trimOutOfRangeValues()
+	// perform cleanup once in a while
+	if len(line.points)%100 == 0 {
+		c.trimOutOfRangeValues()
+	}
+
 	c.mutex.Unlock()
 }
 

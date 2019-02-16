@@ -29,7 +29,6 @@ func (self *Sampler) sample() {
 	sample := Sample{
 		Value: value,
 		Error: err,
-		Color: self.item.Color,
 		Label: self.item.Label,
 	}
 

@@ -36,15 +36,13 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 	// draw origin cell
 	buffer.SetCell(
 		ui.NewCell(ui.BOTTOM_LEFT, ui.NewStyle(ui.ColorWhite)),
-		image.Pt(c.Inner.Min.X+c.grid.minTimeWidth, c.Inner.Max.Y-xAxisLabelsHeight-1),
-	)
+		image.Pt(c.Inner.Min.X+c.grid.minTimeWidth, c.Inner.Max.Y-xAxisLabelsHeight-1))
 
 	// draw x axis line
 	for i := c.grid.minTimeWidth + 1; i < c.Inner.Dx(); i++ {
 		buffer.SetCell(
 			ui.NewCell(ui.HORIZONTAL_DASH, ui.NewStyle(ui.ColorWhite)),
-			image.Pt(i+c.Inner.Min.X, c.Inner.Max.Y-xAxisLabelsHeight-1),
-		)
+			image.Pt(i+c.Inner.Min.X, c.Inner.Max.Y-xAxisLabelsHeight-1))
 	}
 
 	// draw grid lines
@@ -52,8 +50,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 		for x := 1; x <= c.grid.linesCount; x++ {
 			buffer.SetCell(
 				ui.NewCell(ui.VERTICAL_DASH, ui.NewStyle(console.ColorDarkGrey)),
-				image.Pt(c.grid.maxTimeWidth-x*xAxisGridWidth, y+c.Inner.Min.Y+1),
-			)
+				image.Pt(c.grid.maxTimeWidth-x*xAxisGridWidth, y+c.Inner.Min.Y+1))
 		}
 	}
 
@@ -61,8 +58,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 	for i := 0; i < c.Inner.Dy()-xAxisLabelsHeight-1; i++ {
 		buffer.SetCell(
 			ui.NewCell(ui.VERTICAL_DASH, ui.NewStyle(ui.ColorWhite)),
-			image.Pt(c.Inner.Min.X+c.grid.minTimeWidth, i+c.Inner.Min.Y),
-		)
+			image.Pt(c.Inner.Min.X+c.grid.minTimeWidth, i+c.Inner.Min.Y))
 	}
 
 	// draw x axis time labels
@@ -71,8 +67,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 		buffer.SetString(
 			labelTime.Format("15:04:05"),
 			ui.NewStyle(ui.ColorWhite),
-			image.Pt(c.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(xAxisGridWidth), c.Inner.Max.Y-1),
-		)
+			image.Pt(c.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(xAxisGridWidth), c.Inner.Max.Y-1))
 	}
 
 	// draw y axis labels
@@ -84,8 +79,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 			buffer.SetString(
 				formatValue(value, c.precision),
 				ui.NewStyle(ui.ColorWhite),
-				image.Pt(c.Inner.Min.X, 1+c.Inner.Min.Y+i*(yAxisLabelsIndent+yAxisLabelsHeight)),
-			)
+				image.Pt(c.Inner.Min.X, 1+c.Inner.Min.Y+i*(yAxisLabelsIndent+yAxisLabelsHeight)))
 		}
 	} else {
 		buffer.SetString(
