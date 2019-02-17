@@ -27,7 +27,7 @@ const (
 )
 
 const (
-	columnsCount = 30
+	columnsCount = 50
 	rowsCount    = 30
 )
 

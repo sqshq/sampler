@@ -70,6 +70,9 @@ func (m *Menu) up() {
 			break
 		}
 	}
+	if m.option == MenuOptionPinpoint && m.component.Type != config.TypeRunChart {
+		m.up()
+	}
 }
 
 func (m *Menu) down() {
@@ -78,6 +81,9 @@ func (m *Menu) down() {
 			m.option = m.options[i+1]
 			break
 		}
+	}
+	if m.option == MenuOptionPinpoint && m.component.Type != config.TypeRunChart {
+		m.down()
 	}
 }
 
@@ -92,11 +98,8 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 	}
 
 	m.updateDimensions()
-
-	buffer.Fill(
-		ui.NewCell(' ', ui.NewStyle(ui.ColorBlack)),
-		m.GetRect(),
-	)
+	buffer.Fill(ui.NewCell(' ', ui.NewStyle(ui.ColorBlack)), m.GetRect())
+	m.drawInnerBorder(buffer)
 
 	switch m.mode {
 	case MenuModeHighlight:
@@ -107,7 +110,6 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 		m.renderOptions(buffer)
 	}
 
-	m.drawInnerBorder(buffer)
 	m.Block.Draw(buffer)
 }
 

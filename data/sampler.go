@@ -25,14 +25,7 @@ func NewSampler(consumer Consumer, item Item, rateMs int) Sampler {
 }
 
 func (self *Sampler) sample() {
-
 	value, err := self.item.nextValue()
-
-	sample := Sample{
-		Value: value,
-		Error: err,
-		Label: self.item.Label,
-	}
-
+	sample := Sample{Value: value, Error: err, Label: *self.item.Label}
 	self.consumer.ConsumeSample(sample)
 }

@@ -2,10 +2,11 @@ package config
 
 import (
 	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/widgets/asciibox"
 )
 
 const (
-	defaultRefreshRateMs = 300
+	defaultRefreshRateMs = 1000
 	defaultPrecision     = 1
 	defaultTheme         = console.ThemeDark
 )
@@ -37,6 +38,26 @@ func (c *Config) setDefaultValues() {
 			c.RunCharts[i] = chart
 		}
 		c.RunCharts[i] = chart
+	}
+
+	for i, box := range c.AsciiBoxes {
+		if box.RefreshRateMs == nil {
+			r := defaultRefreshRateMs
+			box.RefreshRateMs = &r
+		}
+		if box.Label == nil {
+			label := string(i)
+			box.Label = &label
+		}
+		if box.Font == nil {
+			font := asciibox.AsciiFontFlat
+			box.Font = &font
+		}
+		if box.Color == nil {
+			color := console.ColorWhite
+			box.Color = &color
+		}
+		c.AsciiBoxes[i] = box
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
+	"github.com/sqshq/sampler/widgets/asciibox"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -11,14 +12,14 @@ import (
 )
 
 type Config struct {
-	Theme     *console.Theme   `yaml:"theme,omitempty"`
-	RunCharts []RunChartConfig `yaml:"runcharts,omitempty"`
+	Theme      *console.Theme   `yaml:"theme,omitempty"`
+	RunCharts  []RunChartConfig `yaml:"runcharts,omitempty"`
+	AsciiBoxes []AsciiBoxConfig `yaml:"asciiboxes,omitempty"`
 }
 
 type ComponentConfig struct {
 	Title         string   `yaml:"title"`
 	RefreshRateMs *int     `yaml:"refresh-rate-ms,omitempty"`
-	Precision     *int     `yaml:"precision,omitempty"`
 	Position      Position `yaml:"position"`
 	Size          Size     `yaml:"size"`
 }
@@ -26,7 +27,14 @@ type ComponentConfig struct {
 type RunChartConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Legend          *LegendConfig `yaml:"legend,omitempty"`
+	Precision       *int          `yaml:"precision,omitempty"`
 	Items           []data.Item   `yaml:"items"`
+}
+
+type AsciiBoxConfig struct {
+	ComponentConfig `yaml:",inline"`
+	data.Item       `yaml:",inline"`
+	Font            *asciibox.AsciiFont `yaml:"font,omitempty"`
 }
 
 type LegendConfig struct {
@@ -49,6 +57,8 @@ type ComponentType rune
 const (
 	TypeRunChart ComponentType = 0
 	TypeBarChart ComponentType = 1
+	TypeTextBox  ComponentType = 2
+	TypeAsciiBox ComponentType = 3
 )
 
 type ComponentSettings struct {
@@ -89,6 +99,12 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 		for i, component := range c.RunCharts {
 			if component.Title == componentTitle {
 				return &c.RunCharts[i].ComponentConfig
+			}
+		}
+	case TypeAsciiBox:
+		for i, component := range c.AsciiBoxes {
+			if component.Title == componentTitle {
+				return &c.AsciiBoxes[i].ComponentConfig
 			}
 		}
 	}

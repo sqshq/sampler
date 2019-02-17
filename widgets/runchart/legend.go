@@ -107,5 +107,9 @@ func getDiffWithPreviousValue(line TimeLine) float64 {
 }
 
 func getCurrentValue(line TimeLine) float64 {
-	return line.points[len(line.points)-1].value
+	if len(line.points) == 0 {
+		return 0
+	} else {
+		return line.points[len(line.points)-1].value
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
 	"github.com/sqshq/sampler/widgets"
+	"github.com/sqshq/sampler/widgets/asciibox"
 	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
 	"time"
@@ -28,9 +29,15 @@ func main() {
 		layout.AddComponent(chart, c.Title, c.Position, c.Size, config.TypeRunChart)
 
 		for _, item := range c.Items {
-			chart.AddLine(item.Label, *item.Color)
+			chart.AddLine(*item.Label, *item.Color)
 			data.NewSampler(chart, item, *c.RefreshRateMs)
 		}
+	}
+
+	for _, a := range cfg.AsciiBoxes {
+		box := asciibox.NewAsciiBox(a.Title, *a.Font, *a.Item.Color)
+		layout.AddComponent(box, a.Title, a.Position, a.Size, config.TypeAsciiBox)
+		data.NewSampler(box, a.Item, *a.RefreshRateMs)
 	}
 
 	handler := event.Handler{
