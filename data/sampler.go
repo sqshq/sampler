@@ -11,10 +11,12 @@ type Sampler struct {
 
 func NewSampler(consumer Consumer, item Item, rateMs int) Sampler {
 
+	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
 	sampler := Sampler{consumer, item}
 
 	go func() {
-		for t := time.Tick(time.Duration(rateMs * int(time.Millisecond))); ; <-t {
+		sampler.sample()
+		for ; true; <-ticker.C {
 			sampler.sample()
 		}
 	}()

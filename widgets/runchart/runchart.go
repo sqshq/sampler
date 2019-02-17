@@ -328,8 +328,12 @@ func getMidRangeTime(r TimeRange) time.Time {
 }
 
 func formatValue(value float64, precision int) string {
-	format := "%." + strconv.Itoa(precision) + "f"
-	return fmt.Sprintf(format, value)
+	if math.Abs(value) == math.MaxFloat64 {
+		return "Inf"
+	} else {
+		format := "%." + strconv.Itoa(precision) + "f"
+		return fmt.Sprintf(format, value)
+	}
 }
 
 // time duration between grid lines

@@ -24,12 +24,12 @@ func main() {
 	for _, c := range cfg.RunCharts {
 
 		legend := runchart.Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details}
-		chart := runchart.NewRunChart(c.Title, c.Precision, c.RefreshRateMs, legend)
-		layout.AddComponent(chart, c.Title, c.Position, c.Size, widgets.TypeRunChart)
+		chart := runchart.NewRunChart(c.Title, *c.Precision, *c.RefreshRateMs, legend)
+		layout.AddComponent(chart, c.Title, c.Position, c.Size, config.TypeRunChart)
 
 		for _, item := range c.Items {
-			chart.AddLine(item.Label, item.Color)
-			data.NewSampler(chart, item, c.RefreshRateMs)
+			chart.AddLine(item.Label, *item.Color)
+			data.NewSampler(chart, item, *c.RefreshRateMs)
 		}
 	}
 

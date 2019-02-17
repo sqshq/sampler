@@ -1,32 +1,16 @@
 package widgets
 
 import (
-	. "github.com/sqshq/termui"
+	"github.com/sqshq/sampler/config"
+	ui "github.com/sqshq/termui"
 )
 
 type Component struct {
-	Drawable Drawable
+	Drawable ui.Drawable
 	Title    string
-	Position Position
-	Size     Size
-	Type     ComponentType
-}
-
-type ComponentType rune
-
-const (
-	TypeRunChart ComponentType = 0
-	TypeBarChart ComponentType = 1
-)
-
-type Position struct {
-	X int `yaml:"x"`
-	Y int `yaml:"y"`
-}
-
-type Size struct {
-	X int `yaml:"x"`
-	Y int `yaml:"y"`
+	Position config.Position
+	Size     config.Size
+	Type     config.ComponentType
 }
 
 func (c *Component) Move(x, y int) {

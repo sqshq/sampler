@@ -5,6 +5,6 @@ package config
  - title uniquness and mandatory within a single type of widget
  - label uniqueness and mandatory (if > 1 data bullets)
 */
-func (self *Config) validate() {
+func (c *Config) validate() {
 
 }

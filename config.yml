@@ -1,78 +1,48 @@
 theme: dark
 runcharts:
-  - title: SEARCH ENGINE RESPONSE TIME (sec)
-    items:
-      - label: GOOGLE
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
-      - label: YAHOO
-        script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
-      - label: BING
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
-    refresh-rate-ms: 200
-    decimal-places: 3
-    alert:
-      value:
-        more-than: 0.231
-        less-than: 0.123
-        equal: 0.144
-      indicator:
-        terminal: true
-        beep: true
-    legend:
-      enabled: true
-      details: true
-    position:
-      x: 0
-      y: 0
-    size:
-      x: 30
-      y: 15
-  - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
-    items:
-      - label: GOOGLE
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
-      - label: YAHOO
-        script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
-      - label: BING
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
-    refresh-rate-ms: 5000
-    decimal-places: 3
-    alert:
-      value:
-        more-than: 0.231
-        less-than: 0.123
-        equal: 0.144
-      indicator:
-        terminal: true
-        beep: true
-    legend:
-      enabled: true
-      details: false
-    position:
-      x: 0
-      y: 15
-    size:
-      x: 15
-      y: 15
-  - title: MONGO COLLECTIONS COUNT
-    items:
-      - label: POSTS
-        script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"
-    position:
-      x: 15
-      y: 15
-    size:
-      x: 15
-      y: 15
-barcharts:
-  none
-sparklines:
-  none
-gauges:
-  none
-lists:
-  none
-textboxes:
-  none
-asciiboxes:
-  none
+- title: SEARCH ENGINE RESPONSE TIME (sec)
+  precision: 3
+  position:
+    w: 0
+    h: 0
+  size:
+    w: 30
+    h: 20
+  legend:
+    enabled: true
+    details: true
+  items:
+  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
+    label: GOOGLE
+  - script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
+    label: YAHOO
+  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
+    label: BING
+- title: SEARCH ENGINE RESPONSE TIME 2 (sec)
+  refresh-rate-ms: 5000
+  position:
+    w: 0
+    h: 20
+  size:
+    w: 15
+    h: 10
+  legend:
+    enabled: true
+    details: false
+  items:
+  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
+    label: GOOGLE
+  - script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
+    label: YAHOO
+  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
+    label: BING
+- title: MONGO COLLECTIONS COUNT
+  position:
+    w: 15
+    h: 20
+  size:
+    w: 15
+    h: 10
+  items:
+  - script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"
+    label: POSTS

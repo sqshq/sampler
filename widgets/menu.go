@@ -1,6 +1,7 @@
 package widgets
 
 import (
+	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	ui "github.com/sqshq/termui"
 	"image"
@@ -191,7 +192,7 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 			style = highlightedStyle
 		}
 
-		if option != MenuOptionPinpoint || m.component.Type == TypeRunChart {
+		if option != MenuOptionPinpoint || m.component.Type == config.TypeRunChart {
 			offset += 2
 			point := getMiddlePoint(m.Block, string(option), offset-5)
 			if point.In(m.GetRect()) {

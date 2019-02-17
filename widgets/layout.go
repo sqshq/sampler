@@ -1,6 +1,7 @@
 package widgets
 
 import (
+	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
@@ -8,7 +9,7 @@ import (
 
 type Layout struct {
 	ui.Block
-	components []Component
+	Components []Component
 	menu       *Menu
 	mode       Mode
 	selection  int
@@ -37,22 +38,22 @@ func NewLayout(width, height int, menu *Menu) *Layout {
 
 	return &Layout{
 		Block:      block,
-		components: make([]Component, 0),
+		Components: make([]Component, 0),
 		menu:       menu,
 		mode:       ModeDefault,
 		selection:  0,
 	}
 }
 
-func (l *Layout) AddComponent(drawable ui.Drawable, title string, position Position, size Size, Type ComponentType) {
-	l.components = append(l.components, Component{drawable, title, position, size, Type})
+func (l *Layout) AddComponent(drawable ui.Drawable, title string, position config.Position, size config.Size, Type config.ComponentType) {
+	l.Components = append(l.Components, Component{drawable, title, position, size, Type})
 }
 
-func (l *Layout) GetComponents(Type ComponentType) []ui.Drawable {
+func (l *Layout) GetComponents(Type config.ComponentType) []ui.Drawable {
 
 	var components []ui.Drawable
 
-	for _, component := range l.components {
+	for _, component := range l.Components {
 		if component.Type == Type {
 			components = append(components, component.Drawable)
 		}
@@ -133,7 +134,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(1)
 		case ModeComponentSelect:
-			if l.selection < len(l.components)-1 {
+			if l.selection < len(l.Components)-1 {
 				l.selection++
 			}
 			l.menu.highlight(l.getComponent(l.selection))
@@ -167,7 +168,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
-			if l.selection < len(l.components)-1 {
+			if l.selection < len(l.Components)-1 {
 				l.selection++
 			}
 			l.menu.highlight(l.getComponent(l.selection))
@@ -187,11 +188,11 @@ func (l *Layout) ChangeDimensions(width, height int) {
 
 // TODO func to get prev/next component navigating left/right/top/bottom
 func (l *Layout) getComponent(i int) Component {
-	return l.components[i]
+	return l.Components[i]
 }
 
 func (l *Layout) getSelectedComponent() *Component {
-	return &l.components[l.selection]
+	return &l.Components[l.selection]
 }
 
 func (l *Layout) Draw(buffer *ui.Buffer) {
@@ -199,7 +200,7 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	columnWidth := float64(l.GetRect().Dx()) / columnsCount
 	rowHeight := float64(l.GetRect().Dy()) / rowsCount
 
-	for _, component := range l.components {
+	for _, component := range l.Components {
 
 		x1 := float64(component.Position.X) * columnWidth
 		y1 := float64(component.Position.Y) * rowHeight

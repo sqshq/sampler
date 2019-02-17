@@ -10,35 +10,48 @@ const (
 	defaultTheme         = console.ThemeDark
 )
 
-func (self *Config) setDefaultValues() {
+func (c *Config) setDefaults() {
+	c.setDefaultValues()
+	c.setDefaultColors()
+	c.setDefaultLayout()
+}
 
-	if len(self.Theme) == 0 {
-		self.Theme = defaultTheme
+func (c *Config) setDefaultValues() {
+
+	if c.Theme == nil {
+		t := defaultTheme
+		c.Theme = &t
 	}
 
-	for i, chart := range self.RunCharts {
-		if chart.RefreshRateMs == 0 {
-			chart.RefreshRateMs = defaultRefreshRateMs
+	for i, chart := range c.RunCharts {
+		if chart.RefreshRateMs == nil {
+			r := defaultRefreshRateMs
+			chart.RefreshRateMs = &r
 		}
-		if chart.Precision == 0 {
-			chart.Precision = defaultPrecision
+		if chart.Precision == nil {
+			p := defaultPrecision
+			chart.Precision = &p
 		}
-		self.RunCharts[i] = chart
+		if chart.Legend == nil {
+			chart.Legend = &LegendConfig{true, true}
+			c.RunCharts[i] = chart
+		}
+		c.RunCharts[i] = chart
 	}
 }
 
-func (config *Config) setDefaultLayout() {
+func (c *Config) setDefaultLayout() {
 
 }
 
-func (config *Config) setDefaultColors() {
+func (c *Config) setDefaultColors() {
 
-	palette := console.GetPalette(config.Theme)
+	palette := console.GetPalette(*c.Theme)
 
-	for i, chart := range config.RunCharts {
+	for i, chart := range c.RunCharts {
 		for j, item := range chart.Items {
-			if item.Color == 0 {
-				item.Color = palette.Colors[i+j] // TODO handle out of range case
+			if item.Color == nil {
+				item.Color = &palette.Colors[i+j] // TODO handle out of range case
 				chart.Items[j] = item
 			}
 		}
