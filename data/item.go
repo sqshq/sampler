@@ -7,8 +7,8 @@ import (
 )
 
 type Item struct {
-	Script string    `yaml:"script"`
 	Label  string    `yaml:"label"`
+	Script string    `yaml:"script"`
 	Color  *ui.Color `yaml:"color,omitempty"`
 }
 

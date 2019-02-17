@@ -1,4 +1,3 @@
-theme: dark
 runcharts:
 - title: SEARCH ENGINE RESPONSE TIME (sec)
   precision: 3
@@ -8,16 +7,17 @@ runcharts:
   size:
     w: 30
     h: 20
-  legend:
-    enabled: true
-    details: true
   items:
-  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
-    label: GOOGLE
-  - script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
-    label: YAHOO
-  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
-    label: BING
+  - label: GOOGLE
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+  - label: YAHOO
+    script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+  - label: YANDEX
+    script: curl -o /dev/null -s -w '%{time_total}'  https://yandex.com
+  - label: BING
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
+  - label: DDGO
+    script: curl -o /dev/null -s -w '%{time_total}'  https://duckduckgo.com
 - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
   refresh-rate-ms: 5000
   position:
@@ -30,12 +30,12 @@ runcharts:
     enabled: true
     details: false
   items:
-  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com/
-    label: GOOGLE
-  - script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com/
-    label: YAHOO
-  - script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com/
-    label: BING
+  - label: GOOGLE
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+  - label: YAHOO
+    script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+  - label: BING
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
   position:
     w: 15
@@ -44,5 +44,5 @@ runcharts:
     w: 15
     h: 10
   items:
-  - script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"
-    label: POSTS
+  - label: POSTS
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"

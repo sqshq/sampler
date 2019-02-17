@@ -41,17 +41,18 @@ func (c *Config) setDefaultValues() {
 }
 
 func (c *Config) setDefaultLayout() {
-
+	// TODO auto-arrange components
 }
 
 func (c *Config) setDefaultColors() {
 
 	palette := console.GetPalette(*c.Theme)
+	colorsCount := len(palette.Colors)
 
-	for i, chart := range c.RunCharts {
+	for _, chart := range c.RunCharts {
 		for j, item := range chart.Items {
 			if item.Color == nil {
-				item.Color = &palette.Colors[i+j] // TODO handle out of range case
+				item.Color = &palette.Colors[j%colorsCount]
 				chart.Items[j] = item
 			}
 		}
