@@ -70,10 +70,10 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			}
 
 			details := [4]string{
-				fmt.Sprintf("cur %s", formatValue(getCurrentValue(line), c.precision)),
-				fmt.Sprintf("dlt %s", formatValue(getDiffWithPreviousValue(line), c.precision)),
-				fmt.Sprintf("max %s", formatValue(line.extrema.max, c.precision)),
-				fmt.Sprintf("min %s", formatValue(line.extrema.min, c.precision)),
+				fmt.Sprintf("cur  %s", formatValue(getCurrentValue(line), c.precision)),
+				fmt.Sprintf("dlt %s", formatValueWithSign(getDiffWithPreviousValue(line), c.precision)),
+				fmt.Sprintf("max  %s", formatValue(line.extrema.max, c.precision)),
+				fmt.Sprintf("min  %s", formatValue(line.extrema.min, c.precision)),
 			}
 
 			for i, detail := range details {
@@ -102,7 +102,7 @@ func getDiffWithPreviousValue(line TimeLine) float64 {
 	if len(line.points) < 2 {
 		return 0
 	} else {
-		return math.Abs(line.points[len(line.points)-1].value - line.points[len(line.points)-2].value)
+		return line.points[len(line.points)-1].value - line.points[len(line.points)-2].value
 	}
 }
 

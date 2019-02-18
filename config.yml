@@ -33,6 +33,7 @@ runcharts:
   - label: BING
     script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
+  precision: 0
   position:
     w: 17
     h: 14
@@ -40,8 +41,10 @@ runcharts:
     w: 17
     h: 10
   items:
-  - label: POSTS
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('post').find({}).size()"
+  - label: ACTIVE
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).size()"
+  - label: INACTIVE
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).size()"
 asciiboxes:
 - title: COUNT
   position:

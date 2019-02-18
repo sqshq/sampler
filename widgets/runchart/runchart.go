@@ -336,6 +336,16 @@ func formatValue(value float64, precision int) string {
 	}
 }
 
+func formatValueWithSign(value float64, precision int) string {
+	if value == 0 {
+		return " 0"
+	} else if value > 0 {
+		return "+" + formatValue(value, precision)
+	} else {
+		return formatValue(value, precision)
+	}
+}
+
 // time duration between grid lines
 func calculateTimescale(refreshRateMs int) time.Duration {
 
