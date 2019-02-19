@@ -38,7 +38,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 	rowCount := (c.Dy() - 2*yAxisLegendIndent) / (height + yAxisLegendIndent)
 	columnCount := int(math.Ceil(float64(len(c.lines)) / float64(rowCount)))
-	columnWidth := getColumnWidth(c.mode, c.lines, c.precision)
+	columnWidth := getColumnWidth(c.mode, c.lines, c.scale)
 
 	for col := 0; col < columnCount; col++ {
 		for row := 0; row < rowCount; row++ {
@@ -61,7 +61,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 			if c.mode == ModePinpoint {
 				buffer.SetString(fmt.Sprintf("time  %s", line.selectionPoint.time.Format("15:04:05.000")), detailsStyle, image.Pt(x, y+1))
-				buffer.SetString(fmt.Sprintf("value %s", formatValue(line.selectionPoint.value, c.precision)), detailsStyle, image.Pt(x, y+2))
+				buffer.SetString(fmt.Sprintf("value %s", formatValue(line.selectionPoint.value, c.scale)), detailsStyle, image.Pt(x, y+2))
 				continue
 			}
 
@@ -70,10 +70,10 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			}
 
 			details := [4]string{
-				fmt.Sprintf("cur  %s", formatValue(getCurrentValue(line), c.precision)),
-				fmt.Sprintf("dlt %s", formatValueWithSign(getDiffWithPreviousValue(line), c.precision)),
-				fmt.Sprintf("max  %s", formatValue(line.extrema.max, c.precision)),
-				fmt.Sprintf("min  %s", formatValue(line.extrema.min, c.precision)),
+				fmt.Sprintf("cur  %s", formatValue(getCurrentValue(line), c.scale)),
+				fmt.Sprintf("dlt %s", formatValueWithSign(getDiffWithPreviousValue(line), c.scale)),
+				fmt.Sprintf("max  %s", formatValue(line.extrema.max, c.scale)),
+				fmt.Sprintf("min  %s", formatValue(line.extrema.min, c.scale)),
 			}
 
 			for i, detail := range details {
@@ -83,13 +83,13 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 	}
 }
 
-func getColumnWidth(mode Mode, lines []TimeLine, precision int) int {
+func getColumnWidth(mode Mode, lines []TimeLine, scale int) int {
 
 	if mode == ModePinpoint {
 		return len(timeFormat)
 	}
 
-	width := len(formatValue(0, precision))
+	width := len(formatValue(0, scale))
 	for _, line := range lines {
 		if len(line.label) > width {
 			width = len(line.label)

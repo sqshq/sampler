@@ -14,6 +14,7 @@ import (
 type Config struct {
 	Theme      *console.Theme   `yaml:"theme,omitempty"`
 	RunCharts  []RunChartConfig `yaml:"runcharts,omitempty"`
+	BarCharts  []BarChartConfig `yaml:"barcharts,omitempty"`
 	AsciiBoxes []AsciiBoxConfig `yaml:"asciiboxes,omitempty"`
 }
 
@@ -27,8 +28,14 @@ type ComponentConfig struct {
 type RunChartConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Legend          *LegendConfig `yaml:"legend,omitempty"`
-	Precision       *int          `yaml:"precision,omitempty"`
+	Scale           *int          `yaml:"scale,omitempty"`
 	Items           []data.Item   `yaml:"items"`
+}
+
+type BarChartConfig struct {
+	ComponentConfig `yaml:",inline"`
+	Scale           *int        `yaml:"scale,omitempty"`
+	Items           []data.Item `yaml:"items"`
 }
 
 type AsciiBoxConfig struct {

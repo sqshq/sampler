@@ -42,7 +42,7 @@ type RunChart struct {
 	mutex     *sync.Mutex
 	mode      Mode
 	selection time.Time
-	precision int
+	scale     int
 	legend    Legend
 }
 
@@ -71,7 +71,7 @@ type ValueExtrema struct {
 	min float64
 }
 
-func NewRunChart(title string, precision int, refreshRateMs int, legend Legend) *RunChart {
+func NewRunChart(title string, scale int, refreshRateMs int, legend Legend) *RunChart {
 	block := *ui.NewBlock()
 	block.Title = title
 	return &RunChart{
@@ -79,7 +79,7 @@ func NewRunChart(title string, precision int, refreshRateMs int, legend Legend) 
 		lines:     []TimeLine{},
 		timescale: calculateTimescale(refreshRateMs),
 		mutex:     &sync.Mutex{},
-		precision: precision,
+		scale:     scale,
 		mode:      ModeDefault,
 		legend:    legend,
 	}
@@ -285,7 +285,7 @@ func (c *RunChart) getMaxValueLength() int {
 
 	for _, line := range c.lines {
 		for _, point := range line.points {
-			l := len(formatValue(point.value, c.precision))
+			l := len(formatValue(point.value, c.scale))
 			if l > maxValueLength {
 				maxValueLength = l
 			}
@@ -327,22 +327,22 @@ func getMidRangeTime(r TimeRange) time.Time {
 	return r.max.Add(-delta / 2)
 }
 
-func formatValue(value float64, precision int) string {
+func formatValue(value float64, scale int) string {
 	if math.Abs(value) == math.MaxFloat64 {
 		return "Inf"
 	} else {
-		format := "%." + strconv.Itoa(precision) + "f"
+		format := "%." + strconv.Itoa(scale) + "f"
 		return fmt.Sprintf(format, value)
 	}
 }
 
-func formatValueWithSign(value float64, precision int) string {
+func formatValueWithSign(value float64, scale int) string {
 	if value == 0 {
 		return " 0"
 	} else if value > 0 {
-		return "+" + formatValue(value, precision)
+		return "+" + formatValue(value, scale)
 	} else {
-		return formatValue(value, precision)
+		return formatValue(value, scale)
 	}
 }
 

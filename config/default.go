@@ -7,7 +7,7 @@ import (
 
 const (
 	defaultRefreshRateMs = 1000
-	defaultPrecision     = 1
+	defaultScale         = 1
 	defaultTheme         = console.ThemeDark
 )
 
@@ -29,9 +29,9 @@ func (c *Config) setDefaultValues() {
 			r := defaultRefreshRateMs
 			chart.RefreshRateMs = &r
 		}
-		if chart.Precision == nil {
-			p := defaultPrecision
-			chart.Precision = &p
+		if chart.Scale == nil {
+			p := defaultScale
+			chart.Scale = &p
 		}
 		if chart.Legend == nil {
 			chart.Legend = &LegendConfig{true, true}

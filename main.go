@@ -7,6 +7,7 @@ import (
 	"github.com/sqshq/sampler/event"
 	"github.com/sqshq/sampler/widgets"
 	"github.com/sqshq/sampler/widgets/asciibox"
+	"github.com/sqshq/sampler/widgets/barchart"
 	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
 	"time"
@@ -25,7 +26,7 @@ func main() {
 	for _, c := range cfg.RunCharts {
 
 		legend := runchart.Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details}
-		chart := runchart.NewRunChart(c.Title, *c.Precision, *c.RefreshRateMs, legend)
+		chart := runchart.NewRunChart(c.Title, *c.Scale, *c.RefreshRateMs, legend)
 		layout.AddComponent(chart, c.Title, c.Position, c.Size, config.TypeRunChart)
 
 		for _, item := range c.Items {
@@ -38,6 +39,17 @@ func main() {
 		box := asciibox.NewAsciiBox(a.Title, *a.Font, *a.Item.Color)
 		layout.AddComponent(box, a.Title, a.Position, a.Size, config.TypeAsciiBox)
 		data.NewSampler(box, a.Item, *a.RefreshRateMs)
+	}
+
+	for _, c := range cfg.BarCharts {
+
+		chart := barchart.NewBarChart(c.Title, *c.Scale)
+		layout.AddComponent(chart, c.Title, c.Position, c.Size, config.TypeBarChart)
+
+		for _, item := range c.Items {
+			chart.AddBar(*item.Label, *item.Color)
+			data.NewSampler(chart, item, *c.RefreshRateMs)
+		}
 	}
 
 	handler := event.Handler{
