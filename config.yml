@@ -47,10 +47,18 @@ runcharts:
         script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 barcharts:
   - title: ANCHOR CONTEXT EVENTS
-  - label: ACTIVE
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
-  - label: INACTIVE
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    refresh-rate-ms: 300
+    position:
+      w: 30
+      h: 10
+    size:
+      w: 16
+      h: 4
+    items:
+      - label: ACTIVE
+        script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+      - label: INACTIVE
+        script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 asciiboxes:
   - title: COUNT
     position:

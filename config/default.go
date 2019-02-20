@@ -40,6 +40,18 @@ func (c *Config) setDefaultValues() {
 		c.RunCharts[i] = chart
 	}
 
+	for i, chart := range c.BarCharts {
+		if chart.RefreshRateMs == nil {
+			r := defaultRefreshRateMs
+			chart.RefreshRateMs = &r
+		}
+		if chart.Scale == nil {
+			p := defaultScale
+			chart.Scale = &p
+		}
+		c.BarCharts[i] = chart
+	}
+
 	for i, box := range c.AsciiBoxes {
 		if box.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
@@ -71,6 +83,15 @@ func (c *Config) setDefaultColors() {
 	colorsCount := len(palette.Colors)
 
 	for _, chart := range c.RunCharts {
+		for j, item := range chart.Items {
+			if item.Color == nil {
+				item.Color = &palette.Colors[j%colorsCount]
+				chart.Items[j] = item
+			}
+		}
+	}
+
+	for _, chart := range c.BarCharts {
 		for j, item := range chart.Items {
 			if item.Color == nil {
 				item.Color = &palette.Colors[j%colorsCount]

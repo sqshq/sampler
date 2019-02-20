@@ -1,10 +1,13 @@
 package barchart
 
 import (
+	"fmt"
 	rw "github.com/mattn/go-runewidth"
+	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
 	"image"
+	"math"
 	"strconv"
 )
 
@@ -33,7 +36,7 @@ func NewBarChart(title string, scale int) *BarChart {
 		Block:    block,
 		bars:     []Bar{},
 		scale:    scale,
-		maxValue: 0,
+		maxValue: -math.MaxFloat64,
 	}
 }
 
@@ -56,6 +59,10 @@ func (b *BarChart) ConsumeSample(sample data.Sample) {
 		}
 	}
 
+	if float > b.maxValue {
+		b.maxValue = float
+	}
+
 	bar := b.bars[index]
 	bar.value = float
 	b.bars[index] = bar
@@ -64,46 +71,51 @@ func (b *BarChart) ConsumeSample(sample data.Sample) {
 func (b *BarChart) Draw(buf *ui.Buffer) {
 	b.Block.Draw(buf)
 
-	maxVal := b.maxValue
-
+	barWidth := b.Inner.Dx() / len(b.bars)
 	barXCoordinate := b.Inner.Min.X
 
-	for i, data := range b.Data {
+	labelStyle := ui.NewStyle(console.ColorWhite)
+
+	for _, bar := range b.bars {
 		// draw bar
-		height := int((data / maxVal) * float64(b.Inner.Dy()-1))
-		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+b.BarWidth, b.Inner.Max.X); x++ {
+		height := int((bar.value / b.maxValue) * float64(b.Inner.Dy()-1))
+		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+barWidth, b.Inner.Max.X); x++ {
 			for y := b.Inner.Max.Y - 2; y > (b.Inner.Max.Y-2)-height; y-- {
-				c := ui.NewCell(barSymbol, ui.NewStyle(ui.SelectColor(b.BarColors, i)))
+				c := ui.NewCell(barSymbol, ui.NewStyle(bar.color))
 				buf.SetCell(c, image.Pt(x, y))
 			}
 		}
 
 		// draw label
-		if i < len(b.Labels) {
-			labelXCoordinate := barXCoordinate +
-				int((float64(b.BarWidth) / 2)) -
-				int((float64(rw.StringWidth(b.Labels[i])) / 2))
-			buf.SetString(
-				b.Labels[i],
-				ui.SelectStyle(b.LabelStyles, i),
-				image.Pt(labelXCoordinate, b.Inner.Max.Y-1),
-			)
-		}
+		labelXCoordinate := barXCoordinate +
+			int(float64(barWidth)/2) -
+			int(float64(rw.StringWidth(bar.label))/2)
+		buf.SetString(
+			bar.label,
+			labelStyle,
+			image.Pt(labelXCoordinate, b.Inner.Max.Y-1),
+		)
 
 		// draw value
-		numberXCoordinate := barXCoordinate + int((float64(b.BarWidth) / 2))
+		numberXCoordinate := barXCoordinate + int(float64(barWidth)/2)
 		if numberXCoordinate <= b.Inner.Max.X {
 			buf.SetString(
-				b.NumFmt(data),
-				ui.NewStyle(
-					ui.SelectStyle(b.NumStyles, i+1).Fg,
-					ui.SelectColor(b.BarColors, i),
-					ui.SelectStyle(b.NumStyles, i+1).Modifier,
-				),
+				formatValue(bar.value, b.scale),
+				labelStyle,
 				image.Pt(numberXCoordinate, b.Inner.Max.Y-2),
 			)
 		}
 
-		barXCoordinate += (b.BarWidth + b.BarGap)
+		barXCoordinate += barWidth + barIndent
+	}
+}
+
+// TODO extract to utils
+func formatValue(value float64, scale int) string {
+	if math.Abs(value) == math.MaxFloat64 {
+		return "Inf"
+	} else {
+		format := "%." + strconv.Itoa(scale) + "f"
+		return fmt.Sprintf(format, value)
 	}
 }
