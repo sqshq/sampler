@@ -21,12 +21,14 @@ type BarChart struct {
 	bars     []Bar
 	scale    int
 	maxValue float64
+	count    int64
 }
 
 type Bar struct {
 	label string
 	color ui.Color
 	value float64
+	delta float64
 }
 
 func NewBarChart(title string, scale int) *BarChart {
@@ -46,8 +48,9 @@ func (b *BarChart) AddBar(label string, color ui.Color) {
 
 func (b *BarChart) ConsumeSample(sample data.Sample) {
 
-	float, err := strconv.ParseFloat(sample.Value, 64)
+	b.count++
 
+	float, err := strconv.ParseFloat(sample.Value, 64)
 	if err != nil {
 		// TODO visual notification + check sample.Error
 	}
@@ -59,28 +62,50 @@ func (b *BarChart) ConsumeSample(sample data.Sample) {
 		}
 	}
 
+	bar := b.bars[index]
+	bar.delta = float - bar.value
+	bar.value = float
+	b.bars[index] = bar
+
 	if float > b.maxValue {
 		b.maxValue = float
 	}
 
-	bar := b.bars[index]
-	bar.value = float
-	b.bars[index] = bar
+	// normalize bars height once in a while
+	if b.count%500 == 0 {
+		b.reselectMaxValue()
+	}
+}
+
+func (b *BarChart) reselectMaxValue() {
+	maxValue := -math.MaxFloat64
+	for _, bar := range b.bars {
+		if bar.value > maxValue {
+			maxValue = bar.value
+		}
+	}
+	b.maxValue = maxValue
 }
 
 func (b *BarChart) Draw(buf *ui.Buffer) {
 	b.Block.Draw(buf)
 
-	barWidth := b.Inner.Dx() / len(b.bars)
-	barXCoordinate := b.Inner.Min.X
+	barWidth := (b.Inner.Dx() - 2*barIndent - len(b.bars)) / len(b.bars)
+	barXCoordinate := b.Inner.Min.X + barIndent
 
 	labelStyle := ui.NewStyle(console.ColorWhite)
 
 	for _, bar := range b.bars {
+
 		// draw bar
 		height := int((bar.value / b.maxValue) * float64(b.Inner.Dy()-1))
-		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+barWidth, b.Inner.Max.X); x++ {
-			for y := b.Inner.Max.Y - 2; y > (b.Inner.Max.Y-2)-height; y-- {
+		if height <= 1 {
+			height = 2
+		}
+
+		maxYCoordinate := b.Inner.Max.Y - height
+		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+barWidth, b.Inner.Max.X-barIndent); x++ {
+			for y := b.Inner.Max.Y - 2; y >= maxYCoordinate; y-- {
 				c := ui.NewCell(barSymbol, ui.NewStyle(bar.color))
 				buf.SetCell(c, image.Pt(x, y))
 			}
@@ -93,18 +118,20 @@ func (b *BarChart) Draw(buf *ui.Buffer) {
 		buf.SetString(
 			bar.label,
 			labelStyle,
-			image.Pt(labelXCoordinate, b.Inner.Max.Y-1),
-		)
+			image.Pt(labelXCoordinate, b.Inner.Max.Y-1))
 
-		// draw value
-		numberXCoordinate := barXCoordinate + int(float64(barWidth)/2)
-		if numberXCoordinate <= b.Inner.Max.X {
-			buf.SetString(
-				formatValue(bar.value, b.scale),
-				labelStyle,
-				image.Pt(numberXCoordinate, b.Inner.Max.Y-2),
-			)
+		// draw value & delta
+		value := formatValue(bar.value, b.scale)
+		if bar.delta != 0 {
+			value = fmt.Sprintf("%s / %s", value, formatValueWithSign(bar.delta, b.scale))
 		}
+		valueXCoordinate := barXCoordinate +
+			int(float64(barWidth)/2) -
+			int(float64(rw.StringWidth(value))/2)
+		buf.SetString(
+			value,
+			labelStyle,
+			image.Pt(valueXCoordinate, maxYCoordinate-1))
 
 		barXCoordinate += barWidth + barIndent
 	}
@@ -117,5 +144,16 @@ func formatValue(value float64, scale int) string {
 	} else {
 		format := "%." + strconv.Itoa(scale) + "f"
 		return fmt.Sprintf(format, value)
+	}
+}
+
+// TODO extract to utils
+func formatValueWithSign(value float64, scale int) string {
+	if value == 0 {
+		return " 0"
+	} else if value > 0 {
+		return "+" + formatValue(value, scale)
+	} else {
+		return formatValue(value, scale)
 	}
 }

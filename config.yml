@@ -1,79 +1,86 @@
 runcharts:
-  - title: SEARCH ENGINE RESPONSE TIME (sec)
-    position:
-      w: 0
-      h: 0
-    size:
-      w: 50
-      h: 14
-    scale: 3
-    items:
-      - label: GOOGLE
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
-      - label: YAHOO
-        script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
-      - label: BING
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
-  - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
-    refresh-rate-ms: 5000
-    position:
-      w: 0
-      h: 14
-    size:
-      w: 17
-      h: 10
-    legend:
-      enabled: true
-      details: false
-    items:
-      - label: GOOGLE
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
-      - label: YAHOO
-        script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
-      - label: BING
-        script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
-  - title: MONGO COLLECTIONS COUNT
-    position:
-      w: 17
-      h: 14
-    size:
-      w: 17
-      h: 10
-    scale: 0
-    items:
-      - label: ACTIVE
-        script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
-      - label: INACTIVE
-        script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+- title: SEARCH ENGINE RESPONSE TIME (sec)
+  position:
+    w: 0
+    h: 0
+  size:
+    w: 37
+    h: 14
+  scale: 3
+  items:
+  - label: GOOGLE
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+  - label: YAHOO
+    script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+  - label: BING
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
+- title: SEARCH ENGINE RESPONSE TIME 2 (sec)
+  refresh-rate-ms: 5000
+  position:
+    w: 37
+    h: 0
+  size:
+    w: 13
+    h: 14
+  legend:
+    enabled: true
+    details: false
+  items:
+  - label: GOOGLE
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+  - label: YAHOO
+    script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+  - label: BING
+    script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
+- title: MONGO COLLECTIONS COUNT
+  position:
+    w: 17
+    h: 14
+  size:
+    w: 17
+    h: 10
+  scale: 0
+  items:
+  - label: ACTIVE
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+  - label: INACTIVE
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 barcharts:
-  - title: ANCHOR CONTEXT EVENTS
-    refresh-rate-ms: 300
-    position:
-      w: 30
-      h: 10
-    size:
-      w: 16
-      h: 4
-    items:
-      - label: ACTIVE
-        script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
-      - label: INACTIVE
-        script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+- title: DB EVENTS
+  refresh-rate-ms: 1000
+  position:
+    w: 0
+    h: 14
+  size:
+    w: 17
+    h: 10
+  scale: 0
+  items:
+  - label: ACTIVE
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+  - label: INACTIVE
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+  - label: HUACTIVE
+    script: echo 0
+  - label: ACTIVE2
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+  - label: INACTIVE2
+    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 asciiboxes:
-  - title: COUNT
-    position:
-      w: 34
-      h: 14
-    size:
-      w: 16
-      h: 4
-    script: date +%r
-  - title: MODE
-    position:
-      w: 34
-      h: 18
-    size:
-      w: 16
-      h: 6
-    script: date +%r
-    font: 3d
+- title: COUNT
+  position:
+    w: 34
+    h: 14
+  size:
+    w: 16
+    h: 4
+  script: date +%r
+- title: MODE
+  position:
+    w: 34
+    h: 18
+  size:
+    w: 16
+    h: 6
+  script: date +%r
+  font: 3d

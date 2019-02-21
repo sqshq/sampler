@@ -108,6 +108,12 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 				return &c.RunCharts[i].ComponentConfig
 			}
 		}
+	case TypeBarChart:
+		for i, component := range c.BarCharts {
+			if component.Title == componentTitle {
+				return &c.BarCharts[i].ComponentConfig
+			}
+		}
 	case TypeAsciiBox:
 		for i, component := range c.AsciiBoxes {
 			if component.Title == componentTitle {
