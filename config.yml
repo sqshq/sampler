@@ -4,7 +4,7 @@ runcharts:
     w: 0
     h: 0
   size:
-    w: 37
+    w: 34
     h: 14
   scale: 3
   items:
@@ -17,10 +17,10 @@ runcharts:
 - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
   refresh-rate-ms: 5000
   position:
-    w: 37
+    w: 34
     h: 0
   size:
-    w: 13
+    w: 16
     h: 14
   legend:
     enabled: true
@@ -46,7 +46,7 @@ runcharts:
   - label: INACTIVE
     script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 barcharts:
-- title: DB EVENTS
+- title: EVENTS BY STATUS
   refresh-rate-ms: 1000
   position:
     w: 0
@@ -56,18 +56,18 @@ barcharts:
     h: 10
   scale: 0
   items:
-  - label: ACTIVE
+  - label: NEW
     script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
-  - label: INACTIVE
+  - label: TRIGGERED
     script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
-  - label: HUACTIVE
+  - label: IN_PROCESS
     script: echo 0
-  - label: ACTIVE2
+  - label: FINISHED
     script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
-  - label: INACTIVE2
+  - label: FAILED
     script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 asciiboxes:
-- title: COUNT
+- title: LOCAL TIME
   position:
     w: 34
     h: 14
@@ -75,12 +75,12 @@ asciiboxes:
     w: 16
     h: 4
   script: date +%r
-- title: MODE
+- title: UTC TIME
   position:
     w: 34
     h: 18
   size:
     w: 16
     h: 6
-  script: date +%r
+  script: env TZ=UTC date +%r
   font: 3d
