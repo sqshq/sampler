@@ -1,14 +1,14 @@
 package main
 
 import (
+	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/component/asciibox"
+	"github.com/sqshq/sampler/component/barchart"
+	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
-	"github.com/sqshq/sampler/widgets"
-	"github.com/sqshq/sampler/widgets/asciibox"
-	"github.com/sqshq/sampler/widgets/barchart"
-	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
 )
 
@@ -20,7 +20,7 @@ func main() {
 	defer csl.Close()
 
 	width, height := ui.TerminalDimensions()
-	layout := widgets.NewLayout(width, height, widgets.NewMenu())
+	layout := component.NewLayout(width, height, component.NewMenu())
 
 	for _, c := range cfg.RunCharts {
 

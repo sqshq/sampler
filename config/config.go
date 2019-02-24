@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
+	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
-	"github.com/sqshq/sampler/widgets/asciibox"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"

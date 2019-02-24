@@ -1,9 +1,9 @@
-package widgets
+package component
 
 import (
+	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
-	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
 )
 

@@ -1,4 +1,4 @@
-package widgets
+package component
 
 import (
 	"github.com/sqshq/sampler/config"

@@ -1,12 +1,12 @@
 package config
 
 import (
+	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/console"
-	"github.com/sqshq/sampler/widgets/asciibox"
 )
 
 const (
-	defaultRefreshRateMs = 1000
+	defaultRefreshRateMs = 200
 	defaultScale         = 1
 	defaultTheme         = console.ThemeDark
 )
