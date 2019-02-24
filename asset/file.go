@@ -13,10 +13,10 @@ func NewAssetFile(data []byte) AssetFile {
 	return AssetFile{bytes.NewReader(data)}
 }
 
-func (self AssetFile) Read(p []byte) (n int, err error) {
-	return self.reader.Read(p)
+func (a AssetFile) Read(p []byte) (n int, err error) {
+	return a.reader.Read(p)
 }
 
-func (self AssetFile) Close() error {
+func (a AssetFile) Close() error {
 	return nil
 }

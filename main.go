@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"

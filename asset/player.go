@@ -8,9 +8,9 @@ import (
 	"log"
 )
 
-func beep() error {
+func Beep() error {
 
-	bytes, err := Asset("quindar-tone")
+	bytes, err := Asset("quindar-tone.mp3")
 	if err != nil {
 		log.Fatal("Can't find asset file")
 	}

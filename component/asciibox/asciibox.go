@@ -1,7 +1,8 @@
 package asciibox
 
 import (
-	fl "github.com/mbndr/figlet4go"
+	fl "github.com/sqshq/figlet4go"
+	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
 	"image"
@@ -28,14 +29,15 @@ func NewAsciiBox(title string, font AsciiFont, color ui.Color) *AsciiBox {
 	block := *ui.NewBlock()
 	block.Title = title
 
-	render := fl.NewAsciiRender()
-	err := render.LoadFont("asset/")
-	if err != nil {
-		panic("Can't load fonts: " + err.Error())
-	}
-
 	options := fl.NewRenderOptions()
 	options.FontName = string(font)
+
+	fontStr, err := asset.Asset(options.FontName + ".flf")
+	if err != nil {
+		panic("Can't load the font: " + err.Error())
+	}
+	render := fl.NewAsciiRender()
+	_ = render.LoadBindataFont(fontStr, options.FontName)
 
 	return &AsciiBox{
 		Block:   block,
