@@ -10,7 +10,6 @@ import (
 	"github.com/sqshq/sampler/widgets/barchart"
 	"github.com/sqshq/sampler/widgets/runchart"
 	ui "github.com/sqshq/termui"
-	"time"
 )
 
 func main() {
@@ -27,7 +26,7 @@ func main() {
 
 		legend := runchart.Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details}
 		chart := runchart.NewRunChart(c.Title, *c.Scale, *c.RefreshRateMs, legend)
-		layout.AddComponent(chart, c.Title, c.Position, c.Size, config.TypeRunChart)
+		layout.AddComponent(config.TypeRunChart, chart, c.Title, c.Position, c.Size, *c.RefreshRateMs)
 
 		for _, item := range c.Items {
 			chart.AddLine(*item.Label, *item.Color)
@@ -37,14 +36,14 @@ func main() {
 
 	for _, a := range cfg.AsciiBoxes {
 		box := asciibox.NewAsciiBox(a.Title, *a.Font, *a.Item.Color)
-		layout.AddComponent(box, a.Title, a.Position, a.Size, config.TypeAsciiBox)
+		layout.AddComponent(config.TypeAsciiBox, box, a.Title, a.Position, a.Size, *a.RefreshRateMs)
 		data.NewSampler(box, a.Item, *a.RefreshRateMs)
 	}
 
 	for _, c := range cfg.BarCharts {
 
 		chart := barchart.NewBarChart(c.Title, *c.Scale)
-		layout.AddComponent(chart, c.Title, c.Position, c.Size, config.TypeBarChart)
+		layout.AddComponent(config.TypeBarChart, chart, c.Title, c.Position, c.Size, *c.RefreshRateMs)
 
 		for _, item := range c.Items {
 			chart.AddBar(*item.Label, *item.Color)
@@ -52,11 +51,6 @@ func main() {
 		}
 	}
 
-	handler := event.Handler{
-		Layout:        layout,
-		RenderEvents:  time.NewTicker(console.RenderRate).C,
-		ConsoleEvents: ui.PollEvents(),
-	}
-
+	handler := event.NewHandler(layout)
 	handler.HandleEvents()
 }

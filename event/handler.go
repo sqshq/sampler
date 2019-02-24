@@ -8,44 +8,97 @@ import (
 	"time"
 )
 
+const (
+	refreshRateToRenderRateRatio = 0.8
+)
+
 type Handler struct {
-	Layout        *widgets.Layout
-	RenderEvents  <-chan time.Time
-	ConsoleEvents <-chan ui.Event
+	layout        *widgets.Layout
+	renderTicker  *time.Ticker
+	consoleEvents <-chan ui.Event
+	renderRate    time.Duration
+}
+
+func NewHandler(layout *widgets.Layout) Handler {
+	renderRate := calcMinRenderRate(layout)
+	return Handler{
+		layout:        layout,
+		consoleEvents: ui.PollEvents(),
+		renderTicker:  time.NewTicker(renderRate),
+		renderRate:    renderRate,
+	}
 }
 
 func (h *Handler) HandleEvents() {
 
+	// initial render
+	ui.Render(h.layout)
 	pause := false
 
 	for {
 		select {
-		case <-h.RenderEvents:
-			if !pause {
-				ui.Render(h.Layout)
-			}
-		case e := <-h.ConsoleEvents:
+		case mode := <-h.layout.ChangeModeEvents:
+			h.handleModeChange(mode)
+		case <-h.renderTicker.C:
+			ui.Render(h.layout)
+		case e := <-h.consoleEvents:
 			switch e.ID {
 			case console.KeyQuit, console.KeyExit:
 				h.handleExit()
 				return
 			case console.KeyPause:
-				pause = !pause
+				pause = !pause // TODO move to layout, since it will show PAUSE sign in status line, pause/unpause can be sent via channel
 			case console.SignalResize:
 				payload := e.Payload.(ui.Resize)
-				h.Layout.ChangeDimensions(payload.Width, payload.Height)
+				h.layout.ChangeDimensions(payload.Width, payload.Height)
 			default:
-				h.Layout.HandleConsoleEvent(e.ID)
+				h.layout.HandleConsoleEvent(e.ID)
 			}
 		}
 	}
 }
 
+func (h *Handler) handleModeChange(m widgets.Mode) {
+
+	// render mode change before switching the tickers
+	ui.Render(h.layout)
+	h.renderTicker.Stop()
+
+	if m == widgets.ModeDefault {
+		h.renderTicker = time.NewTicker(h.renderRate)
+	} else {
+		h.renderTicker = time.NewTicker(console.MinRenderInterval)
+	}
+}
+
 func (h *Handler) handleExit() {
 	var settings []config.ComponentSettings
-	for _, c := range h.Layout.Components {
+	for _, c := range h.layout.Components {
 		settings = append(settings,
 			config.ComponentSettings{Type: c.Type, Title: c.Title, Size: c.Size, Position: c.Position})
 	}
 	config.Update(settings)
+}
+
+func calcMinRenderRate(layout *widgets.Layout) time.Duration {
+
+	minRefreshRateMs := layout.Components[0].RefreshRateMs
+	for _, c := range layout.Components {
+		if c.RefreshRateMs < minRefreshRateMs {
+			minRefreshRateMs = c.RefreshRateMs
+		}
+	}
+
+	renderRate := time.Duration(
+		int(float64(minRefreshRateMs)*refreshRateToRenderRateRatio)) * time.Millisecond
+
+	if renderRate < console.MinRenderInterval {
+		return console.MinRenderInterval
+	}
+
+	if renderRate > console.MaxRenderInterval {
+		return console.MaxRenderInterval
+	}
+
+	return renderRate
 }

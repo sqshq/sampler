@@ -9,10 +9,11 @@ import (
 
 type Layout struct {
 	ui.Block
-	Components []Component
-	menu       *Menu
-	mode       Mode
-	selection  int
+	Components       []Component
+	ChangeModeEvents chan Mode
+	mode             Mode
+	menu             *Menu
+	selection        int
 }
 
 type Mode rune
@@ -37,16 +38,17 @@ func NewLayout(width, height int, menu *Menu) *Layout {
 	block.SetRect(0, 0, width, height)
 
 	return &Layout{
-		Block:      block,
-		Components: make([]Component, 0),
-		menu:       menu,
-		mode:       ModeDefault,
-		selection:  0,
+		Block:            block,
+		Components:       make([]Component, 0),
+		menu:             menu,
+		mode:             ModeDefault,
+		selection:        0,
+		ChangeModeEvents: make(chan Mode, 10),
 	}
 }
 
-func (l *Layout) AddComponent(drawable ui.Drawable, title string, position config.Position, size config.Size, Type config.ComponentType) {
-	l.Components = append(l.Components, Component{drawable, title, position, size, Type})
+func (l *Layout) AddComponent(Type config.ComponentType, drawable ui.Drawable, title string, position config.Position, size config.Size, refreshRateMs int) {
+	l.Components = append(l.Components, Component{Type, drawable, title, position, size, refreshRateMs})
 }
 
 func (l *Layout) GetComponents(Type config.ComponentType) []ui.Drawable {
@@ -62,36 +64,41 @@ func (l *Layout) GetComponents(Type config.ComponentType) []ui.Drawable {
 	return components
 }
 
+func (l *Layout) changeMode(m Mode) {
+	l.mode = m
+	l.ChangeModeEvents <- m
+}
+
 func (l *Layout) HandleConsoleEvent(e string) {
 	switch e {
 	case console.KeyEnter:
 		switch l.mode {
 		case ModeComponentSelect:
 			l.menu.choose()
-			l.mode = ModeMenuOptionSelect
+			l.changeMode(ModeMenuOptionSelect)
 		case ModeMenuOptionSelect:
 			option := l.menu.getSelectedOption()
 			switch option {
 			case MenuOptionMove:
-				l.mode = ModeComponentMove
+				l.changeMode(ModeComponentMove)
 				l.menu.moveOrResize()
 			case MenuOptionResize:
-				l.mode = ModeComponentResize
+				l.changeMode(ModeComponentResize)
 				l.menu.moveOrResize()
 			case MenuOptionPinpoint:
-				l.mode = ModeChartPinpoint
+				l.changeMode(ModeChartPinpoint)
 				l.menu.idle()
 				chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 				chart.MoveSelection(0)
 			case MenuOptionResume:
-				l.mode = ModeDefault
+				l.changeMode(ModeDefault)
 				l.menu.idle()
 			}
 		case ModeComponentMove:
 			fallthrough
 		case ModeComponentResize:
 			l.menu.idle()
-			l.mode = ModeDefault
+			l.changeMode(ModeDefault)
 		}
 	case console.KeyEsc:
 		switch l.mode {
@@ -103,12 +110,12 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			fallthrough
 		case ModeMenuOptionSelect:
 			l.menu.idle()
-			l.mode = ModeDefault
+			l.changeMode(ModeDefault)
 		}
 	case console.KeyLeft:
 		switch l.mode {
 		case ModeDefault:
-			l.mode = ModeComponentSelect
+			l.changeMode(ModeComponentSelect)
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
@@ -127,7 +134,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 	case console.KeyRight:
 		switch l.mode {
 		case ModeDefault:
-			l.mode = ModeComponentSelect
+			l.changeMode(ModeComponentSelect)
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
@@ -146,7 +153,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 	case console.KeyUp:
 		switch l.mode {
 		case ModeDefault:
-			l.mode = ModeComponentSelect
+			l.changeMode(ModeComponentSelect)
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
@@ -164,7 +171,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 	case console.KeyDown:
 		switch l.mode {
 		case ModeDefault:
-			l.mode = ModeComponentSelect
+			l.changeMode(ModeComponentSelect)
 			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:

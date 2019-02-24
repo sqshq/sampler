@@ -6,11 +6,12 @@ import (
 )
 
 type Component struct {
-	Drawable ui.Drawable
-	Title    string
-	Position config.Position
-	Size     config.Size
-	Type     config.ComponentType
+	Type          config.ComponentType
+	Drawable      ui.Drawable
+	Title         string
+	Position      config.Position
+	Size          config.Size
+	RefreshRateMs int
 }
 
 func (c *Component) Move(x, y int) {

@@ -8,15 +8,16 @@ import (
 )
 
 const (
-	RenderRate = 100 * time.Millisecond
-	Title      = "sampler"
+	MaxRenderInterval = 1000 * time.Millisecond
+	MinRenderInterval = 100 * time.Millisecond
+	AppTitle          = "sampler"
 )
 
 type Console struct{}
 
 func (self *Console) Init() {
 
-	fmt.Printf("\033]0;%s\007", Title)
+	fmt.Printf("\033]0;%s\007", AppTitle)
 
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to initialize termui: %v", err)
