@@ -119,7 +119,7 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
 	arrowsText := "Use arrows for selection"
 	arrowsTextPoint := getMiddlePoint(m.Block, arrowsText, 2)
-	if arrowsTextPoint.In(m.Rectangle) {
+	if arrowsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			arrowsText,
 			ui.NewStyle(console.ColorDarkGrey),
@@ -129,7 +129,7 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
 	optionsText := "<ENTER> to view options"
 	optionsTextPoint := getMiddlePoint(m.Block, optionsText, 3)
-	if optionsTextPoint.In(m.Rectangle) {
+	if optionsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			optionsText,
 			ui.NewStyle(console.ColorDarkGrey),
@@ -139,7 +139,7 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
 	resumeText := "<ESC> to resume"
 	resumeTextPoint := getMiddlePoint(m.Block, resumeText, 4)
-	if resumeTextPoint.In(m.Rectangle) {
+	if resumeTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			resumeText,
 			ui.NewStyle(console.ColorDarkGrey),

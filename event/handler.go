@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	refreshRateToRenderRateRatio = 0.6
+	refreshRateToRenderRateRatio = 0.3
 )
 
 type Handler struct {

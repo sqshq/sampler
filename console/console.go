@@ -11,6 +11,7 @@ const (
 	MaxRenderInterval = 1000 * time.Millisecond
 	MinRenderInterval = 100 * time.Millisecond
 	AppTitle          = "sampler"
+	AppVersion        = "0.1.0"
 )
 
 type Console struct{}

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	defaultRefreshRateMs = 200
+	defaultRefreshRateMs = 1000
 	defaultScale         = 1
 	defaultTheme         = console.ThemeDark
 )

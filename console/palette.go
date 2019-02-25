@@ -21,8 +21,15 @@ const (
 	ColorPurple      ui.Color = 129
 	ColorGreen       ui.Color = 64
 	ColorDarkGrey    ui.Color = 240
-	ColorWhite       ui.Color = 7
+	ColorGrey        ui.Color = 242
+	ColorWhite       ui.Color = 15
 	ColorBlack       ui.Color = 0
+	ColorClear       ui.Color = -1
+)
+
+const (
+	MenuColorBackground ui.Color = 236
+	MenuColorText       ui.Color = 255
 )
 
 type Palette struct {

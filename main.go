@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"
@@ -15,13 +14,13 @@ import (
 
 func main() {
 
-	cfg := config.Load()
+	cfg, flg := config.Load()
 	csl := console.Console{}
 	csl.Init()
 	defer csl.Close()
 
 	width, height := ui.TerminalDimensions()
-	layout := component.NewLayout(width, height, component.NewMenu())
+	layout := component.NewLayout(width, height, component.NewStatusLine(flg.ConfigFileName), component.NewMenu())
 
 	for _, c := range cfg.RunCharts {
 

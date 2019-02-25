@@ -11,8 +11,9 @@ type Layout struct {
 	ui.Block
 	Components       []Component
 	ChangeModeEvents chan Mode
-	mode             Mode
+	statusbar        *StatusBar
 	menu             *Menu
+	mode             Mode
 	selection        int
 }
 
@@ -32,14 +33,16 @@ const (
 	rowsCount    = 30
 )
 
-func NewLayout(width, height int, menu *Menu) *Layout {
+func NewLayout(width, height int, statusline *StatusBar, menu *Menu) *Layout {
 
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
+	statusline.SetRect(0, height-1, width, height)
 
 	return &Layout{
 		Block:            block,
 		Components:       make([]Component, 0),
+		statusbar:        statusline,
 		menu:             menu,
 		mode:             ModeDefault,
 		selection:        0,
@@ -191,6 +194,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 
 func (l *Layout) ChangeDimensions(width, height int) {
 	l.SetRect(0, 0, width, height)
+	l.statusbar.SetRect(0, height-1, width, height)
 }
 
 // TODO func to get prev/next component navigating left/right/top/bottom
@@ -219,4 +223,5 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	}
 
 	l.menu.Draw(buffer)
+	l.statusbar.Draw(buffer)
 }

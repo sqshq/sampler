@@ -18,6 +18,11 @@ type Config struct {
 	AsciiBoxes []AsciiBoxConfig `yaml:"asciiboxes,omitempty"`
 }
 
+type Flags struct {
+	ConfigFileName string
+	Variables      map[string]string
+}
+
 type ComponentConfig struct {
 	Title         string   `yaml:"title"`
 	RefreshRateMs *int     `yaml:"refresh-rate-ms,omitempty"`
@@ -75,7 +80,7 @@ type ComponentSettings struct {
 	Position Position
 }
 
-func Load() *Config {
+func Load() (Config, Flags) {
 
 	if len(os.Args) < 2 {
 		println("Please specify config file location. See www.github.com/sqshq/sampler for the reference")
@@ -86,7 +91,9 @@ func Load() *Config {
 	cfg.validate()
 	cfg.setDefaults()
 
-	return cfg
+	flg := Flags{ConfigFileName: os.Args[1]}
+
+	return *cfg, flg
 }
 
 func Update(settings []ComponentSettings) {
