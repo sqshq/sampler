@@ -4,8 +4,8 @@ runcharts:
     w: 0
     h: 0
   size:
-    w: 34
-    h: 14
+    w: 40
+    h: 18
   scale: 3
   items:
   - label: GOOGLE
@@ -17,11 +17,11 @@ runcharts:
 - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
   refresh-rate-ms: 5000
   position:
-    w: 34
+    w: 40
     h: 0
   size:
-    w: 16
-    h: 14
+    w: 20
+    h: 18
   legend:
     enabled: true
     details: false
@@ -34,11 +34,11 @@ runcharts:
     script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
   position:
-    w: 17
-    h: 14
+    w: 21
+    h: 18
   size:
-    w: 17
-    h: 10
+    w: 19
+    h: 13
   scale: 0
   items:
   - label: ACTIVE
@@ -50,10 +50,10 @@ barcharts:
   refresh-rate-ms: 1000
   position:
     w: 0
-    h: 14
+    h: 18
   size:
-    w: 17
-    h: 10
+    w: 21
+    h: 13
   scale: 0
   items:
   - label: NEW
@@ -69,18 +69,18 @@ barcharts:
 asciiboxes:
 - title: LOCAL TIME
   position:
-    w: 34
-    h: 14
+    w: 40
+    h: 18
   size:
-    w: 16
-    h: 4
+    w: 20
+    h: 6
   script: date +%r
 - title: UTC TIME
   position:
-    w: 34
-    h: 18
+    w: 40
+    h: 24
   size:
-    w: 16
-    h: 6
+    w: 20
+    h: 7
   script: env TZ=UTC date +%r
   font: 3d

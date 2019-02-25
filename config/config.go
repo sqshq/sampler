@@ -156,7 +156,7 @@ func saveFile(config *Config) {
 		log.Fatalf("Can't marshal config file: %v", err)
 	}
 
-	err = ioutil.WriteFile("config.yml", file, 0644)
+	err = ioutil.WriteFile(os.Args[1], file, 0644)
 	if err != nil {
 		log.Fatalf("Can't save config file: %v", err)
 	}

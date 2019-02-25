@@ -29,15 +29,16 @@ const (
 )
 
 const (
-	columnsCount = 50
-	rowsCount    = 30
+	columnsCount    = 60
+	rowsCount       = 40
+	statusbarHeight = 1
 )
 
 func NewLayout(width, height int, statusline *StatusBar, menu *Menu) *Layout {
 
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
-	statusline.SetRect(0, height-1, width, height)
+	statusline.SetRect(0, height-statusbarHeight, width, height)
 
 	return &Layout{
 		Block:            block,
@@ -119,7 +120,6 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
@@ -138,7 +138,6 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
@@ -157,7 +156,6 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
 			if l.selection > 0 {
@@ -175,7 +173,6 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.selection = 0
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
 			if l.selection < len(l.Components)-1 {
@@ -194,7 +191,6 @@ func (l *Layout) HandleConsoleEvent(e string) {
 
 func (l *Layout) ChangeDimensions(width, height int) {
 	l.SetRect(0, 0, width, height)
-	l.statusbar.SetRect(0, height-1, width, height)
 }
 
 // TODO func to get prev/next component navigating left/right/top/bottom
@@ -209,7 +205,7 @@ func (l *Layout) getSelectedComponent() *Component {
 func (l *Layout) Draw(buffer *ui.Buffer) {
 
 	columnWidth := float64(l.GetRect().Dx()) / columnsCount
-	rowHeight := float64(l.GetRect().Dy()) / rowsCount
+	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / rowsCount
 
 	for _, component := range l.Components {
 
@@ -221,6 +217,10 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 		component.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
 		component.Drawable.Draw(buffer)
 	}
+
+	l.statusbar.SetRect(
+		0, l.GetRect().Dy()-statusbarHeight,
+		l.GetRect().Dx(), l.GetRect().Dy())
 
 	l.menu.Draw(buffer)
 	l.statusbar.Draw(buffer)
