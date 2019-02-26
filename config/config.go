@@ -2,9 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/console"
-	"github.com/sqshq/sampler/data"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -15,69 +13,13 @@ type Config struct {
 	Theme      *console.Theme   `yaml:"theme,omitempty"`
 	RunCharts  []RunChartConfig `yaml:"runcharts,omitempty"`
 	BarCharts  []BarChartConfig `yaml:"barcharts,omitempty"`
+	Gauges     []GaugeConfig    `yaml:"gauges,omitempty"`
 	AsciiBoxes []AsciiBoxConfig `yaml:"asciiboxes,omitempty"`
 }
 
 type Flags struct {
 	ConfigFileName string
 	Variables      map[string]string
-}
-
-type ComponentConfig struct {
-	Title         string   `yaml:"title"`
-	RefreshRateMs *int     `yaml:"refresh-rate-ms,omitempty"`
-	Position      Position `yaml:"position"`
-	Size          Size     `yaml:"size"`
-}
-
-type RunChartConfig struct {
-	ComponentConfig `yaml:",inline"`
-	Legend          *LegendConfig `yaml:"legend,omitempty"`
-	Scale           *int          `yaml:"scale,omitempty"`
-	Items           []data.Item   `yaml:"items"`
-}
-
-type BarChartConfig struct {
-	ComponentConfig `yaml:",inline"`
-	Scale           *int        `yaml:"scale,omitempty"`
-	Items           []data.Item `yaml:"items"`
-}
-
-type AsciiBoxConfig struct {
-	ComponentConfig `yaml:",inline"`
-	data.Item       `yaml:",inline"`
-	Font            *asciibox.AsciiFont `yaml:"font,omitempty"`
-}
-
-type LegendConfig struct {
-	Enabled bool `yaml:"enabled"`
-	Details bool `yaml:"details"`
-}
-
-type Position struct {
-	X int `yaml:"w"`
-	Y int `yaml:"h"`
-}
-
-type Size struct {
-	X int `yaml:"w"`
-	Y int `yaml:"h"`
-}
-
-type ComponentType rune
-
-const (
-	TypeRunChart ComponentType = 0
-	TypeBarChart ComponentType = 1
-	TypeTextBox  ComponentType = 2
-	TypeAsciiBox ComponentType = 3
-)
-
-type ComponentSettings struct {
-	Type     ComponentType
-	Title    string
-	Size     Size
-	Position Position
 }
 
 func Load() (Config, Flags) {
@@ -119,6 +61,12 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 		for i, component := range c.BarCharts {
 			if component.Title == componentTitle {
 				return &c.BarCharts[i].ComponentConfig
+			}
+		}
+	case TypeGauge:
+		for i, component := range c.Gauges {
+			if component.Title == componentTitle {
+				return &c.Gauges[i].ComponentConfig
 			}
 		}
 	case TypeAsciiBox:

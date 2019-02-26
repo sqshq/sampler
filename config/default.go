@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/data"
 )
 
 const (
@@ -52,6 +53,24 @@ func (c *Config) setDefaultValues() {
 		c.BarCharts[i] = chart
 	}
 
+	for i, g := range c.Gauges {
+		if g.RefreshRateMs == nil {
+			r := defaultRefreshRateMs
+			g.RefreshRateMs = &r
+		}
+		if g.Scale == nil {
+			p := defaultScale
+			g.Scale = &p
+		}
+		var items []data.Item
+		for label, script := range g.Values {
+			l := label
+			items = append(items, data.Item{Label: &l, Script: script})
+		}
+		g.Items = items
+		c.Gauges[i] = g
+	}
+
 	for i, box := range c.AsciiBoxes {
 		if box.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
@@ -97,6 +116,13 @@ func (c *Config) setDefaultColors() {
 				item.Color = &palette.Colors[j%colorsCount]
 				chart.Items[j] = item
 			}
+		}
+	}
+
+	for i, g := range c.Gauges {
+		if g.Color == nil {
+			g.Color = &palette.Colors[i%colorsCount]
+			c.Gauges[i] = g
 		}
 	}
 }

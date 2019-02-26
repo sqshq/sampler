@@ -1,7 +1,7 @@
 package asciibox
 
 import (
-	fl "github.com/sqshq/figlet4go"
+	fl "github.com/mbndr/figlet4go"
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
@@ -24,6 +24,8 @@ const (
 	AsciiFont3D   AsciiFont = "3d"
 )
 
+const asciiFontExtension = ".flf"
+
 func NewAsciiBox(title string, font AsciiFont, color ui.Color) *AsciiBox {
 
 	block := *ui.NewBlock()
@@ -32,7 +34,7 @@ func NewAsciiBox(title string, font AsciiFont, color ui.Color) *AsciiBox {
 	options := fl.NewRenderOptions()
 	options.FontName = string(font)
 
-	fontStr, err := asset.Asset(options.FontName + ".flf")
+	fontStr, err := asset.Asset(options.FontName + asciiFontExtension)
 	if err != nil {
 		panic("Can't load the font: " + err.Error())
 	}

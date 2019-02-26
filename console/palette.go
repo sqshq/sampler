@@ -28,7 +28,7 @@ const (
 )
 
 const (
-	MenuColorBackground ui.Color = 236
+	MenuColorBackground ui.Color = 234
 	MenuColorText       ui.Color = 255
 )
 

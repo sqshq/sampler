@@ -5,6 +5,10 @@ import (
 	ui "github.com/sqshq/termui"
 )
 
+const (
+	minDimension = 3
+)
+
 type Component struct {
 	Type          config.ComponentType
 	Drawable      ui.Drawable
@@ -27,11 +31,11 @@ func (c *Component) Resize(x, y int) {
 }
 
 func (c *Component) normalize() {
-	if c.Size.X < 0 {
-		c.Size.X = 0
+	if c.Size.X < minDimension {
+		c.Size.X = minDimension
 	}
-	if c.Size.Y < 0 {
-		c.Size.Y = 0
+	if c.Size.Y < minDimension {
+		c.Size.Y = minDimension
 	}
 	if c.Position.X < 0 {
 		c.Position.X = 0

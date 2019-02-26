@@ -9,11 +9,11 @@ runcharts:
   scale: 3
   items:
   - label: GOOGLE
-    script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+    value: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
   - label: YAHOO
-    script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+    value: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
   - label: BING
-    script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
+    value: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
   refresh-rate-ms: 5000
   position:
@@ -27,11 +27,11 @@ runcharts:
     details: false
   items:
   - label: GOOGLE
-    script: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+    value: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
   - label: YAHOO
-    script: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+    value: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
   - label: BING
-    script: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
+    value: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
   position:
     w: 21
@@ -42,9 +42,9 @@ runcharts:
   scale: 0
   items:
   - label: ACTIVE
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
   - label: INACTIVE
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 barcharts:
 - title: EVENTS BY STATUS
   refresh-rate-ms: 1000
@@ -57,15 +57,28 @@ barcharts:
   scale: 0
   items:
   - label: NEW
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
   - label: TRIGGERED
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
   - label: IN_PROCESS
-    script: echo 0
-  - label: FINISHED
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    value: echo 0
   - label: FAILED
-    script: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+  - label: FINISHED
+    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+gauges:
+- title: YEAR PROGRESS
+  position:
+    w: 21
+    h: 33
+  size:
+    w: 20
+    h: 3
+  values:
+    cur: echo 245
+    max: echo 365
+    min: echo 0
+  items: []
 asciiboxes:
 - title: LOCAL TIME
   position:
@@ -74,7 +87,7 @@ asciiboxes:
   size:
     w: 20
     h: 6
-  script: date +%r
+  value: date +%r
 - title: UTC TIME
   position:
     w: 40
@@ -82,5 +95,5 @@ asciiboxes:
   size:
     w: 20
     h: 7
-  script: env TZ=UTC date +%r
+  value: env TZ=UTC date +%r
   font: 3d

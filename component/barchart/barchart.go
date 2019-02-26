@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	barSymbol rune = '⠿'
-	barIndent int  = 1
+	barIndent int = 1
 )
 
 type BarChart struct {
@@ -106,7 +105,7 @@ func (b *BarChart) Draw(buf *ui.Buffer) {
 		maxYCoordinate := b.Inner.Max.Y - height
 		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+barWidth, b.Inner.Max.X-barIndent); x++ {
 			for y := b.Inner.Max.Y - 2; y >= maxYCoordinate; y-- {
-				c := ui.NewCell(barSymbol, ui.NewStyle(bar.color))
+				c := ui.NewCell(console.SymbolShade, ui.NewStyle(bar.color))
 				buf.SetCell(c, image.Pt(x, y))
 			}
 		}

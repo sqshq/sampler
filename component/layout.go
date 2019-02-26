@@ -29,8 +29,8 @@ const (
 )
 
 const (
-	columnsCount    = 60
-	rowsCount       = 40
+	columnsCount    = 80
+	rowsCount       = 60
 	statusbarHeight = 1
 )
 

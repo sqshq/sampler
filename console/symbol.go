@@ -1,5 +1,7 @@
 package console
 
 const (
-	SymbolSelection rune = '▲'
+	SymbolSelection   rune = '▲'
+	SymbolVerticalBar rune = '⢸'
+	SymbolShade       rune = '⣿'
 )

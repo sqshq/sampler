@@ -33,6 +33,10 @@ const (
 	MenuOptionResume   MenuOption = "RESUME"
 )
 
+const (
+	minimalMenuHeight = 8
+)
+
 func NewMenu() *Menu {
 	block := *ui.NewBlock()
 	block.Border = true
@@ -99,7 +103,12 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 
 	m.updateDimensions()
 	buffer.Fill(ui.NewCell(' ', ui.NewStyle(ui.ColorBlack)), m.GetRect())
-	m.drawInnerBorder(buffer)
+
+	if m.Dy() > minimalMenuHeight {
+		m.drawInnerBorder(buffer)
+	}
+
+	m.Block.Draw(buffer)
 
 	switch m.mode {
 	case MenuModeHighlight:
@@ -109,15 +118,25 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 	case MenuModeOptionSelect:
 		m.renderOptions(buffer)
 	}
-
-	m.Block.Draw(buffer)
 }
 
 func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
+	arrowsText := "Use arrows for selection"
+	optionsText := "<ENTER> to view options"
+	resumeText := "<ESC> to resume"
+
+	if m.Dy() <= minimalMenuHeight {
+		buffer.SetString(
+			optionsText,
+			ui.NewStyle(console.ColorDarkGrey),
+			getMiddlePoint(m.Block, optionsText, -1),
+		)
+		return
+	}
+
 	m.printAllDirectionsArrowSign(buffer, -2)
 
-	arrowsText := "Use arrows for selection"
 	arrowsTextPoint := getMiddlePoint(m.Block, arrowsText, 2)
 	if arrowsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
@@ -127,7 +146,6 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		)
 	}
 
-	optionsText := "<ENTER> to view options"
 	optionsTextPoint := getMiddlePoint(m.Block, optionsText, 3)
 	if optionsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
@@ -137,7 +155,6 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		)
 	}
 
-	resumeText := "<ESC> to resume"
 	resumeTextPoint := getMiddlePoint(m.Block, resumeText, 4)
 	if resumeTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
@@ -150,17 +167,15 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
 func (m *Menu) renderMoveAndResize(buffer *ui.Buffer) {
 
-	m.printAllDirectionsArrowSign(buffer, -2)
-
 	saveText := "<ENTER> to save changes"
-	saveTextPoint := getMiddlePoint(m.Block, saveText, 4)
-	if saveTextPoint.In(m.Rectangle) {
-		buffer.SetString(
-			saveText,
-			ui.NewStyle(console.ColorDarkGrey),
-			saveTextPoint,
-		)
+
+	if m.Dy() <= minimalMenuHeight {
+		buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block, saveText, -1))
+		return
 	}
+
+	m.printAllDirectionsArrowSign(buffer, -1)
+	buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block, saveText, 3))
 }
 
 func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
@@ -184,7 +199,7 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 	// TODO extract styles to console.Palette
 	highlightedStyle := ui.NewStyle(console.ColorOlive, console.ColorBlack, ui.ModifierReverse)
-	regularStyle := ui.NewStyle(console.ColorWhite)
+	regularStyle := ui.NewStyle(console.ColorWhite, console.ColorBlack)
 
 	offset := 1
 	for _, option := range m.options {
@@ -197,9 +212,10 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 		if option != MenuOptionPinpoint || m.component.Type == config.TypeRunChart {
 			offset += 2
 			point := getMiddlePoint(m.Block, string(option), offset-5)
-			if point.In(m.GetRect()) {
-				buffer.SetString(string(option), style, point)
-			}
+			buffer.SetString(string(option), style, point)
+			//if point.In(m.GetRect()) {
+			//	buffer.SetString(string(option), style, point)
+			//}
 		}
 	}
 }

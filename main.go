@@ -4,6 +4,7 @@ import (
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"
+	"github.com/sqshq/sampler/component/gauge"
 	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
@@ -40,14 +41,24 @@ func main() {
 		data.NewSampler(box, a.Item, *a.RefreshRateMs)
 	}
 
-	for _, c := range cfg.BarCharts {
+	for _, b := range cfg.BarCharts {
 
-		chart := barchart.NewBarChart(c.Title, *c.Scale)
-		layout.AddComponent(config.TypeBarChart, chart, c.Title, c.Position, c.Size, *c.RefreshRateMs)
+		chart := barchart.NewBarChart(b.Title, *b.Scale)
+		layout.AddComponent(config.TypeBarChart, chart, b.Title, b.Position, b.Size, *b.RefreshRateMs)
 
-		for _, item := range c.Items {
+		for _, item := range b.Items {
 			chart.AddBar(*item.Label, *item.Color)
-			data.NewSampler(chart, item, *c.RefreshRateMs)
+			data.NewSampler(chart, item, *b.RefreshRateMs)
+		}
+	}
+
+	for _, gc := range cfg.Gauges {
+
+		g := gauge.NewGauge(gc.Title, *gc.Scale, *gc.Color)
+		layout.AddComponent(config.TypeGauge, g, gc.Title, gc.Position, gc.Size, *gc.RefreshRateMs)
+
+		for _, item := range gc.Items {
+			data.NewSampler(g, item, *gc.RefreshRateMs)
 		}
 	}
 
