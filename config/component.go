@@ -18,7 +18,7 @@ type GaugeConfig struct {
 	Scale           *int              `yaml:"scale,omitempty"`
 	Color           *ui.Color         `yaml:"color,omitempty"`
 	Values          map[string]string `yaml:"values"`
-	Items           []data.Item
+	Items           []data.Item       `yaml:",omitempty"`
 }
 
 type BarChartConfig struct {

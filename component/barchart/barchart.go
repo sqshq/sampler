@@ -89,7 +89,7 @@ func (b *BarChart) reselectMaxValue() {
 func (b *BarChart) Draw(buf *ui.Buffer) {
 	b.Block.Draw(buf)
 
-	barWidth := (b.Inner.Dx() - 2*barIndent - len(b.bars)) / len(b.bars)
+	barWidth := (b.Inner.Dx() - 2*barIndent) / len(b.bars)
 	barXCoordinate := b.Inner.Min.X + barIndent
 
 	labelStyle := ui.NewStyle(console.ColorWhite)

@@ -60,7 +60,7 @@ func (g *Gauge) Draw(buf *ui.Buffer) {
 	g.Block.Draw(buf)
 
 	percent := 0.0
-	if g.curValue != 0 {
+	if g.curValue != 0 && g.maxValue != g.minValue {
 		percent = (100 * g.curValue) / (g.maxValue - g.minValue)
 	}
 

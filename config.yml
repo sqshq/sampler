@@ -4,8 +4,8 @@ runcharts:
     w: 0
     h: 0
   size:
-    w: 40
-    h: 18
+    w: 53
+    h: 22
   scale: 3
   items:
   - label: GOOGLE
@@ -17,11 +17,11 @@ runcharts:
 - title: SEARCH ENGINE RESPONSE TIME 2 (sec)
   refresh-rate-ms: 5000
   position:
-    w: 40
+    w: 53
     h: 0
   size:
-    w: 20
-    h: 18
+    w: 27
+    h: 22
   legend:
     enabled: true
     details: false
@@ -34,11 +34,11 @@ runcharts:
     value: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
   position:
-    w: 21
-    h: 18
+    w: 26
+    h: 23
   size:
-    w: 19
-    h: 13
+    w: 27
+    h: 17
   scale: 0
   items:
   - label: ACTIVE
@@ -50,10 +50,10 @@ barcharts:
   refresh-rate-ms: 1000
   position:
     w: 0
-    h: 18
+    h: 23
   size:
-    w: 21
-    h: 13
+    w: 26
+    h: 17
   scale: 0
   items:
   - label: NEW
@@ -67,33 +67,54 @@ barcharts:
   - label: FINISHED
     value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 gauges:
-- title: YEAR PROGRESS
+- title: YEAR PROGRESS (TODO day progress)
   position:
-    w: 21
-    h: 33
+    w: 0
+    h: 41
   size:
-    w: 20
+    w: 26
     h: 3
   values:
-    cur: echo 245
+    cur: date +%j
     max: echo 365
     min: echo 0
-  items: []
+- title: HOUR PROGRESS
+  position:
+    w: 0
+    h: 44
+  size:
+    w: 26
+    h: 3
+  values:
+    cur: date +%M
+    max: echo 60
+    min: echo 0
+- title: MINUTE PROGRESS
+  position:
+    w: 0
+    h: 47
+  size:
+    w: 26
+    h: 3
+  values:
+    cur: date +%S
+    max: echo 60
+    min: echo 0
 asciiboxes:
 - title: LOCAL TIME
   position:
-    w: 40
-    h: 18
+    w: 53
+    h: 23
   size:
-    w: 20
-    h: 6
+    w: 27
+    h: 8
   value: date +%r
 - title: UTC TIME
   position:
-    w: 40
-    h: 24
+    w: 53
+    h: 31
   size:
-    w: 20
-    h: 7
+    w: 27
+    h: 9
   value: env TZ=UTC date +%r
   font: 3d
