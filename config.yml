@@ -67,7 +67,7 @@ barcharts:
   - label: FINISHED
     value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 gauges:
-- title: YEAR PROGRESS (TODO day progress)
+- title: YEAR PROGRESS
   position:
     w: 0
     h: 41
@@ -77,6 +77,17 @@ gauges:
   values:
     cur: date +%j
     max: echo 365
+    min: echo 0
+- title: DAY PROGRESS
+  position:
+    w: 0
+    h: 41
+  size:
+    w: 26
+    h: 3
+  values:
+    cur: date +%H
+    max: echo 24
     min: echo 0
 - title: HOUR PROGRESS
   position:
