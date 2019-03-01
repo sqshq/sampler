@@ -40,9 +40,9 @@ type Palette struct {
 func GetPalette(theme Theme) Palette {
 	switch theme {
 	case ThemeDark:
-		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorWhite, ColorGreen, ColorOrange, ColorCian, ColorPurple}}
+		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorWhite, ColorGrey, ColorGreen, ColorOrange, ColorCian, ColorPurple}}
 	case ThemeLight:
-		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorWhite, ColorGreen, ColorOrange, ColorCian, ColorPurple}}
+		return Palette{Colors: []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorWhite, ColorGrey, ColorGreen, ColorOrange, ColorCian, ColorPurple}}
 	default:
 		panic(fmt.Sprintf("Following theme is not supported: %v", theme))
 	}

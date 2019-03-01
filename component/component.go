@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	minDimension = 3
+	minDimension = 1
 )
 
 type Component struct {

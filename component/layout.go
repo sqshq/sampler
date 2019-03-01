@@ -5,6 +5,7 @@ import (
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	ui "github.com/sqshq/termui"
+	"math"
 )
 
 type Layout struct {
@@ -30,7 +31,7 @@ const (
 
 const (
 	columnsCount    = 80
-	rowsCount       = 55
+	rowsCount       = 40
 	statusbarHeight = 1
 )
 
@@ -204,15 +205,15 @@ func (l *Layout) getSelectedComponent() *Component {
 
 func (l *Layout) Draw(buffer *ui.Buffer) {
 
-	columnWidth := float64(l.GetRect().Dx()) / columnsCount
-	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / rowsCount
+	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
+	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(rowsCount)
 
 	for _, component := range l.Components {
 
-		x1 := float64(component.Position.X) * columnWidth
-		y1 := float64(component.Position.Y) * rowHeight
-		x2 := x1 + float64(component.Size.X)*columnWidth
-		y2 := y1 + float64(component.Size.Y)*rowHeight
+		x1 := math.Floor(float64(component.Position.X) * columnWidth)
+		y1 := math.Floor(float64(component.Position.Y) * rowHeight)
+		x2 := x1 + math.Floor(float64(component.Size.X))*columnWidth
+		y2 := y1 + math.Floor(float64(component.Size.Y))*rowHeight
 
 		component.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
 		component.Drawable.Draw(buffer)
