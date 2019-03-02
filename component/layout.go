@@ -5,6 +5,7 @@ import (
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	ui "github.com/sqshq/termui"
+	"image"
 	"math"
 )
 
@@ -126,9 +127,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(-1)
 		case ModeComponentSelect:
-			if l.selection > 0 {
-				l.selection--
-			}
+			l.moveSelection(e)
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentMove:
 			l.getSelectedComponent().Move(-1, 0)
@@ -144,9 +143,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(1)
 		case ModeComponentSelect:
-			if l.selection < len(l.Components)-1 {
-				l.selection++
-			}
+			l.moveSelection(e)
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentMove:
 			l.getSelectedComponent().Move(1, 0)
@@ -159,9 +156,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.changeMode(ModeComponentSelect)
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
-			if l.selection > 0 {
-				l.selection--
-			}
+			l.moveSelection(e)
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeMenuOptionSelect:
 			l.menu.up()
@@ -176,9 +171,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.changeMode(ModeComponentSelect)
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
-			if l.selection < len(l.Components)-1 {
-				l.selection++
-			}
+			l.moveSelection(e)
 			l.menu.highlight(l.getComponent(l.selection))
 		case ModeMenuOptionSelect:
 			l.menu.down()
@@ -194,13 +187,58 @@ func (l *Layout) ChangeDimensions(width, height int) {
 	l.SetRect(0, 0, width, height)
 }
 
-// TODO func to get prev/next component navigating left/right/top/bottom
 func (l *Layout) getComponent(i int) Component {
 	return l.Components[i]
 }
 
 func (l *Layout) getSelectedComponent() *Component {
 	return &l.Components[l.selection]
+}
+
+func (l *Layout) moveSelection(direction string) {
+
+	previouslySelected := *l.getSelectedComponent()
+	newlySelectedIndex := l.selection
+
+	for i, current := range l.Components {
+
+		if current == previouslySelected {
+			continue
+		}
+
+		if newlySelectedIndex < 0 {
+			newlySelectedIndex = i
+		}
+
+		var previouslySelectedCornerPoint image.Point
+		var newlySelectedCornerPoint image.Point
+		var currentCornerPoint image.Point
+
+		switch direction {
+		case console.KeyLeft:
+			previouslySelectedCornerPoint = getRectLeftAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = getRectRightAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = getRectRightAgeCenter(current.Drawable.GetRect())
+		case console.KeyRight:
+			previouslySelectedCornerPoint = getRectRightAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = getRectLeftAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = getRectLeftAgeCenter(current.Drawable.GetRect())
+		case console.KeyUp:
+			previouslySelectedCornerPoint = getRectTopAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = getRectBottomAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = getRectBottomAgeCenter(current.Drawable.GetRect())
+		case console.KeyDown:
+			previouslySelectedCornerPoint = getRectBottomAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = getRectTopAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = getRectTopAgeCenter(current.Drawable.GetRect())
+		}
+
+		if getDistance(previouslySelectedCornerPoint, currentCornerPoint) < getDistance(previouslySelectedCornerPoint, newlySelectedCornerPoint) {
+			newlySelectedIndex = i
+		}
+	}
+
+	l.selection = newlySelectedIndex
 }
 
 func (l *Layout) Draw(buffer *ui.Buffer) {
