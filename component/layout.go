@@ -33,6 +33,7 @@ const (
 const (
 	columnsCount    = 80
 	rowsCount       = 40
+	minDimension    = 3
 	statusbarHeight = 1
 )
 
@@ -252,6 +253,14 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 		y1 := math.Floor(float64(component.Position.Y) * rowHeight)
 		x2 := x1 + math.Floor(float64(component.Size.X))*columnWidth
 		y2 := y1 + math.Floor(float64(component.Size.Y))*rowHeight
+
+		if x2-x1 < minDimension {
+			x2 = x1 + minDimension
+		}
+
+		if y2-y1 < minDimension {
+			y2 = y1 + minDimension
+		}
 
 		component.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
 		component.Drawable.Draw(buffer)
