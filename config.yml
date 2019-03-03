@@ -7,10 +7,9 @@ runcharts:
     w: 53
     h: 16
   scale: 3
-  alerts:
-    - name: PROCESSING STARTED // ${prev} ${cur} ${lavel}  // echo $(( 3 < 4 && 1 > 2 ))
-      trigger: ((${prev} == 0 && ${cur} > 0))
-      repeat: false
+  triggers:
+    - title: PROCESSING STARTED # ${prev} ${cur} ${lavel} echo $(( 3 < 4 && 1 > 2 ))
+      condition: ((${prev} == 0 && ${cur} > 0))
       action:
         terminal-bell: true
         sound: false
