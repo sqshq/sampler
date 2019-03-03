@@ -26,6 +26,9 @@ func (c *Config) setDefaultValues() {
 	}
 
 	for i, chart := range c.RunCharts {
+
+		setDefaultTriggersValues(chart.Triggers)
+
 		if chart.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
 			chart.RefreshRateMs = &r
@@ -42,6 +45,9 @@ func (c *Config) setDefaultValues() {
 	}
 
 	for i, chart := range c.BarCharts {
+
+		setDefaultTriggersValues(chart.Triggers)
+
 		if chart.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
 			chart.RefreshRateMs = &r
@@ -54,6 +60,9 @@ func (c *Config) setDefaultValues() {
 	}
 
 	for i, g := range c.Gauges {
+
+		setDefaultTriggersValues(g.Triggers)
+
 		if g.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
 			g.RefreshRateMs = &r
@@ -72,6 +81,9 @@ func (c *Config) setDefaultValues() {
 	}
 
 	for i, box := range c.AsciiBoxes {
+
+		setDefaultTriggersValues(box.Triggers)
+
 		if box.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
 			box.RefreshRateMs = &r
@@ -89,6 +101,32 @@ func (c *Config) setDefaultValues() {
 			box.Color = &color
 		}
 		c.AsciiBoxes[i] = box
+	}
+}
+
+func setDefaultTriggersValues(triggers []TriggerConfig) {
+
+	defaultTerminalBell := true
+	defaultSound := false
+	defaultVisual := true
+
+	for i, trigger := range triggers {
+
+		if trigger.Actions == nil {
+			trigger.Actions = &ActionsConfig{TerminalBell: &defaultTerminalBell, Sound: &defaultSound, Visual: &defaultVisual, Script: nil}
+		} else {
+			if trigger.Actions.TerminalBell == nil {
+				trigger.Actions.TerminalBell = &defaultTerminalBell
+			}
+			if trigger.Actions.Sound == nil {
+				trigger.Actions.Sound = &defaultSound
+			}
+			if trigger.Actions.Visual == nil {
+				trigger.Actions.Visual = &defaultVisual
+			}
+		}
+
+		triggers[i] = trigger
 	}
 }
 

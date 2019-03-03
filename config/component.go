@@ -14,21 +14,21 @@ type ComponentConfig struct {
 }
 
 type TriggerConfig struct {
-	Title     string  `yaml:"title"`
-	Condition string  `yaml:"condition"`
-	Action    *Action `yaml:"action,omitempty"`
+	Title     string         `yaml:"title"`
+	Condition string         `yaml:"condition"`
+	Actions   *ActionsConfig `yaml:"actions,omitempty"`
 }
 
-type Action struct {
-	TerminalBell *bool `yaml:"terminal-bell,omitempty"`
-	Sound        *bool `yaml:"sound,omitempty"`
-	Visual       *bool `yaml:"visual,omitempty"`
-	Script       *bool `yaml:"script,omitempty"`
+type ActionsConfig struct {
+	TerminalBell *bool   `yaml:"terminal-bell,omitempty"`
+	Sound        *bool   `yaml:"sound,omitempty"`
+	Visual       *bool   `yaml:"visual,omitempty"`
+	Script       *string `yaml:"script,omitempty"`
 }
 
 type GaugeConfig struct {
 	ComponentConfig `yaml:",inline"`
-	TriggerConfig   `yaml:",inline"`
+	Triggers        []TriggerConfig   `yaml:"triggers"`
 	Scale           *int              `yaml:"scale,omitempty"`
 	Color           *ui.Color         `yaml:"color,omitempty"`
 	Values          map[string]string `yaml:"values"`
@@ -37,24 +37,24 @@ type GaugeConfig struct {
 
 type BarChartConfig struct {
 	ComponentConfig `yaml:",inline"`
-	TriggerConfig   `yaml:",inline"`
-	Scale           *int        `yaml:"scale,omitempty"`
-	Items           []data.Item `yaml:"items"`
+	Triggers        []TriggerConfig `yaml:"triggers"`
+	Scale           *int            `yaml:"scale,omitempty"`
+	Items           []data.Item     `yaml:"items"`
 }
 
 type AsciiBoxConfig struct {
 	ComponentConfig `yaml:",inline"`
-	TriggerConfig   `yaml:",inline"`
+	Triggers        []TriggerConfig `yaml:"triggers"`
 	data.Item       `yaml:",inline"`
 	Font            *asciibox.AsciiFont `yaml:"font,omitempty"`
 }
 
 type RunChartConfig struct {
 	ComponentConfig `yaml:",inline"`
-	TriggerConfig   `yaml:",inline"`
-	Legend          *LegendConfig `yaml:"legend,omitempty"`
-	Scale           *int          `yaml:"scale,omitempty"`
-	Items           []data.Item   `yaml:"items"`
+	Triggers        []TriggerConfig `yaml:"triggers"`
+	Legend          *LegendConfig   `yaml:"legend,omitempty"`
+	Scale           *int            `yaml:"scale,omitempty"`
+	Items           []data.Item     `yaml:"items"`
 }
 
 type LegendConfig struct {

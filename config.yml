@@ -10,7 +10,7 @@ runcharts:
   triggers:
     - title: PROCESSING STARTED # ${prev} ${cur} ${lavel} echo $(( 3 < 4 && 1 > 2 ))
       condition: ((${prev} == 0 && ${cur} > 0))
-      action:
+      actions:
         terminal-bell: true
         sound: false
         visual: true
