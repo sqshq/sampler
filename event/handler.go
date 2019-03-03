@@ -33,7 +33,6 @@ func (h *Handler) HandleEvents() {
 
 	// initial render
 	ui.Render(h.layout)
-	pause := false
 
 	for {
 		select {
@@ -46,8 +45,6 @@ func (h *Handler) HandleEvents() {
 			case console.KeyQuit, console.KeyExit:
 				h.handleExit()
 				return
-			case console.KeyPause:
-				pause = !pause // TODO move to layout, since it will show PAUSE sign in status line, pause/unpause can be sent via channel
 			case console.SignalResize:
 				payload := e.Payload.(ui.Resize)
 				h.layout.ChangeDimensions(payload.Width, payload.Height)
@@ -60,13 +57,16 @@ func (h *Handler) HandleEvents() {
 
 func (h *Handler) handleModeChange(m component.Mode) {
 
-	// render change before switching the tickers
+	// render the change before switching the tickers
 	ui.Render(h.layout)
 	h.renderTicker.Stop()
 
-	if m == component.ModeDefault {
+	switch m {
+	case component.ModeDefault:
 		h.renderTicker = time.NewTicker(h.renderRate)
-	} else {
+	case component.ModePause:
+		// proceed with stopped timer
+	default:
 		h.renderTicker = time.NewTicker(console.MinRenderInterval)
 	}
 }

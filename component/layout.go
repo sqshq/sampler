@@ -23,11 +23,12 @@ type Mode rune
 
 const (
 	ModeDefault          Mode = 0
-	ModeComponentSelect  Mode = 1
-	ModeMenuOptionSelect Mode = 2
-	ModeComponentMove    Mode = 3
-	ModeComponentResize  Mode = 4
-	ModeChartPinpoint    Mode = 5
+	ModePause            Mode = 1
+	ModeComponentSelect  Mode = 2
+	ModeMenuOptionSelect Mode = 3
+	ModeComponentMove    Mode = 4
+	ModeComponentResize  Mode = 5
+	ModeChartPinpoint    Mode = 6
 )
 
 const (
@@ -78,6 +79,17 @@ func (l *Layout) changeMode(m Mode) {
 
 func (l *Layout) HandleConsoleEvent(e string) {
 	switch e {
+	case console.KeyPause:
+		if l.mode == ModePause {
+			l.changeMode(ModeDefault)
+		} else {
+			if l.getSelectedComponent().Type == config.TypeRunChart {
+				chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
+				chart.DisableSelection()
+			}
+			l.menu.idle()
+			l.changeMode(ModePause)
+		}
 	case console.KeyEnter:
 		switch l.mode {
 		case ModeComponentSelect:
@@ -270,6 +282,6 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 		0, l.GetRect().Dy()-statusbarHeight,
 		l.GetRect().Dx(), l.GetRect().Dy())
 
-	l.menu.Draw(buffer)
 	l.statusbar.Draw(buffer)
+	l.menu.Draw(buffer)
 }
