@@ -7,6 +7,15 @@ runcharts:
     w: 53
     h: 16
   scale: 3
+  alerts:
+    - name: PROCESSING STARTED // ${prev} ${cur} ${lavel}  // echo $(( 3 < 4 && 1 > 2 ))
+      trigger: ((${prev} == 0 && ${cur} > 0))
+      repeat: false
+      action:
+        terminal-bell: true
+        sound: false
+        visual: true
+        script: say ${lavel} initiated with value ${cur}
   items:
   - label: GOOGLE
     value: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
