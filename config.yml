@@ -6,7 +6,6 @@ runcharts:
   size:
     w: 53
     h: 16
-  scale: 3
   triggers:
     - title: PROCESSING STARTED # ${prev} ${cur} ${lavel} echo $(( 3 < 4 && 1 > 2 ))
       condition: ((${prev} == 0 && ${cur} > 0))

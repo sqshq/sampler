@@ -24,16 +24,16 @@ type Flags struct {
 
 func Load() (Config, Flags) {
 
-	//if len(os.Args) < 2 {
-	//	println("Please specify config file location. See www.github.com/sqshq/sampler for the reference")
-	//	os.Exit(0)
-	//}
+	if len(os.Args) < 2 {
+		println("Please specify config file location. See www.github.com/sqshq/sampler for the reference")
+		os.Exit(0)
+	}
 
-	cfg := readFile("config.yml")
+	cfg := readFile(os.Args[1])
 	cfg.validate()
 	cfg.setDefaults()
 
-	flg := Flags{ConfigFileName: "config.yml"}
+	flg := Flags{ConfigFileName: os.Args[1]}
 
 	return *cfg, flg
 }

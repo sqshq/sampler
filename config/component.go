@@ -7,10 +7,11 @@ import (
 )
 
 type ComponentConfig struct {
-	Title         string   `yaml:"title"`
-	RefreshRateMs *int     `yaml:"refresh-rate-ms,omitempty"`
-	Position      Position `yaml:"position"`
-	Size          Size     `yaml:"size"`
+	Title         string          `yaml:"title"`
+	RefreshRateMs *int            `yaml:"refresh-rate-ms,omitempty"`
+	Position      Position        `yaml:"position"`
+	Size          Size            `yaml:"size"`
+	Triggers      []TriggerConfig `yaml:"triggers,omitempty"`
 }
 
 type TriggerConfig struct {
@@ -28,7 +29,6 @@ type ActionsConfig struct {
 
 type GaugeConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Triggers        []TriggerConfig   `yaml:"triggers"`
 	Scale           *int              `yaml:"scale,omitempty"`
 	Color           *ui.Color         `yaml:"color,omitempty"`
 	Values          map[string]string `yaml:"values"`
@@ -37,24 +37,21 @@ type GaugeConfig struct {
 
 type BarChartConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Triggers        []TriggerConfig `yaml:"triggers"`
-	Scale           *int            `yaml:"scale,omitempty"`
-	Items           []data.Item     `yaml:"items"`
+	Scale           *int        `yaml:"scale,omitempty"`
+	Items           []data.Item `yaml:"items"`
 }
 
 type AsciiBoxConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Triggers        []TriggerConfig `yaml:"triggers"`
 	data.Item       `yaml:",inline"`
 	Font            *asciibox.AsciiFont `yaml:"font,omitempty"`
 }
 
 type RunChartConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Triggers        []TriggerConfig `yaml:"triggers"`
-	Legend          *LegendConfig   `yaml:"legend,omitempty"`
-	Scale           *int            `yaml:"scale,omitempty"`
-	Items           []data.Item     `yaml:"items"`
+	Legend          *LegendConfig `yaml:"legend,omitempty"`
+	Scale           *int          `yaml:"scale,omitempty"`
+	Items           []data.Item   `yaml:"items"`
 }
 
 type LegendConfig struct {

@@ -1,7 +1,6 @@
 package asset
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/hajimehoshi/oto"
 	"io"
@@ -30,8 +29,6 @@ func Beep() error {
 	if _, err := io.Copy(p, d); err != nil {
 		return err
 	}
-
-	fmt.Print("\a")
 
 	return nil
 }

@@ -2,6 +2,7 @@ package runchart
 
 import (
 	"fmt"
+	"github.com/sqshq/sampler/component/trigger"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
@@ -36,6 +37,7 @@ const (
 
 type RunChart struct {
 	ui.Block
+	triggers  []trigger.Trigger
 	lines     []TimeLine
 	grid      ChartGrid
 	timescale time.Duration
