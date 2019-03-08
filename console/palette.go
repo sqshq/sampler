@@ -20,7 +20,7 @@ const (
 	ColorOrange      ui.Color = 166
 	ColorPurple      ui.Color = 129
 	ColorGreen       ui.Color = 64
-	ColorDarkGrey    ui.Color = 240
+	ColorDarkGrey    ui.Color = 235
 	ColorGrey        ui.Color = 242
 	ColorWhite       ui.Color = 15
 	ColorBlack       ui.Color = 0
@@ -28,7 +28,7 @@ const (
 )
 
 const (
-	MenuColorBackground ui.Color = 234
+	MenuColorBackground ui.Color = 235
 	MenuColorText       ui.Color = 255
 )
 

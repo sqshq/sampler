@@ -1,9 +1,18 @@
 package config
 
 import (
-	"github.com/sqshq/sampler/component/asciibox"
-	"github.com/sqshq/sampler/data"
+	"github.com/sqshq/sampler/console"
 	ui "github.com/sqshq/termui"
+)
+
+type ComponentType rune
+
+const (
+	TypeRunChart ComponentType = 0
+	TypeBarChart ComponentType = 1
+	TypeTextBox  ComponentType = 2
+	TypeAsciiBox ComponentType = 3
+	TypeGauge    ComponentType = 4
 )
 
 type ComponentConfig struct {
@@ -32,26 +41,26 @@ type GaugeConfig struct {
 	Scale           *int              `yaml:"scale,omitempty"`
 	Color           *ui.Color         `yaml:"color,omitempty"`
 	Values          map[string]string `yaml:"values"`
-	Items           []data.Item       `yaml:",omitempty"`
+	Items           []Item            `yaml:",omitempty"`
 }
 
 type BarChartConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Scale           *int        `yaml:"scale,omitempty"`
-	Items           []data.Item `yaml:"items"`
+	Scale           *int   `yaml:"scale,omitempty"`
+	Items           []Item `yaml:"items"`
 }
 
 type AsciiBoxConfig struct {
 	ComponentConfig `yaml:",inline"`
-	data.Item       `yaml:",inline"`
-	Font            *asciibox.AsciiFont `yaml:"font,omitempty"`
+	Item            `yaml:",inline"`
+	Font            *console.AsciiFont `yaml:"font,omitempty"`
 }
 
 type RunChartConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Legend          *LegendConfig `yaml:"legend,omitempty"`
 	Scale           *int          `yaml:"scale,omitempty"`
-	Items           []data.Item   `yaml:"items"`
+	Items           []Item        `yaml:"items"`
 }
 
 type LegendConfig struct {
@@ -69,15 +78,11 @@ type Size struct {
 	Y int `yaml:"h"`
 }
 
-type ComponentType rune
-
-const (
-	TypeRunChart ComponentType = 0
-	TypeBarChart ComponentType = 1
-	TypeTextBox  ComponentType = 2
-	TypeAsciiBox ComponentType = 3
-	TypeGauge    ComponentType = 4
-)
+type Item struct {
+	Label  *string   `yaml:"label,omitempty"`
+	Script string    `yaml:"value"`
+	Color  *ui.Color `yaml:"color,omitempty"`
+}
 
 type ComponentSettings struct {
 	Type     ComponentType

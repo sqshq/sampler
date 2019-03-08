@@ -1,6 +1,7 @@
-package component
+package layout
 
 import (
+	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
@@ -11,10 +12,10 @@ import (
 
 type Layout struct {
 	ui.Block
-	Components       []Component
+	Components       []component.Component
 	ChangeModeEvents chan Mode
-	statusbar        *StatusBar
-	menu             *Menu
+	statusbar        *component.StatusBar
+	menu             *component.Menu
 	mode             Mode
 	selection        int
 }
@@ -38,7 +39,7 @@ const (
 	statusbarHeight = 1
 )
 
-func NewLayout(width, height int, statusline *StatusBar, menu *Menu) *Layout {
+func NewLayout(width, height int, statusline *component.StatusBar, menu *component.Menu) *Layout {
 
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
@@ -46,7 +47,7 @@ func NewLayout(width, height int, statusline *StatusBar, menu *Menu) *Layout {
 
 	return &Layout{
 		Block:            block,
-		Components:       make([]Component, 0),
+		Components:       make([]component.Component, 0),
 		statusbar:        statusline,
 		menu:             menu,
 		mode:             ModeDefault,
@@ -56,16 +57,23 @@ func NewLayout(width, height int, statusline *StatusBar, menu *Menu) *Layout {
 }
 
 func (l *Layout) AddComponent(Type config.ComponentType, drawable ui.Drawable, title string, position config.Position, size config.Size, refreshRateMs int) {
-	l.Components = append(l.Components, Component{Type, drawable, title, position, size, refreshRateMs})
+	l.Components = append(l.Components, component.Component{
+		Type:          Type,
+		Drawable:      drawable,
+		Title:         title,
+		Position:      position,
+		Size:          size,
+		RefreshRateMs: refreshRateMs,
+	})
 }
 
-func (l *Layout) GetComponents(Type config.ComponentType) []ui.Drawable {
+func (l *Layout) GetComponents(Type config.ComponentType) []component.Component {
 
-	var components []ui.Drawable
+	var components []component.Component
 
-	for _, component := range l.Components {
-		if component.Type == Type {
-			components = append(components, component.Drawable)
+	for _, c := range l.Components {
+		if c.Type == Type {
+			components = append(components, c)
 		}
 	}
 
@@ -87,36 +95,36 @@ func (l *Layout) HandleConsoleEvent(e string) {
 				chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 				chart.DisableSelection()
 			}
-			l.menu.idle()
+			l.menu.Idle()
 			l.changeMode(ModePause)
 		}
 	case console.KeyEnter:
 		switch l.mode {
 		case ModeComponentSelect:
-			l.menu.choose()
+			l.menu.Choose()
 			l.changeMode(ModeMenuOptionSelect)
 		case ModeMenuOptionSelect:
-			option := l.menu.getSelectedOption()
+			option := l.menu.GetSelectedOption()
 			switch option {
-			case MenuOptionMove:
+			case component.MenuOptionMove:
 				l.changeMode(ModeComponentMove)
-				l.menu.moveOrResize()
-			case MenuOptionResize:
+				l.menu.MoveOrResize()
+			case component.MenuOptionResize:
 				l.changeMode(ModeComponentResize)
-				l.menu.moveOrResize()
-			case MenuOptionPinpoint:
+				l.menu.MoveOrResize()
+			case component.MenuOptionPinpoint:
 				l.changeMode(ModeChartPinpoint)
-				l.menu.idle()
+				l.menu.Idle()
 				chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 				chart.MoveSelection(0)
-			case MenuOptionResume:
+			case component.MenuOptionResume:
 				l.changeMode(ModeDefault)
-				l.menu.idle()
+				l.menu.Idle()
 			}
 		case ModeComponentMove:
 			fallthrough
 		case ModeComponentResize:
-			l.menu.idle()
+			l.menu.Idle()
 			l.changeMode(ModeDefault)
 		}
 	case console.KeyEsc:
@@ -128,20 +136,20 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		case ModeComponentSelect:
 			fallthrough
 		case ModeMenuOptionSelect:
-			l.menu.idle()
+			l.menu.Idle()
 			l.changeMode(ModeDefault)
 		}
 	case console.KeyLeft:
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(-1)
 		case ModeComponentSelect:
 			l.moveSelection(e)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeComponentMove:
 			l.getSelectedComponent().Move(-1, 0)
 		case ModeComponentResize:
@@ -151,13 +159,13 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
 			chart := l.getSelectedComponent().Drawable.(*runchart.RunChart)
 			chart.MoveSelection(1)
 		case ModeComponentSelect:
 			l.moveSelection(e)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeComponentMove:
 			l.getSelectedComponent().Move(1, 0)
 		case ModeComponentResize:
@@ -167,12 +175,12 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
 			l.moveSelection(e)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeMenuOptionSelect:
-			l.menu.up()
+			l.menu.Up()
 		case ModeComponentMove:
 			l.getSelectedComponent().Move(0, -1)
 		case ModeComponentResize:
@@ -182,12 +190,12 @@ func (l *Layout) HandleConsoleEvent(e string) {
 		switch l.mode {
 		case ModeDefault:
 			l.changeMode(ModeComponentSelect)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeComponentSelect:
 			l.moveSelection(e)
-			l.menu.highlight(l.getComponent(l.selection))
+			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeMenuOptionSelect:
-			l.menu.down()
+			l.menu.Down()
 		case ModeComponentMove:
 			l.getSelectedComponent().Move(0, 1)
 		case ModeComponentResize:
@@ -200,11 +208,11 @@ func (l *Layout) ChangeDimensions(width, height int) {
 	l.SetRect(0, 0, width, height)
 }
 
-func (l *Layout) getComponent(i int) Component {
-	return l.Components[i]
+func (l *Layout) getComponent(i int) *component.Component {
+	return &l.Components[i]
 }
 
-func (l *Layout) getSelectedComponent() *Component {
+func (l *Layout) getSelectedComponent() *component.Component {
 	return &l.Components[l.selection]
 }
 
@@ -229,24 +237,25 @@ func (l *Layout) moveSelection(direction string) {
 
 		switch direction {
 		case console.KeyLeft:
-			previouslySelectedCornerPoint = getRectLeftAgeCenter(previouslySelected.Drawable.GetRect())
-			newlySelectedCornerPoint = getRectRightAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
-			currentCornerPoint = getRectRightAgeCenter(current.Drawable.GetRect())
+			previouslySelectedCornerPoint = component.GetRectLeftAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = component.GetRectRightAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = component.GetRectRightAgeCenter(current.Drawable.GetRect())
 		case console.KeyRight:
-			previouslySelectedCornerPoint = getRectRightAgeCenter(previouslySelected.Drawable.GetRect())
-			newlySelectedCornerPoint = getRectLeftAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
-			currentCornerPoint = getRectLeftAgeCenter(current.Drawable.GetRect())
+			previouslySelectedCornerPoint = component.GetRectRightAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = component.GetRectLeftAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = component.GetRectLeftAgeCenter(current.Drawable.GetRect())
 		case console.KeyUp:
-			previouslySelectedCornerPoint = getRectTopAgeCenter(previouslySelected.Drawable.GetRect())
-			newlySelectedCornerPoint = getRectBottomAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
-			currentCornerPoint = getRectBottomAgeCenter(current.Drawable.GetRect())
+			previouslySelectedCornerPoint = component.GetRectTopAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = component.GetRectBottomAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = component.GetRectBottomAgeCenter(current.Drawable.GetRect())
 		case console.KeyDown:
-			previouslySelectedCornerPoint = getRectBottomAgeCenter(previouslySelected.Drawable.GetRect())
-			newlySelectedCornerPoint = getRectTopAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
-			currentCornerPoint = getRectTopAgeCenter(current.Drawable.GetRect())
+			previouslySelectedCornerPoint = component.GetRectBottomAgeCenter(previouslySelected.Drawable.GetRect())
+			newlySelectedCornerPoint = component.GetRectTopAgeCenter(l.getComponent(newlySelectedIndex).Drawable.GetRect())
+			currentCornerPoint = component.GetRectTopAgeCenter(current.Drawable.GetRect())
 		}
 
-		if getDistance(previouslySelectedCornerPoint, currentCornerPoint) < getDistance(previouslySelectedCornerPoint, newlySelectedCornerPoint) {
+		if component.GetDistance(previouslySelectedCornerPoint, currentCornerPoint) <
+			component.GetDistance(previouslySelectedCornerPoint, newlySelectedCornerPoint) {
 			newlySelectedIndex = i
 		}
 	}
@@ -259,12 +268,12 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
 	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(rowsCount)
 
-	for _, component := range l.Components {
+	for _, c := range l.Components {
 
-		x1 := math.Floor(float64(component.Position.X) * columnWidth)
-		y1 := math.Floor(float64(component.Position.Y) * rowHeight)
-		x2 := x1 + math.Floor(float64(component.Size.X))*columnWidth
-		y2 := y1 + math.Floor(float64(component.Size.Y))*rowHeight
+		x1 := math.Floor(float64(c.Position.X) * columnWidth)
+		y1 := math.Floor(float64(c.Position.Y) * rowHeight)
+		x2 := x1 + math.Floor(float64(c.Size.X))*columnWidth
+		y2 := y1 + math.Floor(float64(c.Size.Y))*rowHeight
 
 		if x2-x1 < minDimension {
 			x2 = x1 + minDimension
@@ -274,8 +283,8 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 			y2 = y1 + minDimension
 		}
 
-		component.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
-		component.Drawable.Draw(buffer)
+		c.Drawable.SetRect(int(x1), int(y1), int(x2), int(y2))
+		c.Drawable.Draw(buffer)
 	}
 
 	l.statusbar.SetRect(

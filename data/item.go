@@ -7,9 +7,9 @@ import (
 )
 
 type Item struct {
-	Label  *string   `yaml:"label,omitempty"`
-	Script string    `yaml:"value"`
-	Color  *ui.Color `yaml:"color,omitempty"`
+	Label  string
+	Script string
+	Color  ui.Color
 }
 
 func (i *Item) nextValue() (value string, err error) {

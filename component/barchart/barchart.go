@@ -17,6 +17,7 @@ const (
 
 type BarChart struct {
 	ui.Block
+	data.Consumer
 	bars     []Bar
 	scale    int
 	maxValue float64
@@ -33,19 +34,31 @@ type Bar struct {
 func NewBarChart(title string, scale int) *BarChart {
 	block := *ui.NewBlock()
 	block.Title = title
-	return &BarChart{
+	chart := BarChart{
 		Block:    block,
+		Consumer: data.NewConsumer(),
 		bars:     []Bar{},
 		scale:    scale,
 		maxValue: -math.MaxFloat64,
 	}
+
+	go chart.consume()
+
+	return &chart
 }
 
-func (b *BarChart) AddBar(label string, color ui.Color) {
-	b.bars = append(b.bars, Bar{label: label, color: color, value: 0})
+func (b *BarChart) consume() {
+	for {
+		select {
+		case sample := <-b.SampleChannel:
+			b.consumeSample(sample)
+			//case alert := <-b.alertChannel:
+			// TODO base alerting mechanism
+		}
+	}
 }
 
-func (b *BarChart) ConsumeSample(sample data.Sample) {
+func (b *BarChart) consumeSample(sample data.Sample) {
 
 	b.count++
 
@@ -74,6 +87,10 @@ func (b *BarChart) ConsumeSample(sample data.Sample) {
 	if b.count%500 == 0 {
 		b.reselectMaxValue()
 	}
+}
+
+func (b *BarChart) AddBar(label string, color ui.Color) {
+	b.bars = append(b.bars, Bar{label: label, color: color, value: 0})
 }
 
 func (b *BarChart) reselectMaxValue() {

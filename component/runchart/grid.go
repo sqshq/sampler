@@ -35,13 +35,13 @@ func (c *RunChart) newChartGrid() ChartGrid {
 func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 	// draw origin cell
 	buffer.SetCell(
-		ui.NewCell(ui.BOTTOM_LEFT, ui.NewStyle(ui.ColorWhite)),
+		ui.NewCell(ui.BOTTOM_LEFT, ui.NewStyle(console.ColorWhite)),
 		image.Pt(c.Inner.Min.X+c.grid.minTimeWidth, c.Inner.Max.Y-xAxisLabelsHeight-1))
 
 	// draw x axis line
 	for i := c.grid.minTimeWidth + 1; i < c.Inner.Dx(); i++ {
 		buffer.SetCell(
-			ui.NewCell(ui.HORIZONTAL_DASH, ui.NewStyle(ui.ColorWhite)),
+			ui.NewCell(ui.HORIZONTAL_DASH, ui.NewStyle(console.ColorWhite)),
 			image.Pt(i+c.Inner.Min.X, c.Inner.Max.Y-xAxisLabelsHeight-1))
 	}
 
@@ -57,7 +57,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 	// draw y axis line
 	for i := 0; i < c.Inner.Dy()-xAxisLabelsHeight-1; i++ {
 		buffer.SetCell(
-			ui.NewCell(ui.VERTICAL_DASH, ui.NewStyle(ui.ColorWhite)),
+			ui.NewCell(ui.VERTICAL_DASH, ui.NewStyle(console.ColorWhite)),
 			image.Pt(c.Inner.Min.X+c.grid.minTimeWidth, i+c.Inner.Min.Y))
 	}
 
@@ -66,7 +66,7 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 		labelTime := c.grid.timeRange.max.Add(time.Duration(-i) * c.timescale)
 		buffer.SetString(
 			labelTime.Format("15:04:05"),
-			ui.NewStyle(ui.ColorWhite),
+			ui.NewStyle(console.ColorWhite),
 			image.Pt(c.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(xAxisGridWidth), c.Inner.Max.Y-1))
 	}
 
@@ -78,13 +78,13 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 			value := c.grid.valueExtrema.max - (valuePerY * float64(i) * (yAxisLabelsIndent + yAxisLabelsHeight))
 			buffer.SetString(
 				formatValue(value, c.scale),
-				ui.NewStyle(ui.ColorWhite),
+				ui.NewStyle(console.ColorWhite),
 				image.Pt(c.Inner.Min.X, 1+c.Inner.Min.Y+i*(yAxisLabelsIndent+yAxisLabelsHeight)))
 		}
 	} else {
 		buffer.SetString(
 			formatValue(c.grid.valueExtrema.max, c.scale),
-			ui.NewStyle(ui.ColorWhite),
+			ui.NewStyle(console.ColorWhite),
 			image.Pt(c.Inner.Min.X, c.Inner.Min.Y+c.Inner.Dy()/2))
 	}
 }

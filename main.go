@@ -5,11 +5,13 @@ import (
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"
 	"github.com/sqshq/sampler/component/gauge"
+	"github.com/sqshq/sampler/component/layout"
 	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
+	"github.com/sqshq/sampler/trigger"
 	ui "github.com/sqshq/termui"
 )
 
@@ -21,47 +23,55 @@ func main() {
 	defer csl.Close()
 
 	width, height := ui.TerminalDimensions()
-	layout := component.NewLayout(width, height, component.NewStatusLine(flg.ConfigFileName), component.NewMenu())
+	lout := layout.NewLayout(width, height, component.NewStatusLine(flg.ConfigFileName), component.NewMenu())
 
 	for _, c := range cfg.RunCharts {
 
 		legend := runchart.Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details}
-		chart := runchart.NewRunChart(c.Title, *c.Scale, *c.RefreshRateMs, legend)
-		layout.AddComponent(config.TypeRunChart, chart, c.Title, c.Position, c.Size, *c.RefreshRateMs)
+		chart := runchart.NewRunChart(c, legend)
+		lout.AddComponent(config.TypeRunChart, chart, c.Title, c.Position, c.Size, *c.RefreshRateMs)
+		triggers := trigger.NewTriggers(c.Triggers)
 
-		for _, item := range c.Items {
-			chart.AddLine(*item.Label, *item.Color)
-			data.NewSampler(chart, item, *c.RefreshRateMs)
+		for _, i := range c.Items {
+			item := data.Item{Label: *i.Label, Script: i.Script, Color: *i.Color}
+			chart.AddLine(item.Label, item.Color)
+			data.NewSampler(chart.Consumer, item, triggers, *c.RefreshRateMs)
 		}
 	}
 
 	for _, a := range cfg.AsciiBoxes {
-		box := asciibox.NewAsciiBox(a.Title, *a.Font, *a.Item.Color)
-		layout.AddComponent(config.TypeAsciiBox, box, a.Title, a.Position, a.Size, *a.RefreshRateMs)
-		data.NewSampler(box, a.Item, *a.RefreshRateMs)
+		box := asciibox.NewAsciiBox(a)
+		item := data.Item{Label: *a.Label, Script: a.Script, Color: *a.Color}
+		triggers := trigger.NewTriggers(a.Triggers)
+		lout.AddComponent(config.TypeAsciiBox, box, a.Title, a.Position, a.Size, *a.RefreshRateMs)
+		data.NewSampler(box.Consumer, item, triggers, *a.RefreshRateMs)
 	}
 
 	for _, b := range cfg.BarCharts {
 
 		chart := barchart.NewBarChart(b.Title, *b.Scale)
-		layout.AddComponent(config.TypeBarChart, chart, b.Title, b.Position, b.Size, *b.RefreshRateMs)
+		triggers := trigger.NewTriggers(b.Triggers)
+		lout.AddComponent(config.TypeBarChart, chart, b.Title, b.Position, b.Size, *b.RefreshRateMs)
 
-		for _, item := range b.Items {
-			chart.AddBar(*item.Label, *item.Color)
-			data.NewSampler(chart, item, *b.RefreshRateMs)
+		for _, i := range b.Items {
+			item := data.Item{Label: *i.Label, Script: i.Script, Color: *i.Color}
+			chart.AddBar(*i.Label, *i.Color)
+			data.NewSampler(chart.Consumer, item, triggers, *b.RefreshRateMs)
 		}
 	}
 
 	for _, gc := range cfg.Gauges {
 
 		g := gauge.NewGauge(gc.Title, *gc.Scale, *gc.Color)
-		layout.AddComponent(config.TypeGauge, g, gc.Title, gc.Position, gc.Size, *gc.RefreshRateMs)
+		triggers := trigger.NewTriggers(gc.Triggers)
+		lout.AddComponent(config.TypeGauge, g, gc.Title, gc.Position, gc.Size, *gc.RefreshRateMs)
 
-		for _, item := range gc.Items {
-			data.NewSampler(g, item, *gc.RefreshRateMs)
+		for _, i := range gc.Items {
+			item := data.Item{Label: *i.Label, Script: i.Script}
+			data.NewSampler(g.Consumer, item, triggers, *gc.RefreshRateMs)
 		}
 	}
 
-	handler := event.NewHandler(layout)
+	handler := event.NewHandler(lout)
 	handler.HandleEvents()
 }

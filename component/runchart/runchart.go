@@ -2,9 +2,10 @@ package runchart
 
 import (
 	"fmt"
-	"github.com/sqshq/sampler/component/trigger"
+	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
+	"github.com/sqshq/sampler/trigger"
 	"image"
 	"math"
 	"strconv"
@@ -37,6 +38,7 @@ const (
 
 type RunChart struct {
 	ui.Block
+	data.Consumer
 	triggers  []trigger.Trigger
 	lines     []TimeLine
 	grid      ChartGrid
@@ -73,17 +75,35 @@ type ValueExtrema struct {
 	min float64
 }
 
-func NewRunChart(title string, scale int, refreshRateMs int, legend Legend) *RunChart {
+func NewRunChart(c config.RunChartConfig, l Legend) *RunChart {
+
 	block := *ui.NewBlock()
-	block.Title = title
-	return &RunChart{
+	block.Title = c.Title
+
+	chart := RunChart{
 		Block:     block,
+		Consumer:  data.NewConsumer(),
 		lines:     []TimeLine{},
-		timescale: calculateTimescale(refreshRateMs),
+		timescale: calculateTimescale(*c.RefreshRateMs),
 		mutex:     &sync.Mutex{},
-		scale:     scale,
+		scale:     *c.Scale,
 		mode:      ModeDefault,
-		legend:    legend,
+		legend:    l,
+	}
+
+	go chart.consume()
+
+	return &chart
+}
+
+func (c *RunChart) consume() {
+	for {
+		select {
+		case sample := <-c.SampleChannel:
+			c.consumeSample(sample)
+			//case alert := <-c.alertChannel:
+			// TODO base alerting mechanism
+		}
 	}
 }
 
@@ -123,12 +143,12 @@ func (c *RunChart) AddLine(Label string, color ui.Color) {
 	c.lines = append(c.lines, line)
 }
 
-func (c *RunChart) ConsumeSample(sample data.Sample) {
+func (c *RunChart) consumeSample(sample data.Sample) {
 
 	float, err := strconv.ParseFloat(sample.Value, 64)
 
 	if err != nil {
-		// TODO visual notification + check sample.Error
+		// TODO visual notification
 	}
 
 	c.mutex.Lock()

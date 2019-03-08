@@ -32,6 +32,17 @@ type Data struct {
 	currentValue  interface{}
 }
 
+func NewTriggers(configs []config.TriggerConfig) []Trigger {
+
+	triggers := make([]Trigger, len(configs))
+
+	for _, c := range configs {
+		triggers = append(triggers, NewTrigger(c))
+	}
+
+	return triggers
+}
+
 func NewTrigger(config config.TriggerConfig) Trigger {
 	return Trigger{
 		title:     config.Title,

@@ -3,6 +3,7 @@ package asciibox
 import (
 	fl "github.com/mbndr/figlet4go"
 	"github.com/sqshq/sampler/asset"
+	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
 	"image"
@@ -10,6 +11,7 @@ import (
 
 type AsciiBox struct {
 	ui.Block
+	data.Consumer
 	text    string
 	ascii   string
 	style   ui.Style
@@ -17,22 +19,15 @@ type AsciiBox struct {
 	options *fl.RenderOptions
 }
 
-type AsciiFont string
-
-const (
-	AsciiFontFlat AsciiFont = "flat"
-	AsciiFont3D   AsciiFont = "3d"
-)
-
 const asciiFontExtension = ".flf"
 
-func NewAsciiBox(title string, font AsciiFont, color ui.Color) *AsciiBox {
+func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 
 	block := *ui.NewBlock()
-	block.Title = title
+	block.Title = c.Title
 
 	options := fl.NewRenderOptions()
-	options.FontName = string(font)
+	options.FontName = string(*c.Font)
 
 	fontStr, err := asset.Asset(options.FontName + asciiFontExtension)
 	if err != nil {
@@ -41,17 +36,29 @@ func NewAsciiBox(title string, font AsciiFont, color ui.Color) *AsciiBox {
 	render := fl.NewAsciiRender()
 	_ = render.LoadBindataFont(fontStr, options.FontName)
 
-	return &AsciiBox{
-		Block:   block,
-		style:   ui.NewStyle(color),
-		render:  render,
-		options: options,
+	box := AsciiBox{
+		Block:    block,
+		Consumer: data.NewConsumer(),
+		style:    ui.NewStyle(*c.Color),
+		render:   render,
+		options:  options,
 	}
+
+	go box.consume()
+
+	return &box
 }
 
-func (a *AsciiBox) ConsumeSample(sample data.Sample) {
-	a.text = sample.Value
-	a.ascii, _ = a.render.RenderOpts(sample.Value, a.options)
+func (a *AsciiBox) consume() {
+	for {
+		select {
+		case sample := <-a.SampleChannel:
+			a.text = sample.Value
+			a.ascii, _ = a.render.RenderOpts(sample.Value, a.options)
+			//case alert := <-a.alertChannel:
+			// TODO base alerting mechanism
+		}
+	}
 }
 
 func (a *AsciiBox) Draw(buffer *ui.Buffer) {

@@ -1,11 +1,22 @@
 package data
 
-type Consumer interface {
-	ConsumeSample(sample Sample)
+type Consumer struct {
+	SampleChannel chan Sample
+	AlertChannel  chan Alert
 }
 
 type Sample struct {
 	Label string
 	Value string
-	Error error
+}
+
+type Alert struct {
+	Text string
+}
+
+func NewConsumer() Consumer {
+	return Consumer{
+		SampleChannel: make(chan Sample),
+		AlertChannel:  make(chan Alert),
+	}
 }

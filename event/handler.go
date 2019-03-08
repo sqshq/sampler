@@ -1,7 +1,7 @@
 package event
 
 import (
-	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/component/layout"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	ui "github.com/sqshq/termui"
@@ -13,13 +13,13 @@ const (
 )
 
 type Handler struct {
-	layout        *component.Layout
+	layout        *layout.Layout
 	renderTicker  *time.Ticker
 	consoleEvents <-chan ui.Event
 	renderRate    time.Duration
 }
 
-func NewHandler(layout *component.Layout) Handler {
+func NewHandler(layout *layout.Layout) Handler {
 	renderRate := calcMinRenderRate(layout)
 	return Handler{
 		layout:        layout,
@@ -55,16 +55,16 @@ func (h *Handler) HandleEvents() {
 	}
 }
 
-func (h *Handler) handleModeChange(m component.Mode) {
+func (h *Handler) handleModeChange(m layout.Mode) {
 
 	// render the change before switching the tickers
 	ui.Render(h.layout)
 	h.renderTicker.Stop()
 
 	switch m {
-	case component.ModeDefault:
+	case layout.ModeDefault:
 		h.renderTicker = time.NewTicker(h.renderRate)
-	case component.ModePause:
+	case layout.ModePause:
 		// proceed with stopped timer
 	default:
 		h.renderTicker = time.NewTicker(console.MinRenderInterval)
@@ -80,7 +80,7 @@ func (h *Handler) handleExit() {
 	config.Update(settings)
 }
 
-func calcMinRenderRate(layout *component.Layout) time.Duration {
+func calcMinRenderRate(layout *layout.Layout) time.Duration {
 
 	minRefreshRateMs := layout.Components[0].RefreshRateMs
 	for _, c := range layout.Components {

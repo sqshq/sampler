@@ -2,6 +2,7 @@ package runchart
 
 import (
 	"fmt"
+	"github.com/sqshq/sampler/console"
 	ui "github.com/sqshq/termui"
 	"image"
 	"math"
@@ -54,7 +55,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			y := c.Inner.Min.Y + yAxisLegendIndent + row*height
 
 			titleStyle := ui.NewStyle(line.color)
-			detailsStyle := ui.NewStyle(ui.ColorWhite)
+			detailsStyle := ui.NewStyle(console.ColorWhite)
 
 			buffer.SetString(string(ui.DOT), titleStyle, image.Pt(x-2, y))
 			buffer.SetString(line.label, titleStyle, image.Pt(x, y))

@@ -27,7 +27,7 @@ func NewStatusLine(configFileName string) *StatusBar {
 			"(Q) quit",
 			"(P) pause",
 			"(<->) selection",
-			"(ESC) reset alarm",
+			"(ESC) reset alerts",
 		},
 	}
 }

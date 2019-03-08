@@ -1,9 +1,7 @@
 package config
 
 import (
-	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/console"
-	"github.com/sqshq/sampler/data"
 )
 
 const (
@@ -71,10 +69,10 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			g.Scale = &p
 		}
-		var items []data.Item
+		var items []Item
 		for label, script := range g.Values {
 			l := label
-			items = append(items, data.Item{Label: &l, Script: script})
+			items = append(items, Item{Label: &l, Script: script})
 		}
 		g.Items = items
 		c.Gauges[i] = g
@@ -93,7 +91,7 @@ func (c *Config) setDefaultValues() {
 			box.Label = &label
 		}
 		if box.Font == nil {
-			font := asciibox.AsciiFontFlat
+			font := console.AsciiFontFlat
 			box.Font = &font
 		}
 		if box.Color == nil {

@@ -18,6 +18,7 @@ const (
 
 type Gauge struct {
 	ui.Block
+	data.Consumer
 	minValue float64
 	maxValue float64
 	curValue float64
@@ -26,12 +27,30 @@ type Gauge struct {
 }
 
 func NewGauge(title string, scale int, color ui.Color) *Gauge {
+
 	block := *ui.NewBlock()
 	block.Title = title
-	return &Gauge{
-		Block: block,
-		scale: scale,
-		color: color,
+
+	gauge := Gauge{
+		Block:    block,
+		Consumer: data.NewConsumer(),
+		scale:    scale,
+		color:    color,
+	}
+
+	go gauge.consume()
+
+	return &gauge
+}
+
+func (g *Gauge) consume() {
+	for {
+		select {
+		case sample := <-g.SampleChannel:
+			g.ConsumeSample(sample)
+			//case alert := <-g.alertChannel:
+			// TODO base alerting mechanism
+		}
 	}
 }
 

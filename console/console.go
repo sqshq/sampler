@@ -14,6 +14,13 @@ const (
 	AppVersion        = "0.1.0"
 )
 
+type AsciiFont string
+
+const (
+	AsciiFontFlat AsciiFont = "flat"
+	AsciiFont3D   AsciiFont = "3d"
+)
+
 type Console struct{}
 
 func (self *Console) Init() {

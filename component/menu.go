@@ -48,26 +48,26 @@ func NewMenu() *Menu {
 	}
 }
 
-func (m *Menu) getSelectedOption() MenuOption {
+func (m *Menu) GetSelectedOption() MenuOption {
 	return m.option
 }
 
-func (m *Menu) highlight(component Component) {
-	m.component = component
+func (m *Menu) Highlight(component *Component) {
+	m.component = *component
 	m.updateDimensions()
 	m.mode = MenuModeHighlight
 	m.Title = component.Title
 }
 
-func (m *Menu) choose() {
+func (m *Menu) Choose() {
 	m.mode = MenuModeOptionSelect
 }
 
-func (m *Menu) idle() {
+func (m *Menu) Idle() {
 	m.mode = MenuModeIdle
 }
 
-func (m *Menu) up() {
+func (m *Menu) Up() {
 	for i := 1; i < len(m.options); i++ {
 		if m.options[i] == m.option {
 			m.option = m.options[i-1]
@@ -75,11 +75,11 @@ func (m *Menu) up() {
 		}
 	}
 	if m.option == MenuOptionPinpoint && m.component.Type != config.TypeRunChart {
-		m.up()
+		m.Up()
 	}
 }
 
-func (m *Menu) down() {
+func (m *Menu) Down() {
 	for i := 0; i < len(m.options)-1; i++ {
 		if m.options[i] == m.option {
 			m.option = m.options[i+1]
@@ -87,11 +87,11 @@ func (m *Menu) down() {
 		}
 	}
 	if m.option == MenuOptionPinpoint && m.component.Type != config.TypeRunChart {
-		m.down()
+		m.Down()
 	}
 }
 
-func (m *Menu) moveOrResize() {
+func (m *Menu) MoveOrResize() {
 	m.mode = MenuModeMoveAndResize
 }
 
