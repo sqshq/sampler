@@ -29,8 +29,14 @@ func NewSampler(consumer Consumer, item Item, triggers []trigger.Trigger, rateMs
 func (s *Sampler) sample() {
 	value, err := s.item.nextValue()
 	if err == nil {
+
 		sample := Sample{Value: value, Label: s.item.Label}
 		s.consumer.SampleChannel <- sample
+
+		for _, t := range s.triggers {
+			t.Execute(s.item.Label, value)
+		}
+
 	} else {
 		s.consumer.AlertChannel <- Alert{Text: err.Error()}
 	}

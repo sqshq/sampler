@@ -47,6 +47,7 @@ func NewTrigger(config config.TriggerConfig) Trigger {
 	return Trigger{
 		title:     config.Title,
 		condition: config.Condition,
+		data:      make(map[string]Data),
 		actions: Actions{
 			terminalBell: *config.Actions.TerminalBell,
 			sound:        *config.Actions.Sound,
@@ -56,16 +57,16 @@ func NewTrigger(config config.TriggerConfig) Trigger {
 	}
 }
 
-func (t Trigger) execute(label string, value interface{}) {
-	go func() {
-		if data, ok := t.data[label]; ok {
-			data.previousValue = data.currentValue
-			data.currentValue = value
-		} else {
-			t.data[label] = Data{previousValue: nil, currentValue: value}
-		}
-		t.evaluate(label, t.data[label])
-	}()
+func (t Trigger) Execute(label string, value interface{}) {
+
+	if data, ok := t.data[label]; ok {
+		data.previousValue = data.currentValue
+		data.currentValue = value
+	} else {
+		t.data[label] = Data{previousValue: nil, currentValue: value}
+	}
+
+	t.evaluate(label, t.data[label])
 }
 
 func (t Trigger) evaluate(label string, data Data) {
@@ -73,7 +74,7 @@ func (t Trigger) evaluate(label string, data Data) {
 	output, err := runScript(t.condition, label, data)
 
 	if err != nil {
-		println(err) // TODO visual notification
+		//println(err) // TODO visual notification
 	}
 
 	if string(output) != TrueIndicator {
