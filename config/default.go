@@ -104,9 +104,9 @@ func (c *Config) setDefaultValues() {
 
 func setDefaultTriggersValues(triggers []TriggerConfig) {
 
-	defaultTerminalBell := true
+	defaultTerminalBell := false
 	defaultSound := false
-	defaultVisual := true
+	defaultVisual := false
 
 	for i, trigger := range triggers {
 
@@ -137,20 +137,20 @@ func (c *Config) setDefaultColors() {
 	palette := console.GetPalette(*c.Theme)
 	colorsCount := len(palette.Colors)
 
-	for _, chart := range c.RunCharts {
-		for j, item := range chart.Items {
+	for _, ch := range c.RunCharts {
+		for j, item := range ch.Items {
 			if item.Color == nil {
 				item.Color = &palette.Colors[j%colorsCount]
-				chart.Items[j] = item
+				ch.Items[j] = item
 			}
 		}
 	}
 
-	for _, chart := range c.BarCharts {
-		for j, item := range chart.Items {
+	for _, b := range c.BarCharts {
+		for j, item := range b.Items {
 			if item.Color == nil {
 				item.Color = &palette.Colors[j%colorsCount]
-				chart.Items[j] = item
+				b.Items[j] = item
 			}
 		}
 	}

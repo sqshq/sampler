@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"
@@ -11,7 +12,6 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
-	"github.com/sqshq/sampler/trigger"
 	ui "github.com/sqshq/termui"
 )
 
@@ -25,51 +25,50 @@ func main() {
 	width, height := ui.TerminalDimensions()
 	lout := layout.NewLayout(width, height, component.NewStatusLine(flg.ConfigFileName), component.NewMenu())
 
+	player := asset.NewAudioPlayer()
+	defer player.Close()
+
 	for _, c := range cfg.RunCharts {
 
 		legend := runchart.Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details}
 		chart := runchart.NewRunChart(c, legend)
 		lout.AddComponent(config.TypeRunChart, chart, c.Title, c.Position, c.Size, *c.RefreshRateMs)
-		triggers := trigger.NewTriggers(c.Triggers)
+		triggers := data.NewTriggers(c.Triggers, chart.Consumer, player)
+		items := data.NewItems(c.Items)
+		data.NewSampler(chart.Consumer, items, triggers, *c.RefreshRateMs)
 
 		for _, i := range c.Items {
-			item := data.Item{Label: *i.Label, Script: i.Script, Color: *i.Color}
-			chart.AddLine(item.Label, item.Color)
-			data.NewSampler(chart.Consumer, item, triggers, *c.RefreshRateMs)
+			chart.AddLine(*i.Label, *i.Color)
 		}
 	}
 
 	for _, a := range cfg.AsciiBoxes {
 		box := asciibox.NewAsciiBox(a)
-		item := data.Item{Label: *a.Label, Script: a.Script, Color: *a.Color}
-		triggers := trigger.NewTriggers(a.Triggers)
+		item := data.Item{Label: *a.Label, Script: a.Script, Color: a.Color}
 		lout.AddComponent(config.TypeAsciiBox, box, a.Title, a.Position, a.Size, *a.RefreshRateMs)
-		data.NewSampler(box.Consumer, item, triggers, *a.RefreshRateMs)
+		triggers := data.NewTriggers(a.Triggers, box.Consumer, player)
+		data.NewSampler(box.Consumer, []data.Item{item}, triggers, *a.RefreshRateMs)
 	}
 
 	for _, b := range cfg.BarCharts {
 
 		chart := barchart.NewBarChart(b.Title, *b.Scale)
-		triggers := trigger.NewTriggers(b.Triggers)
+		triggers := data.NewTriggers(b.Triggers, chart.Consumer, player)
 		lout.AddComponent(config.TypeBarChart, chart, b.Title, b.Position, b.Size, *b.RefreshRateMs)
+		items := data.NewItems(b.Items)
+		data.NewSampler(chart.Consumer, items, triggers, *b.RefreshRateMs)
 
 		for _, i := range b.Items {
-			item := data.Item{Label: *i.Label, Script: i.Script, Color: *i.Color}
 			chart.AddBar(*i.Label, *i.Color)
-			data.NewSampler(chart.Consumer, item, triggers, *b.RefreshRateMs)
 		}
 	}
 
 	for _, gc := range cfg.Gauges {
-
 		g := gauge.NewGauge(gc.Title, *gc.Scale, *gc.Color)
-		triggers := trigger.NewTriggers(gc.Triggers)
+		triggers := data.NewTriggers(gc.Triggers, g.Consumer, player)
 		lout.AddComponent(config.TypeGauge, g, gc.Title, gc.Position, gc.Size, *gc.RefreshRateMs)
-
-		for _, i := range gc.Items {
-			item := data.Item{Label: *i.Label, Script: i.Script}
-			data.NewSampler(g.Consumer, item, triggers, *gc.RefreshRateMs)
-		}
+		items := data.NewItems(gc.Items)
+		data.NewSampler(g.Consumer, items, triggers, *gc.RefreshRateMs)
 	}
 
 	handler := event.NewHandler(lout)

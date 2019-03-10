@@ -1,43 +1,63 @@
 package data
 
 import (
-	"github.com/sqshq/sampler/trigger"
 	"time"
 )
 
 type Sampler struct {
-	consumer Consumer
-	item     Item
-	triggers []trigger.Trigger
+	consumer        Consumer
+	items           []Item
+	triggers        []Trigger
+	triggersChannel chan Sample
 }
 
-func NewSampler(consumer Consumer, item Item, triggers []trigger.Trigger, rateMs int) Sampler {
+func NewSampler(consumer Consumer, items []Item, triggers []Trigger, rateMs int) Sampler {
 
-	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
-	sampler := Sampler{consumer, item, triggers}
+	ticker := time.NewTicker(
+		time.Duration(rateMs * int(time.Millisecond)),
+	)
+
+	sampler := Sampler{
+		consumer,
+		items,
+		triggers,
+		make(chan Sample),
+	}
 
 	go func() {
-		sampler.sample()
 		for ; true; <-ticker.C {
-			sampler.sample()
+			for _, item := range sampler.items {
+				go sampler.sample(item)
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			select {
+			case sample := <-sampler.triggersChannel:
+				for _, t := range sampler.triggers {
+					t.Execute(sample)
+				}
+			}
 		}
 	}()
 
 	return sampler
 }
 
-func (s *Sampler) sample() {
-	value, err := s.item.nextValue()
+func (s *Sampler) sample(item Item) {
+
+	val, err := item.nextValue()
+
 	if err == nil {
-
-		sample := Sample{Value: value, Label: s.item.Label}
+		sample := Sample{Label: item.Label, Value: val}
 		s.consumer.SampleChannel <- sample
-
-		for _, t := range s.triggers {
-			t.Execute(s.item.Label, value)
-		}
-
+		s.triggersChannel <- sample
 	} else {
-		s.consumer.AlertChannel <- Alert{Text: err.Error()}
+		s.consumer.AlertChannel <- Alert{
+			Title: "SAMPLING FAILURE",
+			Text:  err.Error(),
+		}
 	}
 }

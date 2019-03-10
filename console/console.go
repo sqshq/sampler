@@ -23,6 +23,10 @@ const (
 
 type Console struct{}
 
+const (
+	BellCharacter = "\a"
+)
+
 func (self *Console) Init() {
 
 	fmt.Printf("\033]0;%s\007", AppTitle)

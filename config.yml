@@ -7,13 +7,13 @@ runcharts:
     w: 53
     h: 16
   triggers:
-    - title: PROCESSING STARTED # ${prev} ${cur} ${lavel} echo $(( 3 < 4 && 1 > 2 ))
-      condition: ((${prev} == 0 && ${cur} > 0))
-      actions:
-        terminal-bell: true
-        sound: false
-        visual: true
-        script: say ${lavel} initiated with value ${cur}
+  - title: LATENCY
+    condition: echo "$prev < 0.4 && $cur > 0.4" |bc -l
+    actions:
+      terminal-bell: true
+      sound: true
+      visual: true
+      script: 'say alert: ${label} latency exceeded ${cur} second'
   scale: 3
   items:
   - label: GOOGLE
@@ -100,6 +100,12 @@ gauges:
   size:
     w: 27
     h: 2
+  triggers:
+  - title: CLOCK BELL EVERY MINUTE
+    condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1'
+    actions:
+      sound: true
+      script: say -v samantha `date +%I:%M%p`
   values:
     cur: date +%S
     max: echo 60

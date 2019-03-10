@@ -11,7 +11,8 @@ type Sample struct {
 }
 
 type Alert struct {
-	Text string
+	Title string
+	Text  string
 }
 
 func NewConsumer() Consumer {

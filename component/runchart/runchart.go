@@ -5,7 +5,6 @@ import (
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
-	"github.com/sqshq/sampler/trigger"
 	"image"
 	"math"
 	"strconv"
@@ -39,7 +38,6 @@ const (
 type RunChart struct {
 	ui.Block
 	data.Consumer
-	triggers  []trigger.Trigger
 	lines     []TimeLine
 	grid      ChartGrid
 	timescale time.Duration

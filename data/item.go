@@ -1,6 +1,7 @@
 package data
 
 import (
+	"github.com/sqshq/sampler/config"
 	ui "github.com/sqshq/termui"
 	"os/exec"
 	"strings"
@@ -9,7 +10,19 @@ import (
 type Item struct {
 	Label  string
 	Script string
-	Color  ui.Color
+	Color  *ui.Color
+}
+
+func NewItems(cfgs []config.Item) []Item {
+
+	items := make([]Item, 0)
+
+	for _, i := range cfgs {
+		item := Item{Label: *i.Label, Script: i.Script, Color: i.Color}
+		items = append(items, item)
+	}
+
+	return items
 }
 
 func (i *Item) nextValue() (value string, err error) {
