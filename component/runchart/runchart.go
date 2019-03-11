@@ -2,6 +2,7 @@ package runchart
 
 import (
 	"fmt"
+	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -38,6 +39,7 @@ const (
 type RunChart struct {
 	ui.Block
 	data.Consumer
+	*component.Alerter
 	lines     []TimeLine
 	grid      ChartGrid
 	timescale time.Duration
@@ -75,12 +77,14 @@ type ValueExtrema struct {
 
 func NewRunChart(c config.RunChartConfig, l Legend) *RunChart {
 
+	consumer := data.NewConsumer()
 	block := *ui.NewBlock()
 	block.Title = c.Title
 
 	chart := RunChart{
 		Block:     block,
-		Consumer:  data.NewConsumer(),
+		Consumer:  consumer,
+		Alerter:   component.NewAlerter(consumer.AlertChannel),
 		lines:     []TimeLine{},
 		timescale: calculateTimescale(*c.RefreshRateMs),
 		mutex:     &sync.Mutex{},
@@ -128,6 +132,7 @@ func (c *RunChart) Draw(buffer *ui.Buffer) {
 	c.renderAxes(buffer)
 	c.renderLines(buffer, drawArea)
 	c.renderLegend(buffer, drawArea)
+	c.RenderAlert(buffer, c.Rectangle)
 	c.mutex.Unlock()
 }
 

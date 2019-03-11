@@ -20,7 +20,7 @@ const (
 	ColorOrange      ui.Color = 166
 	ColorPurple      ui.Color = 129
 	ColorGreen       ui.Color = 64
-	ColorDarkGrey    ui.Color = 235
+	ColorDarkGrey    ui.Color = 238
 	ColorGrey        ui.Color = 242
 	ColorWhite       ui.Color = 15
 	ColorBlack       ui.Color = 0

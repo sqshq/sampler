@@ -8,7 +8,7 @@ runcharts:
     h: 16
   triggers:
   - title: LATENCY
-    condition: echo "$prev < 0.4 && $cur > 0.4" |bc -l
+    condition: echo "$prev < 0.2 && $cur > 0.2" |bc -l
     actions:
       terminal-bell: true
       sound: true

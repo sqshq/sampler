@@ -130,14 +130,14 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		buffer.SetString(
 			optionsText,
 			ui.NewStyle(console.ColorDarkGrey),
-			getMiddlePoint(m.Block, optionsText, -1),
+			getMiddlePoint(m.Block.Rectangle, optionsText, -1),
 		)
 		return
 	}
 
 	m.printAllDirectionsArrowSign(buffer, -2)
 
-	arrowsTextPoint := getMiddlePoint(m.Block, arrowsText, 2)
+	arrowsTextPoint := getMiddlePoint(m.Block.Rectangle, arrowsText, 2)
 	if arrowsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			arrowsText,
@@ -146,16 +146,16 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		)
 	}
 
-	optionsTextPoint := getMiddlePoint(m.Block, optionsText, 3)
+	optionsTextPoint := getMiddlePoint(m.Block.Rectangle, optionsText, 3)
 	if optionsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			optionsText,
 			ui.NewStyle(console.ColorDarkGrey),
-			getMiddlePoint(m.Block, optionsText, 3),
+			getMiddlePoint(m.Block.Rectangle, optionsText, 3),
 		)
 	}
 
-	resumeTextPoint := getMiddlePoint(m.Block, resumeText, 4)
+	resumeTextPoint := getMiddlePoint(m.Block.Rectangle, resumeText, 4)
 	if resumeTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			resumeText,
@@ -170,12 +170,12 @@ func (m *Menu) renderMoveAndResize(buffer *ui.Buffer) {
 	saveText := "<ENTER> to save changes"
 
 	if m.Dy() <= minimalMenuHeight {
-		buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block, saveText, -1))
+		buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block.Rectangle, saveText, -1))
 		return
 	}
 
 	m.printAllDirectionsArrowSign(buffer, -1)
-	buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block, saveText, 3))
+	buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block.Rectangle, saveText, 3))
 }
 
 func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
@@ -190,7 +190,7 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 		buffer.SetString(
 			a,
 			ui.NewStyle(console.ColorOlive),
-			getMiddlePoint(m.Block, a, i+y),
+			getMiddlePoint(m.Block.Rectangle, a, i+y),
 		)
 	}
 }
@@ -211,7 +211,7 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 		if option != MenuOptionPinpoint || m.component.Type == config.TypeRunChart {
 			offset += 2
-			point := getMiddlePoint(m.Block, string(option), offset-5)
+			point := getMiddlePoint(m.Block.Rectangle, string(option), offset-5)
 			buffer.SetString(string(option), style, point)
 			//if point.In(m.GetRect()) {
 			//	buffer.SetString(string(option), style, point)
@@ -243,6 +243,7 @@ func (m *Menu) drawInnerBorder(buffer *ui.Buffer) {
 	buffer.SetCell(ui.Cell{ui.BOTTOM_RIGHT, m.BorderStyle}, image.Pt(m.Max.X-3, m.Max.Y-2))
 }
 
-func getMiddlePoint(block ui.Block, text string, offset int) image.Point {
-	return image.Pt(block.Min.X+block.Dx()/2-len(text)/2, block.Max.Y-block.Dy()/2+offset)
+// TODO move to utils
+func getMiddlePoint(rectangle image.Rectangle, text string, offset int) image.Point {
+	return image.Pt(rectangle.Min.X+rectangle.Dx()/2-len(text)/2, rectangle.Max.Y-rectangle.Dy()/2+offset)
 }

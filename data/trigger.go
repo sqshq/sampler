@@ -77,9 +77,9 @@ func (t *Trigger) Execute(sample Sample) {
 		}
 
 		if t.actions.visual {
-			//t.consumer.AlertChannel <- Alert{
-			//	Title: "TRIGGER ALERT", Text: sample.Label,
-			//}
+			t.consumer.AlertChannel <- Alert{
+				Title: t.title, Text: fmt.Sprintf("%s value: %v", sample.Label, sample.Value),
+			}
 		}
 
 		if t.actions.script != nil {
