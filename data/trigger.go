@@ -78,7 +78,7 @@ func (t *Trigger) Execute(sample Sample) {
 
 		if t.actions.visual {
 			t.consumer.AlertChannel <- Alert{
-				Title: t.title, Text: fmt.Sprintf("%s value: %v", sample.Label, sample.Value),
+				Title: t.title, Text: fmt.Sprintf("%s: %v", sample.Label, sample.Value),
 			}
 		}
 
