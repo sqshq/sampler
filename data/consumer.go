@@ -1,5 +1,7 @@
 package data
 
+import ui "github.com/sqshq/termui"
+
 type Consumer struct {
 	SampleChannel chan Sample
 	AlertChannel  chan Alert
@@ -8,11 +10,13 @@ type Consumer struct {
 type Sample struct {
 	Label string
 	Value string
+	Color *ui.Color
 }
 
 type Alert struct {
 	Title string
 	Text  string
+	Color *ui.Color
 }
 
 func NewConsumer() Consumer {

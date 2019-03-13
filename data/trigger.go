@@ -78,7 +78,9 @@ func (t *Trigger) Execute(sample Sample) {
 
 		if t.actions.visual {
 			t.consumer.AlertChannel <- Alert{
-				Title: t.title, Text: fmt.Sprintf("%s: %v", sample.Label, sample.Value),
+				Title: t.title,
+				Text:  fmt.Sprintf("%s: %v", sample.Label, sample.Value),
+				Color: sample.Color,
 			}
 		}
 
@@ -101,7 +103,7 @@ func (t *Trigger) evaluate(sample Sample) bool {
 	output, err := runScript(t.condition, sample.Label, t.valuesByLabel[sample.Label])
 
 	if err != nil {
-		//t.consumer.AlertChannel <- Alert{Title: "TRIGGER CONDITION FAILURE", Text: err.Error()}
+		t.consumer.AlertChannel <- Alert{Title: "TRIGGER CONDITION FAILURE", Text: err.Error()}
 	}
 
 	return t.digitsRegexp.ReplaceAllString(string(output), "") == TrueIndicator

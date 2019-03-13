@@ -51,13 +51,14 @@ func (s *Sampler) sample(item Item) {
 	val, err := item.nextValue()
 
 	if err == nil {
-		sample := Sample{Label: item.Label, Value: val}
+		sample := Sample{Label: item.Label, Value: val, Color: item.Color}
 		s.consumer.SampleChannel <- sample
 		s.triggersChannel <- sample
 	} else {
 		s.consumer.AlertChannel <- Alert{
 			Title: "SAMPLING FAILURE",
 			Text:  err.Error(),
+			Color: item.Color,
 		}
 	}
 }

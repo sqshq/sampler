@@ -198,7 +198,7 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 	// TODO extract styles to console.Palette
-	highlightedStyle := ui.NewStyle(console.ColorOlive, console.ColorBlack, ui.ModifierReverse)
+	highlightedStyle := ui.NewStyle(console.ColorBlack, console.ColorOlive)
 	regularStyle := ui.NewStyle(console.ColorWhite, console.ColorBlack)
 
 	offset := 1
