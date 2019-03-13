@@ -3,6 +3,7 @@ package barchart
 import (
 	"fmt"
 	rw "github.com/mattn/go-runewidth"
+	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
@@ -18,6 +19,7 @@ const (
 type BarChart struct {
 	ui.Block
 	data.Consumer
+	*component.Alerter
 	bars     []Bar
 	scale    int
 	maxValue float64
@@ -32,11 +34,13 @@ type Bar struct {
 }
 
 func NewBarChart(title string, scale int) *BarChart {
+	consumer := data.NewConsumer()
 	block := *ui.NewBlock()
 	block.Title = title
 	chart := BarChart{
 		Block:    block,
-		Consumer: data.NewConsumer(),
+		Consumer: consumer,
+		Alerter:  component.NewAlerter(consumer.AlertChannel),
 		bars:     []Bar{},
 		scale:    scale,
 		maxValue: -math.MaxFloat64,

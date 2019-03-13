@@ -2,6 +2,7 @@ package gauge
 
 import (
 	"fmt"
+	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
@@ -19,6 +20,7 @@ const (
 type Gauge struct {
 	ui.Block
 	data.Consumer
+	*component.Alerter
 	minValue float64
 	maxValue float64
 	curValue float64
@@ -27,13 +29,13 @@ type Gauge struct {
 }
 
 func NewGauge(title string, scale int, color ui.Color) *Gauge {
-
+	consumer := data.NewConsumer()
 	block := *ui.NewBlock()
 	block.Title = title
-
 	gauge := Gauge{
 		Block:    block,
-		Consumer: data.NewConsumer(),
+		Consumer: consumer,
+		Alerter:  component.NewAlerter(consumer.AlertChannel),
 		scale:    scale,
 		color:    color,
 	}

@@ -3,6 +3,7 @@ package asciibox
 import (
 	fl "github.com/mbndr/figlet4go"
 	"github.com/sqshq/sampler/asset"
+	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/data"
 	ui "github.com/sqshq/termui"
@@ -12,6 +13,7 @@ import (
 type AsciiBox struct {
 	ui.Block
 	data.Consumer
+	*component.Alerter
 	text    string
 	ascii   string
 	style   ui.Style
@@ -23,6 +25,7 @@ const asciiFontExtension = ".flf"
 
 func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 
+	consumer := data.NewConsumer()
 	block := *ui.NewBlock()
 	block.Title = c.Title
 
@@ -38,7 +41,8 @@ func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 
 	box := AsciiBox{
 		Block:    block,
-		Consumer: data.NewConsumer(),
+		Consumer: consumer,
+		Alerter:  component.NewAlerter(consumer.AlertChannel),
 		style:    ui.NewStyle(*c.Color),
 		render:   render,
 		options:  options,
