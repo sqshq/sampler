@@ -1,6 +1,6 @@
 package data
 
-import ui "github.com/sqshq/termui"
+import ui "github.com/gizak/termui/v3"
 
 type Consumer struct {
 	SampleChannel chan Sample

@@ -1,6 +1,7 @@
 package main
 
 import (
+	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
@@ -12,7 +13,6 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
-	ui "github.com/sqshq/termui"
 )
 
 func main() {

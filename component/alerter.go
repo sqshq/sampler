@@ -2,9 +2,9 @@ package component
 
 import (
 	"fmt"
+	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
-	ui "github.com/sqshq/termui"
 	"image"
 	"strings"
 )
@@ -49,7 +49,7 @@ func (a *Alerter) RenderAlert(buffer *ui.Buffer, area image.Rectangle) {
 		width = area.Dx()
 	}
 
-	cells := ui.WrapCells(ui.ParseText(fmt.Sprintf("%s\n%s\n",
+	cells := ui.WrapCells(ui.ParseStyles(fmt.Sprintf("%s\n%s\n",
 		strings.ToUpper(a.alert.Title), a.alert.Text), ui.NewStyle(console.ColorWhite)), uint(width))
 
 	var lines []string

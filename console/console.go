@@ -2,7 +2,7 @@ package console
 
 import (
 	"fmt"
-	ui "github.com/sqshq/termui"
+	ui "github.com/gizak/termui/v3"
 	"log"
 	"time"
 )

@@ -1,12 +1,12 @@
 package asciibox
 
 import (
+	ui "github.com/gizak/termui/v3"
 	fl "github.com/mbndr/figlet4go"
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/data"
-	ui "github.com/sqshq/termui"
 	"image"
 )
 
@@ -71,7 +71,7 @@ func (a *AsciiBox) Draw(buffer *ui.Buffer) {
 	a.Block.Draw(buffer)
 
 	point := a.Inner.Min
-	cells := ui.ParseText(a.ascii, a.style)
+	cells := ui.ParseStyles(a.ascii, a.style)
 
 	for i := 0; i < len(cells) && point.Y < a.Inner.Max.Y; i++ {
 		if cells[i].Rune == '\n' {

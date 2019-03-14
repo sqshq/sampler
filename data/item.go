@@ -1,8 +1,8 @@
 package data
 
 import (
+	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/config"
-	ui "github.com/sqshq/termui"
 	"os/exec"
 	"strings"
 )

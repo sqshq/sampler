@@ -2,10 +2,10 @@ package gauge
 
 import (
 	"fmt"
+	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
-	ui "github.com/sqshq/termui"
 	"image"
 	"math"
 	"strconv"

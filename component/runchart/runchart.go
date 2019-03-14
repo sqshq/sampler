@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	ui "github.com/sqshq/termui"
+	ui "github.com/gizak/termui/v3"
 )
 
 const (
@@ -257,7 +257,7 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 				previousPoint = xPoint[xOrder[i-1]]
 			}
 
-			canvas.Line(
+			canvas.SetLine(
 				braillePoint(previousPoint),
 				braillePoint(currentPoint),
 				line.color,

@@ -1,11 +1,11 @@
 package layout
 
 import (
+	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
-	ui "github.com/sqshq/termui"
 	"image"
 	"math"
 )
