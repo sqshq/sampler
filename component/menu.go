@@ -187,10 +187,11 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 	}
 
 	for i, a := range arrows {
-		buffer.SetString(
+		printString(
 			a,
 			ui.NewStyle(console.ColorOlive),
 			getMiddlePoint(m.Block.Rectangle, a, i+y),
+			buffer,
 		)
 	}
 }
@@ -213,9 +214,6 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 			offset += 2
 			point := getMiddlePoint(m.Block.Rectangle, string(option), offset-5)
 			buffer.SetString(string(option), style, point)
-			//if point.In(m.GetRect()) {
-			//	buffer.SetString(string(option), style, point)
-			//}
 		}
 	}
 }
@@ -246,4 +244,11 @@ func (m *Menu) drawInnerBorder(buffer *ui.Buffer) {
 // TODO move to utils
 func getMiddlePoint(rectangle image.Rectangle, text string, offset int) image.Point {
 	return image.Pt(rectangle.Min.X+rectangle.Dx()/2-len(text)/2, rectangle.Max.Y-rectangle.Dy()/2+offset)
+}
+
+// TODO move to utils
+func printString(s string, style ui.Style, p image.Point, buffer *ui.Buffer) {
+	for i, char := range s {
+		buffer.SetCell(ui.Cell{Rune: char, Style: style}, image.Pt(p.X+i, p.Y))
+	}
 }
