@@ -14,6 +14,10 @@ const (
 	AppVersion        = "0.1.0"
 )
 
+const (
+	BellCharacter = "\a"
+)
+
 type AsciiFont string
 
 const (
@@ -21,13 +25,7 @@ const (
 	AsciiFont3D   AsciiFont = "3d"
 )
 
-type Console struct{}
-
-const (
-	BellCharacter = "\a"
-)
-
-func (self *Console) Init() {
+func Init() {
 
 	fmt.Printf("\033]0;%s\007", AppTitle)
 
@@ -36,6 +34,6 @@ func (self *Console) Init() {
 	}
 }
 
-func (self *Console) Close() {
+func Close() {
 	ui.Close()
 }

@@ -5,28 +5,28 @@ import (
 	"math"
 )
 
-func GetRectLeftAgeCenter(rect image.Rectangle) image.Point {
+func GetRectLeftSideCenter(rect image.Rectangle) image.Point {
 	return image.Point{
 		X: rect.Min.X,
 		Y: rect.Min.Y + rect.Dy()/2,
 	}
 }
 
-func GetRectRightAgeCenter(rect image.Rectangle) image.Point {
+func GetRectRightSideCenter(rect image.Rectangle) image.Point {
 	return image.Point{
 		X: rect.Max.X,
 		Y: rect.Min.Y + rect.Dy()/2,
 	}
 }
 
-func GetRectTopAgeCenter(rect image.Rectangle) image.Point {
+func GetRectTopSideCenter(rect image.Rectangle) image.Point {
 	return image.Point{
 		X: rect.Min.X + rect.Dx()/2,
 		Y: rect.Min.Y,
 	}
 }
 
-func GetRectBottomAgeCenter(rect image.Rectangle) image.Point {
+func GetRectBottomSideCenter(rect image.Rectangle) image.Point {
 	return image.Point{
 		X: rect.Min.X + rect.Dx()/2,
 		Y: rect.Max.Y,

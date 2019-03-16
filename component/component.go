@@ -3,15 +3,36 @@ package component
 import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/config"
+	"github.com/sqshq/sampler/data"
 )
 
 type Component struct {
+	ui.Block
+	data.Consumer
+	*Alerter
 	Type          config.ComponentType
-	Drawable      ui.Drawable
 	Title         string
 	Position      config.Position
 	Size          config.Size
 	RefreshRateMs int
+}
+
+func NewComponent(c config.ComponentConfig, t config.ComponentType) *Component {
+
+	consumer := data.NewConsumer()
+	block := *ui.NewBlock()
+	block.Title = c.Title
+
+	return &Component{
+		Block:         block,
+		Consumer:      consumer,
+		Alerter:       NewAlerter(consumer.AlertChannel),
+		Type:          t,
+		Title:         c.Title,
+		Position:      c.Position,
+		Size:          c.Size,
+		RefreshRateMs: *c.RefreshRateMs,
+	}
 }
 
 func (c *Component) Move(x, y int) {

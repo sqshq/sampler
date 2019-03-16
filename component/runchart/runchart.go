@@ -16,15 +16,13 @@ import (
 )
 
 const (
-	xAxisLabelsHeight = 1
-	xAxisLabelsWidth  = 8
-	xAxisLabelsIndent = 2
-	xAxisGridWidth    = xAxisLabelsIndent + xAxisLabelsWidth
-	yAxisLabelsHeight = 1
-	yAxisLabelsIndent = 1
-
-	historyReserveMin = 20
-
+	xAxisLabelsHeight  = 1
+	xAxisLabelsWidth   = 8
+	xAxisLabelsIndent  = 2
+	xAxisGridWidth     = xAxisLabelsIndent + xAxisLabelsWidth
+	yAxisLabelsHeight  = 1
+	yAxisLabelsIndent  = 1
+	historyReserveMin  = 20
 	xBrailleMultiplier = 2
 	yBrailleMultiplier = 4
 )
@@ -36,10 +34,13 @@ const (
 	ModePinpoint Mode = 1
 )
 
+const (
+	CommandDisableSelection = "DISABLE_SELECTION"
+	CommandMoveSelection    = "MOVE_SELECTION"
+)
+
 type RunChart struct {
-	ui.Block
-	data.Consumer
-	*component.Alerter
+	*component.Component
 	lines     []TimeLine
 	grid      ChartGrid
 	timescale time.Duration
@@ -75,38 +76,39 @@ type ValueExtrema struct {
 	min float64
 }
 
-func NewRunChart(c config.RunChartConfig, l Legend) *RunChart {
-
-	consumer := data.NewConsumer()
-	block := *ui.NewBlock()
-	block.Title = c.Title
+func NewRunChart(c config.RunChartConfig) *RunChart {
 
 	chart := RunChart{
-		Block:     block,
-		Consumer:  consumer,
-		Alerter:   component.NewAlerter(consumer.AlertChannel),
+		Component: component.NewComponent(c.ComponentConfig, config.TypeRunChart),
 		lines:     []TimeLine{},
 		timescale: calculateTimescale(*c.RefreshRateMs),
 		mutex:     &sync.Mutex{},
 		scale:     *c.Scale,
 		mode:      ModeDefault,
-		legend:    l,
+		legend:    Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details},
 	}
 
-	go chart.consume()
+	for _, i := range c.Items {
+		chart.AddLine(*i.Label, *i.Color)
+	}
+
+	go func() {
+		for {
+			select {
+			case sample := <-chart.SampleChannel:
+				chart.consumeSample(sample)
+			case command := <-chart.CommandChannel:
+				switch command.Type {
+				case CommandDisableSelection:
+					chart.disableSelection()
+				case CommandMoveSelection:
+					chart.moveSelection(command.Value.(int))
+				}
+			}
+		}
+	}()
 
 	return &chart
-}
-
-func (c *RunChart) consume() {
-	for {
-		select {
-		case sample := <-c.SampleChannel:
-			c.consumeSample(sample)
-			//case alert := <-c.alertChannel:
-			// TODO base alerting mechanism
-		}
-	}
 }
 
 func (c *RunChart) newTimePoint(value float64) TimePoint {
@@ -151,7 +153,11 @@ func (c *RunChart) consumeSample(sample data.Sample) {
 	float, err := strconv.ParseFloat(sample.Value, 64)
 
 	if err != nil {
-		// TODO visual notification
+		c.AlertChannel <- data.Alert{
+			Title: "SAMPLING FAILURE",
+			Text:  err.Error(),
+			Color: sample.Color,
+		}
 	}
 
 	c.mutex.Lock()
@@ -320,7 +326,7 @@ func (c *RunChart) getMaxValueLength() int {
 	return maxValueLength
 }
 
-func (c *RunChart) MoveSelection(shift int) {
+func (c *RunChart) moveSelection(shift int) {
 
 	if c.mode == ModeDefault {
 		c.mode = ModePinpoint
@@ -340,7 +346,7 @@ func (c *RunChart) MoveSelection(shift int) {
 	}
 }
 
-func (c *RunChart) DisableSelection() {
+func (c *RunChart) disableSelection() {
 	if c.mode == ModePinpoint {
 		c.mode = ModeDefault
 		return

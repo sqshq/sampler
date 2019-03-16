@@ -5,6 +5,7 @@ import (
 	ui "github.com/gizak/termui/v3"
 	rw "github.com/mattn/go-runewidth"
 	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
@@ -17,9 +18,7 @@ const (
 )
 
 type BarChart struct {
-	ui.Block
-	data.Consumer
-	*component.Alerter
+	*component.Component
 	bars     []Bar
 	scale    int
 	maxValue float64
@@ -33,33 +32,29 @@ type Bar struct {
 	delta float64
 }
 
-func NewBarChart(title string, scale int) *BarChart {
-	consumer := data.NewConsumer()
-	block := *ui.NewBlock()
-	block.Title = title
+func NewBarChart(c config.BarChartConfig) *BarChart {
+
 	chart := BarChart{
-		Block:    block,
-		Consumer: consumer,
-		Alerter:  component.NewAlerter(consumer.AlertChannel),
-		bars:     []Bar{},
-		scale:    scale,
-		maxValue: -math.MaxFloat64,
+		Component: component.NewComponent(c.ComponentConfig, config.TypeBarChart),
+		bars:      []Bar{},
+		scale:     *c.Scale,
+		maxValue:  -math.MaxFloat64,
 	}
 
-	go chart.consume()
+	for _, i := range c.Items {
+		chart.AddBar(*i.Label, *i.Color)
+	}
+
+	go func() {
+		for {
+			select {
+			case sample := <-chart.SampleChannel:
+				chart.consumeSample(sample)
+			}
+		}
+	}()
 
 	return &chart
-}
-
-func (b *BarChart) consume() {
-	for {
-		select {
-		case sample := <-b.SampleChannel:
-			b.consumeSample(sample)
-			//case alert := <-b.alertChannel:
-			// TODO base alerting mechanism
-		}
-	}
 }
 
 func (b *BarChart) consumeSample(sample data.Sample) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
@@ -18,49 +19,39 @@ const (
 )
 
 type Gauge struct {
-	ui.Block
-	data.Consumer
-	*component.Alerter
+	*component.Component
 	minValue float64
 	maxValue float64
 	curValue float64
-	scale    int
 	color    ui.Color
+	scale    int
 }
 
-func NewGauge(title string, scale int, color ui.Color) *Gauge {
-	consumer := data.NewConsumer()
-	block := *ui.NewBlock()
-	block.Title = title
+func NewGauge(c config.GaugeConfig) *Gauge {
+
 	gauge := Gauge{
-		Block:    block,
-		Consumer: consumer,
-		Alerter:  component.NewAlerter(consumer.AlertChannel),
-		scale:    scale,
-		color:    color,
+		Component: component.NewComponent(c.ComponentConfig, config.TypeGauge),
+		scale:     *c.Scale,
+		color:     *c.Color,
 	}
 
-	go gauge.consume()
+	go func() {
+		for {
+			select {
+			case sample := <-gauge.SampleChannel:
+				gauge.ConsumeSample(sample)
+			}
+		}
+	}()
 
 	return &gauge
-}
-
-func (g *Gauge) consume() {
-	for {
-		select {
-		case sample := <-g.SampleChannel:
-			g.ConsumeSample(sample)
-			//case alert := <-g.alertChannel:
-			// TODO base alerting mechanism
-		}
-	}
 }
 
 func (g *Gauge) ConsumeSample(sample data.Sample) {
 
 	float, err := strconv.ParseFloat(sample.Value, 64)
 	if err != nil {
-		// TODO visual notification + check sample.Error
+		// TODO handle in Component
 	}
 
 	switch sample.Label {
@@ -87,7 +78,7 @@ func (g *Gauge) Draw(buf *ui.Buffer) {
 
 	label := fmt.Sprintf("%v%% (%v)", formatValue(percent, g.scale), g.curValue)
 
-	// plot bar
+	// draw bar
 	barWidth := int((percent / 100) * float64(g.Inner.Dx()))
 	if barWidth == 0 {
 		barWidth = 1
@@ -99,7 +90,7 @@ func (g *Gauge) Draw(buf *ui.Buffer) {
 		image.Rect(g.Inner.Min.X+1, g.Inner.Min.Y, g.Inner.Min.X+barWidth, g.Inner.Max.Y),
 	)
 
-	// plot label
+	// draw label
 	labelXCoordinate := g.Inner.Min.X + (g.Inner.Dx() / 2) - int(float64(len(label))/2)
 	labelYCoordinate := g.Inner.Min.Y + ((g.Inner.Dy() - 1) / 2)
 	if labelYCoordinate < g.Inner.Max.Y {

@@ -6,14 +6,11 @@ import (
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/config"
-	"github.com/sqshq/sampler/data"
 	"image"
 )
 
 type AsciiBox struct {
-	ui.Block
-	data.Consumer
-	*component.Alerter
+	*component.Component
 	text    string
 	ascii   string
 	style   ui.Style
@@ -25,10 +22,6 @@ const asciiFontExtension = ".flf"
 
 func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 
-	consumer := data.NewConsumer()
-	block := *ui.NewBlock()
-	block.Title = c.Title
-
 	options := fl.NewRenderOptions()
 	options.FontName = string(*c.Font)
 
@@ -36,33 +29,28 @@ func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 	if err != nil {
 		panic("Can't load the font: " + err.Error())
 	}
+
 	render := fl.NewAsciiRender()
 	_ = render.LoadBindataFont(fontStr, options.FontName)
 
 	box := AsciiBox{
-		Block:    block,
-		Consumer: consumer,
-		Alerter:  component.NewAlerter(consumer.AlertChannel),
-		style:    ui.NewStyle(*c.Color),
-		render:   render,
-		options:  options,
+		Component: component.NewComponent(c.ComponentConfig, config.TypeAsciiBox),
+		style:     ui.NewStyle(*c.Color),
+		render:    render,
+		options:   options,
 	}
 
-	go box.consume()
+	go func() {
+		for {
+			select {
+			case sample := <-box.SampleChannel:
+				box.text = sample.Value
+				box.ascii, _ = box.render.RenderOpts(sample.Value, box.options)
+			}
+		}
+	}()
 
 	return &box
-}
-
-func (a *AsciiBox) consume() {
-	for {
-		select {
-		case sample := <-a.SampleChannel:
-			a.text = sample.Value
-			a.ascii, _ = a.render.RenderOpts(sample.Value, a.options)
-			//case alert := <-a.alertChannel:
-			// TODO base alerting mechanism
-		}
-	}
 }
 
 func (a *AsciiBox) Draw(buffer *ui.Buffer) {

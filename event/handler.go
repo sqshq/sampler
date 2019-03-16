@@ -19,9 +19,9 @@ type Handler struct {
 	renderRate    time.Duration
 }
 
-func NewHandler(layout *layout.Layout) Handler {
+func NewHandler(layout *layout.Layout) *Handler {
 	renderRate := calcMinRenderRate(layout)
-	return Handler{
+	return &Handler{
 		layout:        layout,
 		consoleEvents: ui.PollEvents(),
 		renderTicker:  time.NewTicker(renderRate),
