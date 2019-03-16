@@ -18,8 +18,8 @@ const (
 type Trigger struct {
 	title         string
 	condition     string
-	actions       Actions
-	consumer      Consumer
+	actions       *Actions
+	consumer      *Consumer
 	valuesByLabel map[string]Values
 	player        *asset.AudioPlayer
 	digitsRegexp  *regexp.Regexp
@@ -37,7 +37,7 @@ type Values struct {
 	previous string
 }
 
-func NewTriggers(cfgs []config.TriggerConfig, consumer Consumer, player *asset.AudioPlayer) []Trigger {
+func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, player *asset.AudioPlayer) []Trigger {
 
 	triggers := make([]Trigger, 0)
 
@@ -48,7 +48,7 @@ func NewTriggers(cfgs []config.TriggerConfig, consumer Consumer, player *asset.A
 	return triggers
 }
 
-func NewTrigger(config config.TriggerConfig, consumer Consumer, player *asset.AudioPlayer) Trigger {
+func NewTrigger(config config.TriggerConfig, consumer *Consumer, player *asset.AudioPlayer) Trigger {
 	return Trigger{
 		title:         config.Title,
 		condition:     config.Condition,
@@ -56,7 +56,7 @@ func NewTrigger(config config.TriggerConfig, consumer Consumer, player *asset.Au
 		valuesByLabel: make(map[string]Values),
 		player:        player,
 		digitsRegexp:  regexp.MustCompile("[^0-9]+"),
-		actions: Actions{
+		actions: &Actions{
 			terminalBell: *config.Actions.TerminalBell,
 			sound:        *config.Actions.Sound,
 			visual:       *config.Actions.Visual,
@@ -65,7 +65,7 @@ func NewTrigger(config config.TriggerConfig, consumer Consumer, player *asset.Au
 	}
 }
 
-func (t *Trigger) Execute(sample Sample) {
+func (t *Trigger) Execute(sample *Sample) {
 	if t.evaluate(sample) {
 
 		if t.actions.terminalBell {
@@ -77,7 +77,7 @@ func (t *Trigger) Execute(sample Sample) {
 		}
 
 		if t.actions.visual {
-			t.consumer.AlertChannel <- Alert{
+			t.consumer.AlertChannel <- &Alert{
 				Title: t.title,
 				Text:  fmt.Sprintf("%s: %v", sample.Label, sample.Value),
 				Color: sample.Color,
@@ -90,7 +90,7 @@ func (t *Trigger) Execute(sample Sample) {
 	}
 }
 
-func (t *Trigger) evaluate(sample Sample) bool {
+func (t *Trigger) evaluate(sample *Sample) bool {
 
 	if values, ok := t.valuesByLabel[sample.Label]; ok {
 		values.previous = values.current
@@ -103,7 +103,7 @@ func (t *Trigger) evaluate(sample Sample) bool {
 	output, err := runScript(t.condition, sample.Label, t.valuesByLabel[sample.Label])
 
 	if err != nil {
-		t.consumer.AlertChannel <- Alert{Title: "TRIGGER CONDITION FAILURE", Text: err.Error()}
+		t.consumer.AlertChannel <- &Alert{Title: "TRIGGER CONDITION FAILURE", Text: err.Error()}
 	}
 
 	return t.digitsRegexp.ReplaceAllString(string(output), "") == TrueIndicator

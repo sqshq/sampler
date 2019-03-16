@@ -6,11 +6,14 @@ import (
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/config"
+	"github.com/sqshq/sampler/data"
 	"image"
 )
 
 type AsciiBox struct {
-	*component.Component
+	*ui.Block
+	*data.Consumer
+	alert   *data.Alert
 	text    string
 	ascii   string
 	style   ui.Style
@@ -34,10 +37,11 @@ func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 	_ = render.LoadBindataFont(fontStr, options.FontName)
 
 	box := AsciiBox{
-		Component: component.NewComponent(c.ComponentConfig, config.TypeAsciiBox),
-		style:     ui.NewStyle(*c.Color),
-		render:    render,
-		options:   options,
+		Block:    component.NewBlock(c.Title, true),
+		Consumer: data.NewConsumer(),
+		style:    ui.NewStyle(*c.Color),
+		render:   render,
+		options:  options,
 	}
 
 	go func() {
@@ -46,6 +50,8 @@ func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 			case sample := <-box.SampleChannel:
 				box.text = sample.Value
 				box.ascii, _ = box.render.RenderOpts(sample.Value, box.options)
+			case alert := <-box.AlertChannel:
+				box.alert = alert
 			}
 		}
 	}()
@@ -69,4 +75,6 @@ func (a *AsciiBox) Draw(buffer *ui.Buffer) {
 			point = point.Add(image.Pt(1, 0))
 		}
 	}
+
+	component.RenderAlert(a.alert, a.Rectangle, buffer)
 }

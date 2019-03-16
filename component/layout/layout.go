@@ -57,7 +57,7 @@ func NewLayout(width, height int, statusline *component.StatusBar, menu *compone
 	}
 }
 
-func (l *Layout) AddComponent(cpt *component.Component, Type config.ComponentType) {
+func (l *Layout) AddComponent(cpt *component.Component) {
 	l.Components = append(l.Components, cpt)
 }
 
@@ -76,7 +76,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.changeMode(ModeDefault)
 		} else {
 			if selected.Type == config.TypeRunChart {
-				selected.CommandChannel <- data.Command{Type: runchart.CommandDisableSelection}
+				selected.CommandChannel <- &data.Command{Type: runchart.CommandDisableSelection}
 			}
 			l.menu.Idle()
 			l.changeMode(ModePause)
@@ -98,7 +98,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			case component.MenuOptionPinpoint:
 				l.changeMode(ModeChartPinpoint)
 				l.menu.Idle()
-				selected.CommandChannel <- data.Command{Type: runchart.CommandMoveSelection, Value: 0}
+				selected.CommandChannel <- &data.Command{Type: runchart.CommandMoveSelection, Value: 0}
 			case component.MenuOptionResume:
 				l.changeMode(ModeDefault)
 				l.menu.Idle()
@@ -112,7 +112,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 	case console.KeyEsc:
 		switch l.mode {
 		case ModeChartPinpoint:
-			selected.CommandChannel <- data.Command{Type: runchart.CommandDisableSelection}
+			selected.CommandChannel <- &data.Command{Type: runchart.CommandDisableSelection}
 			fallthrough
 		case ModeComponentSelect:
 			fallthrough
@@ -126,7 +126,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.changeMode(ModeComponentSelect)
 			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
-			selected.CommandChannel <- data.Command{Type: runchart.CommandMoveSelection, Value: -1}
+			selected.CommandChannel <- &data.Command{Type: runchart.CommandMoveSelection, Value: -1}
 		case ModeComponentSelect:
 			l.moveSelection(e)
 			l.menu.Highlight(l.getComponent(l.selection))
@@ -141,7 +141,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.changeMode(ModeComponentSelect)
 			l.menu.Highlight(l.getComponent(l.selection))
 		case ModeChartPinpoint:
-			selected.CommandChannel <- data.Command{Type: runchart.CommandMoveSelection, Value: 1}
+			selected.CommandChannel <- &data.Command{Type: runchart.CommandMoveSelection, Value: 1}
 		case ModeComponentSelect:
 			l.moveSelection(e)
 			l.menu.Highlight(l.getComponent(l.selection))

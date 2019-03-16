@@ -219,7 +219,7 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 }
 
 func (m *Menu) updateDimensions() {
-	r := m.component.Block.GetRect()
+	r := m.component.GetRect()
 	m.SetRect(r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
 }
 

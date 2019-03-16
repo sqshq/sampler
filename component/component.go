@@ -7,9 +7,8 @@ import (
 )
 
 type Component struct {
-	ui.Block
-	data.Consumer
-	*Alerter
+	ui.Drawable
+	*data.Consumer
 	Type          config.ComponentType
 	Title         string
 	Position      config.Position
@@ -17,21 +16,15 @@ type Component struct {
 	RefreshRateMs int
 }
 
-func NewComponent(c config.ComponentConfig, t config.ComponentType) *Component {
-
-	consumer := data.NewConsumer()
-	block := *ui.NewBlock()
-	block.Title = c.Title
-
+func NewComponent(dbl ui.Drawable, cmr *data.Consumer, cfg config.ComponentConfig, ct config.ComponentType) *Component {
 	return &Component{
-		Block:         block,
-		Consumer:      consumer,
-		Alerter:       NewAlerter(consumer.AlertChannel),
-		Type:          t,
-		Title:         c.Title,
-		Position:      c.Position,
-		Size:          c.Size,
-		RefreshRateMs: *c.RefreshRateMs,
+		Drawable:      dbl,
+		Consumer:      cmr,
+		Type:          ct,
+		Title:         cfg.Title,
+		Position:      cfg.Position,
+		Size:          cfg.Size,
+		RefreshRateMs: *cfg.RefreshRateMs,
 	}
 }
 

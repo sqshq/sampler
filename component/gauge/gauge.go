@@ -19,7 +19,9 @@ const (
 )
 
 type Gauge struct {
-	*component.Component
+	*ui.Block
+	*data.Consumer
+	alert    *data.Alert
 	minValue float64
 	maxValue float64
 	curValue float64
@@ -30,9 +32,10 @@ type Gauge struct {
 func NewGauge(c config.GaugeConfig) *Gauge {
 
 	gauge := Gauge{
-		Component: component.NewComponent(c.ComponentConfig, config.TypeGauge),
-		scale:     *c.Scale,
-		color:     *c.Color,
+		Block:    component.NewBlock(c.Title, true),
+		Consumer: data.NewConsumer(),
+		scale:    *c.Scale,
+		color:    *c.Color,
 	}
 
 	go func() {
@@ -40,6 +43,8 @@ func NewGauge(c config.GaugeConfig) *Gauge {
 			select {
 			case sample := <-gauge.SampleChannel:
 				gauge.ConsumeSample(sample)
+			case alert := <-gauge.AlertChannel:
+				gauge.alert = alert
 			}
 		}
 	}()
@@ -47,11 +52,16 @@ func NewGauge(c config.GaugeConfig) *Gauge {
 	return &gauge
 }
 
-func (g *Gauge) ConsumeSample(sample data.Sample) {
+func (g *Gauge) ConsumeSample(sample *data.Sample) {
 
 	float, err := strconv.ParseFloat(sample.Value, 64)
 	if err != nil {
-		// TODO handle in Component
+		g.AlertChannel <- &data.Alert{
+			Title: "FAILED TO PARSE NUMBER",
+			Text:  err.Error(),
+			Color: sample.Color,
+		}
+		return
 	}
 
 	switch sample.Label {
@@ -67,9 +77,9 @@ func (g *Gauge) ConsumeSample(sample data.Sample) {
 	}
 }
 
-func (g *Gauge) Draw(buf *ui.Buffer) {
+func (g *Gauge) Draw(buffer *ui.Buffer) {
 
-	g.Block.Draw(buf)
+	g.Block.Draw(buffer)
 
 	percent := 0.0
 	if g.curValue != 0 && g.maxValue != g.minValue {
@@ -85,7 +95,7 @@ func (g *Gauge) Draw(buf *ui.Buffer) {
 	} else if barWidth > g.Dx()-2 {
 		barWidth = g.Dx() - 2
 	}
-	buf.Fill(
+	buffer.Fill(
 		ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(g.color)),
 		image.Rect(g.Inner.Min.X+1, g.Inner.Min.Y, g.Inner.Min.X+barWidth, g.Inner.Max.Y),
 	)
@@ -99,9 +109,11 @@ func (g *Gauge) Draw(buf *ui.Buffer) {
 			if labelXCoordinate+i+1 <= g.Inner.Min.X+barWidth {
 				style = ui.NewStyle(console.ColorWhite, ui.ColorClear)
 			}
-			buf.SetCell(ui.NewCell(char, style), image.Pt(labelXCoordinate+i, labelYCoordinate))
+			buffer.SetCell(ui.NewCell(char, style), image.Pt(labelXCoordinate+i, labelYCoordinate))
 		}
 	}
+
+	component.RenderAlert(g.alert, g.Rectangle, buffer)
 }
 
 // TODO extract to utils

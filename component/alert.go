@@ -9,48 +9,26 @@ import (
 	"strings"
 )
 
-type Alerter struct {
-	channel <-chan data.Alert
-	alert   *data.Alert
-}
+func RenderAlert(alert *data.Alert, area image.Rectangle, buffer *ui.Buffer) {
 
-func NewAlerter(channel <-chan data.Alert) *Alerter {
-	alerter := Alerter{channel: channel}
-	alerter.consume()
-	return &alerter
-}
-
-func (a *Alerter) consume() {
-	go func() {
-		for {
-			select {
-			case alert := <-a.channel:
-				a.alert = &alert
-			}
-		}
-	}()
-}
-
-func (a *Alerter) RenderAlert(buffer *ui.Buffer, area image.Rectangle) {
-
-	if a.alert == nil {
+	if alert == nil {
 		return
 	}
 
 	color := console.ColorWhite
 
-	if a.alert.Color != nil {
-		color = *a.alert.Color
+	if alert.Color != nil {
+		color = *alert.Color
 	}
 
-	width := max(len(a.alert.Title), len(a.alert.Text)) + 10
+	width := max(len(alert.Title), len(alert.Text)) + 10
 
 	if width > area.Dx() {
 		width = area.Dx()
 	}
 
 	cells := ui.WrapCells(ui.ParseStyles(fmt.Sprintf("%s\n%s\n",
-		strings.ToUpper(a.alert.Title), a.alert.Text), ui.NewStyle(console.ColorWhite)), uint(width))
+		strings.ToUpper(alert.Title), alert.Text), ui.NewStyle(console.ColorWhite)), uint(width))
 
 	var lines []string
 	line := ""

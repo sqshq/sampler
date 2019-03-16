@@ -5,13 +5,13 @@ import (
 )
 
 type Sampler struct {
-	consumer        Consumer
+	consumer        *Consumer
 	items           []Item
 	triggers        []Trigger
-	triggersChannel chan Sample
+	triggersChannel chan *Sample
 }
 
-func NewSampler(consumer Consumer, items []Item, triggers []Trigger, rateMs int) Sampler {
+func NewSampler(consumer *Consumer, items []Item, triggers []Trigger, rateMs int) Sampler {
 
 	ticker := time.NewTicker(
 		time.Duration(rateMs * int(time.Millisecond)),
@@ -21,7 +21,7 @@ func NewSampler(consumer Consumer, items []Item, triggers []Trigger, rateMs int)
 		consumer,
 		items,
 		triggers,
-		make(chan Sample),
+		make(chan *Sample),
 	}
 
 	go func() {
@@ -51,11 +51,11 @@ func (s *Sampler) sample(item Item) {
 	val, err := item.nextValue()
 
 	if err == nil {
-		sample := Sample{Label: item.Label, Value: val, Color: item.Color}
+		sample := &Sample{Label: item.Label, Value: val, Color: item.Color}
 		s.consumer.SampleChannel <- sample
 		s.triggersChannel <- sample
 	} else {
-		s.consumer.AlertChannel <- Alert{
+		s.consumer.AlertChannel <- &Alert{
 			Title: "SAMPLING FAILURE",
 			Text:  err.Error(),
 			Color: item.Color,

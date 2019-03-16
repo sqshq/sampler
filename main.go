@@ -30,30 +30,34 @@ func main() {
 
 	for _, c := range cfg.RunCharts {
 		chart := runchart.NewRunChart(c)
+		cpt := component.NewComponent(chart, chart.Consumer, c.ComponentConfig, config.TypeRunChart)
 		triggers := data.NewTriggers(c.Triggers, chart.Consumer, player)
 		data.NewSampler(chart.Consumer, data.NewItems(c.Items), triggers, *c.RefreshRateMs)
-		lout.AddComponent(chart.Component, config.TypeRunChart)
+		lout.AddComponent(cpt)
 	}
 
 	for _, a := range cfg.AsciiBoxes {
 		box := asciibox.NewAsciiBox(a)
+		cpt := component.NewComponent(box, box.Consumer, a.ComponentConfig, config.TypeRunChart)
 		triggers := data.NewTriggers(a.Triggers, box.Consumer, player)
 		data.NewSampler(box.Consumer, data.NewItems([]config.Item{a.Item}), triggers, *a.RefreshRateMs)
-		lout.AddComponent(box.Component, config.TypeAsciiBox)
+		lout.AddComponent(cpt)
 	}
 
 	for _, b := range cfg.BarCharts {
 		chart := barchart.NewBarChart(b)
+		cpt := component.NewComponent(chart, chart.Consumer, b.ComponentConfig, config.TypeRunChart)
 		triggers := data.NewTriggers(b.Triggers, chart.Consumer, player)
 		data.NewSampler(chart.Consumer, data.NewItems(b.Items), triggers, *b.RefreshRateMs)
-		lout.AddComponent(chart.Component, config.TypeBarChart)
+		lout.AddComponent(cpt)
 	}
 
 	for _, gc := range cfg.Gauges {
 		g := gauge.NewGauge(gc)
+		cpt := component.NewComponent(g, g.Consumer, gc.ComponentConfig, config.TypeRunChart)
 		triggers := data.NewTriggers(gc.Triggers, g.Consumer, player)
 		data.NewSampler(g.Consumer, data.NewItems(gc.Items), triggers, *gc.RefreshRateMs)
-		lout.AddComponent(g.Component, config.TypeGauge)
+		lout.AddComponent(cpt)
 	}
 
 	handler := event.NewHandler(lout)

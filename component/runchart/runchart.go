@@ -40,7 +40,9 @@ const (
 )
 
 type RunChart struct {
-	*component.Component
+	*ui.Block
+	*data.Consumer
+	alert     *data.Alert
 	lines     []TimeLine
 	grid      ChartGrid
 	timescale time.Duration
@@ -79,7 +81,8 @@ type ValueExtrema struct {
 func NewRunChart(c config.RunChartConfig) *RunChart {
 
 	chart := RunChart{
-		Component: component.NewComponent(c.ComponentConfig, config.TypeRunChart),
+		Block:     component.NewBlock(c.Title, true),
+		Consumer:  data.NewConsumer(),
 		lines:     []TimeLine{},
 		timescale: calculateTimescale(*c.RefreshRateMs),
 		mutex:     &sync.Mutex{},
@@ -97,6 +100,8 @@ func NewRunChart(c config.RunChartConfig) *RunChart {
 			select {
 			case sample := <-chart.SampleChannel:
 				chart.consumeSample(sample)
+			case alert := <-chart.AlertChannel:
+				chart.alert = alert
 			case command := <-chart.CommandChannel:
 				switch command.Type {
 				case CommandDisableSelection:
@@ -134,7 +139,7 @@ func (c *RunChart) Draw(buffer *ui.Buffer) {
 	c.renderAxes(buffer)
 	c.renderLines(buffer, drawArea)
 	c.renderLegend(buffer, drawArea)
-	c.RenderAlert(buffer, c.Rectangle)
+	component.RenderAlert(c.alert, c.Rectangle, buffer)
 	c.mutex.Unlock()
 }
 
@@ -148,16 +153,17 @@ func (c *RunChart) AddLine(Label string, color ui.Color) {
 	c.lines = append(c.lines, line)
 }
 
-func (c *RunChart) consumeSample(sample data.Sample) {
+func (c *RunChart) consumeSample(sample *data.Sample) {
 
 	float, err := strconv.ParseFloat(sample.Value, 64)
 
 	if err != nil {
-		c.AlertChannel <- data.Alert{
-			Title: "SAMPLING FAILURE",
+		c.AlertChannel <- &data.Alert{
+			Title: "FAILED TO PARSE NUMBER",
 			Text:  err.Error(),
 			Color: sample.Color,
 		}
+		return
 	}
 
 	c.mutex.Lock()

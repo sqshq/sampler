@@ -18,7 +18,9 @@ const (
 )
 
 type BarChart struct {
-	*component.Component
+	*ui.Block
+	*data.Consumer
+	alert    *data.Alert
 	bars     []Bar
 	scale    int
 	maxValue float64
@@ -35,10 +37,11 @@ type Bar struct {
 func NewBarChart(c config.BarChartConfig) *BarChart {
 
 	chart := BarChart{
-		Component: component.NewComponent(c.ComponentConfig, config.TypeBarChart),
-		bars:      []Bar{},
-		scale:     *c.Scale,
-		maxValue:  -math.MaxFloat64,
+		Block:    component.NewBlock(c.Title, true),
+		Consumer: data.NewConsumer(),
+		bars:     []Bar{},
+		scale:    *c.Scale,
+		maxValue: -math.MaxFloat64,
 	}
 
 	for _, i := range c.Items {
@@ -50,6 +53,8 @@ func NewBarChart(c config.BarChartConfig) *BarChart {
 			select {
 			case sample := <-chart.SampleChannel:
 				chart.consumeSample(sample)
+			case alert := <-chart.AlertChannel:
+				chart.alert = alert
 			}
 		}
 	}()
@@ -57,13 +62,19 @@ func NewBarChart(c config.BarChartConfig) *BarChart {
 	return &chart
 }
 
-func (b *BarChart) consumeSample(sample data.Sample) {
+func (b *BarChart) consumeSample(sample *data.Sample) {
 
 	b.count++
 
 	float, err := strconv.ParseFloat(sample.Value, 64)
+
 	if err != nil {
-		// TODO visual notification + check sample.Error
+		b.AlertChannel <- &data.Alert{
+			Title: "FAILED TO PARSE NUMBER",
+			Text:  err.Error(),
+			Color: sample.Color,
+		}
+		return
 	}
 
 	index := -1
@@ -102,8 +113,8 @@ func (b *BarChart) reselectMaxValue() {
 	b.maxValue = maxValue
 }
 
-func (b *BarChart) Draw(buf *ui.Buffer) {
-	b.Block.Draw(buf)
+func (b *BarChart) Draw(buffer *ui.Buffer) {
+	b.Block.Draw(buffer)
 
 	barWidth := int(math.Ceil(float64(b.Inner.Dx()-2*barIndent-len(b.bars)*barIndent) / float64(len(b.bars))))
 	barXCoordinate := b.Inner.Min.X + barIndent
@@ -122,7 +133,7 @@ func (b *BarChart) Draw(buf *ui.Buffer) {
 		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+barWidth, b.Inner.Max.X-barIndent); x++ {
 			for y := b.Inner.Max.Y - 2; y >= maxYCoordinate; y-- {
 				c := ui.NewCell(console.SymbolShade, ui.NewStyle(bar.color))
-				buf.SetCell(c, image.Pt(x, y))
+				buffer.SetCell(c, image.Pt(x, y))
 			}
 		}
 
@@ -130,7 +141,7 @@ func (b *BarChart) Draw(buf *ui.Buffer) {
 		labelXCoordinate := barXCoordinate +
 			int(float64(barWidth)/2) -
 			int(float64(rw.StringWidth(bar.label))/2)
-		buf.SetString(
+		buffer.SetString(
 			bar.label,
 			labelStyle,
 			image.Pt(labelXCoordinate, b.Inner.Max.Y-1))
@@ -143,13 +154,15 @@ func (b *BarChart) Draw(buf *ui.Buffer) {
 		valueXCoordinate := barXCoordinate +
 			int(float64(barWidth)/2) -
 			int(float64(rw.StringWidth(value))/2)
-		buf.SetString(
+		buffer.SetString(
 			value,
 			labelStyle,
 			image.Pt(valueXCoordinate, maxYCoordinate-1))
 
 		barXCoordinate += barWidth + barIndent
 	}
+
+	component.RenderAlert(b.alert, b.Rectangle, buffer)
 }
 
 // TODO extract to utils
