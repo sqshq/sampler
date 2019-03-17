@@ -16,11 +16,11 @@ type Component struct {
 	RefreshRateMs int
 }
 
-func NewComponent(dbl ui.Drawable, cmr *data.Consumer, cfg config.ComponentConfig, ct config.ComponentType) *Component {
+func NewComponent(dbl ui.Drawable, cmr *data.Consumer, cfg config.ComponentConfig) *Component {
 	return &Component{
 		Drawable:      dbl,
 		Consumer:      cmr,
-		Type:          ct,
+		Type:          cfg.Type,
 		Title:         cfg.Title,
 		Position:      cfg.Position,
 		Size:          cfg.Size,

@@ -26,6 +26,7 @@ func (c *Config) setDefaultValues() {
 	for i, chart := range c.RunCharts {
 
 		setDefaultTriggersValues(chart.Triggers)
+		chart.ComponentConfig.Type = TypeRunChart
 
 		if chart.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
@@ -45,6 +46,7 @@ func (c *Config) setDefaultValues() {
 	for i, chart := range c.BarCharts {
 
 		setDefaultTriggersValues(chart.Triggers)
+		chart.ComponentConfig.Type = TypeBarChart
 
 		if chart.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
@@ -60,6 +62,7 @@ func (c *Config) setDefaultValues() {
 	for i, g := range c.Gauges {
 
 		setDefaultTriggersValues(g.Triggers)
+		g.ComponentConfig.Type = TypeGauge
 
 		if g.RefreshRateMs == nil {
 			r := defaultRefreshRateMs
@@ -81,6 +84,7 @@ func (c *Config) setDefaultValues() {
 	for i, box := range c.AsciiBoxes {
 
 		setDefaultTriggersValues(box.Triggers)
+		box.ComponentConfig.Type = TypeAsciiBox
 
 		if box.RefreshRateMs == nil {
 			r := defaultRefreshRateMs

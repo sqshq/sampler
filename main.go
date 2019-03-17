@@ -15,6 +15,19 @@ import (
 	"github.com/sqshq/sampler/event"
 )
 
+type Starter struct {
+	lout   *layout.Layout
+	player *asset.AudioPlayer
+	flags  config.Flags
+}
+
+func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, conponentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
+	cpt := component.NewComponent(drawable, consumer, conponentConfig)
+	triggers := data.NewTriggers(triggersConfig, consumer, s.player)
+	data.NewSampler(consumer, data.NewItems(itemsConfig), triggers, *conponentConfig.RefreshRateMs)
+	s.lout.AddComponent(cpt)
+}
+
 func main() {
 
 	cfg, flg := config.Load()
@@ -28,36 +41,26 @@ func main() {
 	width, height := ui.TerminalDimensions()
 	lout := layout.NewLayout(width, height, component.NewStatusLine(flg.ConfigFileName), component.NewMenu())
 
+	starter := &Starter{lout, player, flg}
+
 	for _, c := range cfg.RunCharts {
-		chart := runchart.NewRunChart(c)
-		cpt := component.NewComponent(chart, chart.Consumer, c.ComponentConfig, config.TypeRunChart)
-		triggers := data.NewTriggers(c.Triggers, chart.Consumer, player)
-		data.NewSampler(chart.Consumer, data.NewItems(c.Items), triggers, *c.RefreshRateMs)
-		lout.AddComponent(cpt)
+		cpt := runchart.NewRunChart(c)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 
-	for _, a := range cfg.AsciiBoxes {
-		box := asciibox.NewAsciiBox(a)
-		cpt := component.NewComponent(box, box.Consumer, a.ComponentConfig, config.TypeAsciiBox)
-		triggers := data.NewTriggers(a.Triggers, box.Consumer, player)
-		data.NewSampler(box.Consumer, data.NewItems([]config.Item{a.Item}), triggers, *a.RefreshRateMs)
-		lout.AddComponent(cpt)
+	for _, c := range cfg.AsciiBoxes {
+		cpt := asciibox.NewAsciiBox(c)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
 
-	for _, b := range cfg.BarCharts {
-		chart := barchart.NewBarChart(b)
-		cpt := component.NewComponent(chart, chart.Consumer, b.ComponentConfig, config.TypeBarChart)
-		triggers := data.NewTriggers(b.Triggers, chart.Consumer, player)
-		data.NewSampler(chart.Consumer, data.NewItems(b.Items), triggers, *b.RefreshRateMs)
-		lout.AddComponent(cpt)
+	for _, c := range cfg.BarCharts {
+		cpt := barchart.NewBarChart(c)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 
-	for _, gc := range cfg.Gauges {
-		g := gauge.NewGauge(gc)
-		cpt := component.NewComponent(g, g.Consumer, gc.ComponentConfig, config.TypeGauge)
-		triggers := data.NewTriggers(gc.Triggers, g.Consumer, player)
-		data.NewSampler(g.Consumer, data.NewItems(gc.Items), triggers, *gc.RefreshRateMs)
-		lout.AddComponent(cpt)
+	for _, c := range cfg.Gauges {
+		cpt := gauge.NewGauge(c)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 
 	handler := event.NewHandler(lout)

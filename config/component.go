@@ -8,11 +8,12 @@ import (
 type ComponentType rune
 
 const (
-	TypeRunChart ComponentType = 0
-	TypeBarChart ComponentType = 1
-	TypeTextBox  ComponentType = 2
-	TypeAsciiBox ComponentType = 3
-	TypeGauge    ComponentType = 4
+	TypeRunChart  ComponentType = 0
+	TypeBarChart  ComponentType = 1
+	TypeSparkLine ComponentType = 2
+	TypeTextBox   ComponentType = 3
+	TypeAsciiBox  ComponentType = 4
+	TypeGauge     ComponentType = 5
 )
 
 type ComponentConfig struct {
@@ -21,6 +22,7 @@ type ComponentConfig struct {
 	Position      Position        `yaml:"position"`
 	Size          Size            `yaml:"size"`
 	Triggers      []TriggerConfig `yaml:"triggers,omitempty"`
+	Type          ComponentType   `yaml:",omitempty"`
 }
 
 type TriggerConfig struct {
