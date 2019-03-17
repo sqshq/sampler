@@ -8,7 +8,7 @@ runcharts:
     h: 16
   triggers:
   - title: Latency threshold exceeded
-    condition: echo "$prev < 0.3 && $cur > 0.3" |bc -l
+    condition: echo "$prev < 0.35 && $cur > 0.35" |bc -l
     actions:
       terminal-bell: true
       sound: true
@@ -102,7 +102,7 @@ gauges:
     h: 2
   triggers:
   - title: CLOCK BELL EVERY MINUTE
-    condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1'
+    condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1 || echo 0'
     actions:
       sound: true
       script: say -v samantha `date +%I:%M%p`

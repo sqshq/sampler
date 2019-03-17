@@ -103,7 +103,10 @@ func (t *Trigger) evaluate(sample *Sample) bool {
 	output, err := runScript(t.condition, sample.Label, t.valuesByLabel[sample.Label])
 
 	if err != nil {
-		t.consumer.AlertChannel <- &Alert{Title: "TRIGGER CONDITION FAILURE", Text: err.Error()}
+		t.consumer.AlertChannel <- &Alert{
+			Title: "TRIGGER CONDITION FAILURE",
+			Text:  getErrorMessage(err.(*exec.ExitError)),
+		}
 	}
 
 	return t.digitsRegexp.ReplaceAllString(string(output), "") == TrueIndicator

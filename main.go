@@ -38,7 +38,7 @@ func main() {
 
 	for _, a := range cfg.AsciiBoxes {
 		box := asciibox.NewAsciiBox(a)
-		cpt := component.NewComponent(box, box.Consumer, a.ComponentConfig, config.TypeRunChart)
+		cpt := component.NewComponent(box, box.Consumer, a.ComponentConfig, config.TypeAsciiBox)
 		triggers := data.NewTriggers(a.Triggers, box.Consumer, player)
 		data.NewSampler(box.Consumer, data.NewItems([]config.Item{a.Item}), triggers, *a.RefreshRateMs)
 		lout.AddComponent(cpt)
@@ -46,7 +46,7 @@ func main() {
 
 	for _, b := range cfg.BarCharts {
 		chart := barchart.NewBarChart(b)
-		cpt := component.NewComponent(chart, chart.Consumer, b.ComponentConfig, config.TypeRunChart)
+		cpt := component.NewComponent(chart, chart.Consumer, b.ComponentConfig, config.TypeBarChart)
 		triggers := data.NewTriggers(b.Triggers, chart.Consumer, player)
 		data.NewSampler(chart.Consumer, data.NewItems(b.Items), triggers, *b.RefreshRateMs)
 		lout.AddComponent(cpt)
@@ -54,7 +54,7 @@ func main() {
 
 	for _, gc := range cfg.Gauges {
 		g := gauge.NewGauge(gc)
-		cpt := component.NewComponent(g, g.Consumer, gc.ComponentConfig, config.TypeRunChart)
+		cpt := component.NewComponent(g, g.Consumer, gc.ComponentConfig, config.TypeGauge)
 		triggers := data.NewTriggers(gc.Triggers, g.Consumer, player)
 		data.NewSampler(g.Consumer, data.NewItems(gc.Items), triggers, *gc.RefreshRateMs)
 		lout.AddComponent(cpt)

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"os/exec"
 	"time"
 )
 
@@ -57,7 +58,7 @@ func (s *Sampler) sample(item Item) {
 	} else {
 		s.consumer.AlertChannel <- &Alert{
 			Title: "SAMPLING FAILURE",
-			Text:  err.Error(),
+			Text:  getErrorMessage(err.(*exec.ExitError)),
 			Color: item.Color,
 		}
 	}
