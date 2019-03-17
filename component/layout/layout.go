@@ -110,6 +110,7 @@ func (l *Layout) HandleConsoleEvent(e string) {
 			l.changeMode(ModeDefault)
 		}
 	case console.KeyEsc:
+		l.resetAlerts()
 		switch l.mode {
 		case ModeChartPinpoint:
 			selected.CommandChannel <- &data.Command{Type: runchart.CommandDisableSelection}
@@ -272,4 +273,10 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 
 	l.statusbar.Draw(buffer)
 	l.menu.Draw(buffer)
+}
+
+func (l *Layout) resetAlerts() {
+	for _, c := range l.Components {
+		c.AlertChannel <- nil
+	}
 }

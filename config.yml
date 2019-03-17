@@ -8,7 +8,7 @@ runcharts:
     h: 16
   triggers:
   - title: Latency threshold exceeded
-    condition: echo "$prev < 0.2 && $cur > 0.2" |bc -l
+    condition: echo "$prev < 0.3 && $cur > 0.3" |bc -l
     actions:
       terminal-bell: true
       sound: true
