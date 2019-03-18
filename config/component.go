@@ -19,10 +19,17 @@ const (
 type ComponentConfig struct {
 	Title         string          `yaml:"title"`
 	RefreshRateMs *int            `yaml:"refresh-rate-ms,omitempty"`
-	Position      Position        `yaml:"position"`
-	Size          Size            `yaml:"size"`
+	Position      [][]int         `yaml:"position,flow"`
 	Triggers      []TriggerConfig `yaml:"triggers,omitempty"`
 	Type          ComponentType   `yaml:",omitempty"`
+}
+
+func (c *ComponentConfig) GetLocation() Location {
+	return Location{X: c.Position[0][0], Y: c.Position[0][1]}
+}
+
+func (c *ComponentConfig) GetSize() Size {
+	return Size{X: c.Position[1][0], Y: c.Position[1][1]}
 }
 
 type TriggerConfig struct {
@@ -70,25 +77,32 @@ type LegendConfig struct {
 	Details bool `yaml:"details"`
 }
 
-type Position struct {
-	X int `yaml:"w"`
-	Y int `yaml:"h"`
-}
-
-type Size struct {
-	X int `yaml:"w"`
-	Y int `yaml:"h"`
-}
-
 type Item struct {
 	Label  *string   `yaml:"label,omitempty"`
 	Script string    `yaml:"value"`
 	Color  *ui.Color `yaml:"color,omitempty"`
 }
 
+type Location struct {
+	X int
+	Y int
+}
+
+type Size struct {
+	X int
+	Y int
+}
+
 type ComponentSettings struct {
 	Type     ComponentType
 	Title    string
 	Size     Size
-	Position Position
+	Location Location
+}
+
+func getPosition(location Location, size Size) [][]int {
+	return [][]int{
+		{location.X, location.Y},
+		{size.X, size.Y},
+	}
 }

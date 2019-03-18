@@ -75,7 +75,7 @@ func (h *Handler) handleExit() {
 	var settings []config.ComponentSettings
 	for _, c := range h.layout.Components {
 		settings = append(settings,
-			config.ComponentSettings{Type: c.Type, Title: c.Title, Size: c.Size, Position: c.Position})
+			config.ComponentSettings{Type: c.Type, Title: c.Title, Size: c.Size, Location: c.Location})
 	}
 	config.Update(settings)
 }

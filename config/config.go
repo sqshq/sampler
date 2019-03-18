@@ -42,8 +42,7 @@ func Update(settings []ComponentSettings) {
 	cfg := readFile(os.Args[1])
 	for _, s := range settings {
 		componentConfig := cfg.findComponent(s.Type, s.Title)
-		componentConfig.Size = s.Size
-		componentConfig.Position = s.Position
+		componentConfig.Position = getPosition(s.Location, s.Size)
 	}
 	saveFile(cfg)
 }

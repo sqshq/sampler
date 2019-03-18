@@ -1,11 +1,6 @@
 runcharts:
 - title: SEARCH ENGINE RESPONSE TIME (sec)
-  position:
-    w: 0
-    h: 0
-  size:
-    w: 53
-    h: 16
+  position: [[0, 0], [53, 16]]
   triggers:
   - title: Latency threshold exceeded
     condition: echo "$prev < 0.35 && $cur > 0.35" |bc -l
@@ -23,12 +18,7 @@ runcharts:
   - label: BING
     value: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
-  position:
-    w: 53
-    h: 0
-  size:
-    w: 27
-    h: 8
+  position: [[53, 0], [27, 8]]
   legend:
     enabled: true
     details: false
@@ -41,12 +31,7 @@ runcharts:
 barcharts:
 - title: EVENTS BY STATUS
   refresh-rate-ms: 1000
-  position:
-    w: 0
-    h: 17
-  size:
-    w: 53
-    h: 12
+  position: [[0, 17], [53, 12]]
   scale: 0
   items:
   - label: NEW
@@ -61,45 +46,25 @@ barcharts:
     value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 gauges:
 - title: YEAR PROGRESS
-  position:
-    w: 53
-    h: 8
-  size:
-    w: 27
-    h: 2
+  position: [[53, 8], [27, 2]]
   values:
     cur: date +%j
     max: echo 365
     min: echo 0
 - title: DAY PROGRESS
-  position:
-    w: 53
-    h: 10
-  size:
-    w: 27
-    h: 2
+  position: [[53, 10], [27, 2]]
   values:
     cur: date +%H
     max: echo 24
     min: echo 0
 - title: HOUR PROGRESS
-  position:
-    w: 53
-    h: 12
-  size:
-    w: 27
-    h: 2
+  position: [[53, 12], [27, 2]]
   values:
     cur: date +%M
     max: echo 60
     min: echo 0
 - title: MINUTE PROGRESS
-  position:
-    w: 53
-    h: 14
-  size:
-    w: 27
-    h: 2
+  position: [[53, 14], [27, 2]]
   triggers:
   - title: CLOCK BELL EVERY MINUTE
     condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1 || echo 0'
@@ -112,19 +77,9 @@ gauges:
     min: echo 0
 asciiboxes:
 - title: LOCAL TIME
-  position:
-    w: 53
-    h: 17
-  size:
-    w: 27
-    h: 5
+  position: [[53, 17], [27, 5]]
   value: date +%r
 - title: UTC TIME
-  position:
-    w: 53
-    h: 22
-  size:
-    w: 27
-    h: 7
+  position: [[53, 22], [27, 7]]
   value: env TZ=UTC date +%r
   font: 3d

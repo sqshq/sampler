@@ -11,7 +11,7 @@ type Component struct {
 	*data.Consumer
 	Type          config.ComponentType
 	Title         string
-	Position      config.Position
+	Location      config.Location
 	Size          config.Size
 	RefreshRateMs int
 }
@@ -22,15 +22,15 @@ func NewComponent(dbl ui.Drawable, cmr *data.Consumer, cfg config.ComponentConfi
 		Consumer:      cmr,
 		Type:          cfg.Type,
 		Title:         cfg.Title,
-		Position:      cfg.Position,
-		Size:          cfg.Size,
+		Location:      cfg.GetLocation(),
+		Size:          cfg.GetSize(),
 		RefreshRateMs: *cfg.RefreshRateMs,
 	}
 }
 
 func (c *Component) Move(x, y int) {
-	c.Position.X += x
-	c.Position.Y += y
+	c.Location.X += x
+	c.Location.Y += y
 	c.normalize()
 }
 
@@ -41,10 +41,10 @@ func (c *Component) Resize(x, y int) {
 }
 
 func (c *Component) normalize() {
-	if c.Position.X < 0 {
-		c.Position.X = 0
+	if c.Location.X < 0 {
+		c.Location.X = 0
 	}
-	if c.Position.Y < 0 {
-		c.Position.Y = 0
+	if c.Location.Y < 0 {
+		c.Location.Y = 0
 	}
 }

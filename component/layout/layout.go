@@ -250,8 +250,8 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 
 	for _, c := range l.Components {
 
-		x1 := math.Floor(float64(c.Position.X) * columnWidth)
-		y1 := math.Floor(float64(c.Position.Y) * rowHeight)
+		x1 := math.Floor(float64(c.Location.X) * columnWidth)
+		y1 := math.Floor(float64(c.Location.Y) * rowHeight)
 		x2 := x1 + math.Floor(float64(c.Size.X))*columnWidth
 		y2 := y1 + math.Floor(float64(c.Size.Y))*rowHeight
 
