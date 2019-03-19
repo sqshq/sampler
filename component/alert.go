@@ -44,7 +44,7 @@ func RenderAlert(alert *data.Alert, area image.Rectangle, buffer *ui.Buffer) {
 
 	block := *ui.NewBlock()
 	block.SetRect(getRectCoordinates(area, width, len(lines)))
-	block.BorderStyle = ui.Style{Fg: color}
+	block.BorderStyle = ui.Style{Fg: color, Bg: ui.ColorClear}
 	block.Draw(buffer)
 
 	buffer.Fill(ui.NewCell(' ', ui.NewStyle(console.ColorBlack)), block.Inner)
