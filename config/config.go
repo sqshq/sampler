@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/jessevdk/go-flags"
 	"github.com/sqshq/sampler/console"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -17,25 +18,20 @@ type Config struct {
 	AsciiBoxes []AsciiBoxConfig `yaml:"asciiboxes,omitempty"`
 }
 
-type Flags struct {
-	ConfigFileName string
-	Variables      map[string]string
-}
+func Load() (Config, Options) {
 
-func Load() (Config, Flags) {
+	var opt Options
+	_, err := flags.Parse(&opt)
 
-	if len(os.Args) < 2 {
-		println("Please specify config file location. See www.github.com/sqshq/sampler for the reference")
+	if err != nil {
 		os.Exit(0)
 	}
 
-	cfg := readFile(os.Args[1])
+	cfg := readFile(opt.ConfigFile)
 	cfg.validate()
 	cfg.setDefaults()
 
-	flg := Flags{ConfigFileName: os.Args[1]}
-
-	return *cfg, flg
+	return *cfg, opt
 }
 
 func Update(settings []ComponentSettings) {

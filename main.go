@@ -18,7 +18,7 @@ import (
 type Starter struct {
 	lout   *layout.Layout
 	player *asset.AudioPlayer
-	flags  config.Flags
+	opt    config.Options
 }
 
 func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, conponentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
@@ -30,7 +30,7 @@ func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, conponent
 
 func main() {
 
-	cfg, flg := config.Load()
+	cfg, opt := config.Load()
 
 	console.Init()
 	defer console.Close()
@@ -39,9 +39,9 @@ func main() {
 	defer player.Close()
 
 	width, height := ui.TerminalDimensions()
-	lout := layout.NewLayout(width, height, component.NewStatusLine(flg.ConfigFileName), component.NewMenu())
+	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile), component.NewMenu())
 
-	starter := &Starter{lout, player, flg}
+	starter := &Starter{lout, player, opt}
 
 	for _, c := range cfg.RunCharts {
 		cpt := runchart.NewRunChart(c)
