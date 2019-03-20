@@ -17,15 +17,17 @@ type Handler struct {
 	renderTicker  *time.Ticker
 	consoleEvents <-chan ui.Event
 	renderRate    time.Duration
+	options       config.Options
 }
 
-func NewHandler(layout *layout.Layout) *Handler {
+func NewHandler(layout *layout.Layout, options config.Options) *Handler {
 	renderRate := calcMinRenderRate(layout)
 	return &Handler{
 		layout:        layout,
 		consoleEvents: ui.PollEvents(),
 		renderTicker:  time.NewTicker(renderRate),
 		renderRate:    renderRate,
+		options:       options,
 	}
 }
 
@@ -77,7 +79,7 @@ func (h *Handler) handleExit() {
 		settings = append(settings,
 			config.ComponentSettings{Type: c.Type, Title: c.Title, Size: c.Size, Location: c.Location})
 	}
-	config.Update(settings)
+	config.Update(settings, h.options)
 }
 
 func calcMinRenderRate(layout *layout.Layout) time.Duration {

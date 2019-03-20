@@ -63,6 +63,6 @@ func main() {
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 
-	handler := event.NewHandler(lout)
+	handler := event.NewHandler(lout, opt)
 	handler.HandleEvents()
 }

@@ -34,13 +34,13 @@ func Load() (Config, Options) {
 	return *cfg, opt
 }
 
-func Update(settings []ComponentSettings) {
-	cfg := readFile(os.Args[1])
+func Update(settings []ComponentSettings, options Options) {
+	cfg := readFile(options.ConfigFile)
 	for _, s := range settings {
 		componentConfig := cfg.findComponent(s.Type, s.Title)
 		componentConfig.Position = getPosition(s.Location, s.Size)
 	}
-	saveFile(cfg)
+	saveFile(cfg, options.ConfigFile)
 }
 
 func (c *Config) findComponent(componentType ComponentType, componentTitle string) *ComponentConfig {
@@ -93,13 +93,13 @@ func readFile(location string) *Config {
 	return cfg
 }
 
-func saveFile(config *Config) {
+func saveFile(config *Config, fileName string) {
 	file, err := yaml.Marshal(config)
 	if err != nil {
 		log.Fatalf("Can't marshal config file: %v", err)
 	}
 
-	err = ioutil.WriteFile(os.Args[1], file, 0644)
+	err = ioutil.WriteFile(fileName, file, 0644)
 	if err != nil {
 		log.Fatalf("Can't save config file: %v", err)
 	}
