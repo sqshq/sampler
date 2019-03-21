@@ -1,6 +1,7 @@
 package data
 
 import (
+	"github.com/sqshq/sampler/config"
 	"os/exec"
 	"time"
 )
@@ -12,11 +13,9 @@ type Sampler struct {
 	triggersChannel chan *Sample
 }
 
-func NewSampler(consumer *Consumer, items []Item, triggers []Trigger, rateMs int) Sampler {
+func NewSampler(consumer *Consumer, items []Item, triggers []Trigger, options config.Options, rateMs int) Sampler {
 
-	ticker := time.NewTicker(
-		time.Duration(rateMs * int(time.Millisecond)),
-	)
+	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
 
 	sampler := Sampler{
 		consumer,
@@ -28,7 +27,7 @@ func NewSampler(consumer *Consumer, items []Item, triggers []Trigger, rateMs int
 	go func() {
 		for ; true; <-ticker.C {
 			for _, item := range sampler.items {
-				go sampler.sample(item)
+				go sampler.sample(item, options)
 			}
 		}
 	}()
@@ -47,9 +46,9 @@ func NewSampler(consumer *Consumer, items []Item, triggers []Trigger, rateMs int
 	return sampler
 }
 
-func (s *Sampler) sample(item Item) {
+func (s *Sampler) sample(item Item, options config.Options) {
 
-	val, err := item.nextValue()
+	val, err := item.nextValue(options.Variables)
 
 	if err == nil {
 		sample := &Sample{Label: item.Label, Value: val, Color: item.Color}

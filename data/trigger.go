@@ -21,6 +21,7 @@ type Trigger struct {
 	actions       *Actions
 	consumer      *Consumer
 	valuesByLabel map[string]Values
+	options       config.Options
 	player        *asset.AudioPlayer
 	digitsRegexp  *regexp.Regexp
 }
@@ -37,23 +38,24 @@ type Values struct {
 	previous string
 }
 
-func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, player *asset.AudioPlayer) []Trigger {
+func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) []Trigger {
 
 	triggers := make([]Trigger, 0)
 
 	for _, cfg := range cfgs {
-		triggers = append(triggers, NewTrigger(cfg, consumer, player))
+		triggers = append(triggers, NewTrigger(cfg, consumer, options, player))
 	}
 
 	return triggers
 }
 
-func NewTrigger(config config.TriggerConfig, consumer *Consumer, player *asset.AudioPlayer) Trigger {
+func NewTrigger(config config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) Trigger {
 	return Trigger{
 		title:         config.Title,
 		condition:     config.Condition,
 		consumer:      consumer,
 		valuesByLabel: make(map[string]Values),
+		options:       options,
 		player:        player,
 		digitsRegexp:  regexp.MustCompile("[^0-9]+"),
 		actions: &Actions{
@@ -85,7 +87,7 @@ func (t *Trigger) Execute(sample *Sample) {
 		}
 
 		if t.actions.script != nil {
-			_, _ = runScript(*t.actions.script, sample.Label, t.valuesByLabel[sample.Label])
+			_, _ = t.runScript(*t.actions.script, sample.Label, t.valuesByLabel[sample.Label])
 		}
 	}
 }
@@ -100,7 +102,7 @@ func (t *Trigger) evaluate(sample *Sample) bool {
 		t.valuesByLabel[sample.Label] = Values{previous: InitialValue, current: sample.Value}
 	}
 
-	output, err := runScript(t.condition, sample.Label, t.valuesByLabel[sample.Label])
+	output, err := t.runScript(t.condition, sample.Label, t.valuesByLabel[sample.Label])
 
 	if err != nil {
 		t.consumer.AlertChannel <- &Alert{
@@ -112,10 +114,15 @@ func (t *Trigger) evaluate(sample *Sample) bool {
 	return t.digitsRegexp.ReplaceAllString(string(output), "") == TrueIndicator
 }
 
-func runScript(script, label string, data Values) ([]byte, error) {
+func (t *Trigger) runScript(script, label string, data Values) ([]byte, error) {
 
 	cmd := exec.Command("sh", "-c", script)
 	cmd.Env = os.Environ()
+
+	for _, variable := range t.options.Variables {
+		cmd.Env = append(cmd.Env, variable)
+	}
+
 	cmd.Env = append(cmd.Env,
 		fmt.Sprintf("prev=%v", data.previous),
 		fmt.Sprintf("cur=%v", data.current),

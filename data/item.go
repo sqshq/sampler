@@ -3,6 +3,7 @@ package data
 import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/config"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -25,9 +26,16 @@ func NewItems(cfgs []config.Item) []Item {
 	return items
 }
 
-func (i *Item) nextValue() (value string, err error) {
+func (i *Item) nextValue(variables []string) (value string, err error) {
 
-	output, err := exec.Command("sh", "-c", i.Script).Output()
+	cmd := exec.Command("sh", "-c", i.Script)
+	cmd.Env = os.Environ()
+
+	for _, variable := range variables {
+		cmd.Env = append(cmd.Env, variable)
+	}
+
+	output, err := cmd.Output()
 
 	if err != nil {
 		return "", err
