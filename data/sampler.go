@@ -2,7 +2,6 @@ package data
 
 import (
 	"github.com/sqshq/sampler/config"
-	"os/exec"
 	"time"
 )
 
@@ -57,7 +56,7 @@ func (s *Sampler) sample(item Item, options config.Options) {
 	} else {
 		s.consumer.AlertChannel <- &Alert{
 			Title: "SAMPLING FAILURE",
-			Text:  getErrorMessage(err.(*exec.ExitError)),
+			Text:  getErrorMessage(err),
 			Color: item.Color,
 		}
 	}
