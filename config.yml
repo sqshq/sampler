@@ -31,7 +31,7 @@ runcharts:
 barcharts:
 - title: EVENTS BY STATUS
   refresh-rate-ms: 1000
-  position: [[0, 17], [53, 12]]
+  position: [[0, 17], [28, 12]]
   scale: 0
   items:
   - label: NEW

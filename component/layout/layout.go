@@ -199,7 +199,7 @@ func (l *Layout) getSelection() *component.Component {
 func (l *Layout) moveSelection(direction string) {
 
 	previouslySelected := l.getSelection()
-	newlySelectedIndex := l.selection
+	newlySelectedIndex := l.selection + 1
 
 	for i, current := range l.Components {
 
@@ -207,7 +207,7 @@ func (l *Layout) moveSelection(direction string) {
 			continue
 		}
 
-		if newlySelectedIndex < 0 {
+		if newlySelectedIndex >= len(l.Components) {
 			newlySelectedIndex = i
 		}
 
@@ -220,18 +220,30 @@ func (l *Layout) moveSelection(direction string) {
 			previouslySelectedCornerPoint = component.GetRectLeftSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectRightSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectRightSideCenter(current.GetRect())
+			if currentCornerPoint.X > previouslySelectedCornerPoint.X {
+				continue
+			}
 		case console.KeyRight:
 			previouslySelectedCornerPoint = component.GetRectRightSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectLeftSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectLeftSideCenter(current.GetRect())
+			if currentCornerPoint.X < previouslySelectedCornerPoint.X {
+				continue
+			}
 		case console.KeyUp:
 			previouslySelectedCornerPoint = component.GetRectTopSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectBottomSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectBottomSideCenter(current.GetRect())
+			if currentCornerPoint.Y > previouslySelectedCornerPoint.Y {
+				continue
+			}
 		case console.KeyDown:
 			previouslySelectedCornerPoint = component.GetRectBottomSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectTopSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectTopSideCenter(current.GetRect())
+			if currentCornerPoint.Y < previouslySelectedCornerPoint.Y {
+				continue
+			}
 		}
 
 		if component.GetDistance(previouslySelectedCornerPoint, currentCornerPoint) <
@@ -240,7 +252,9 @@ func (l *Layout) moveSelection(direction string) {
 		}
 	}
 
-	l.selection = newlySelectedIndex
+	if newlySelectedIndex < len(l.Components) {
+		l.selection = newlySelectedIndex
+	}
 }
 
 func (l *Layout) Draw(buffer *ui.Buffer) {
