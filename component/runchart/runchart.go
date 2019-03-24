@@ -16,10 +16,10 @@ import (
 )
 
 const (
+	xAxisGridWidth     = xAxisLabelsIndent + xAxisLabelsWidth
 	xAxisLabelsHeight  = 1
 	xAxisLabelsWidth   = 8
 	xAxisLabelsIndent  = 2
-	xAxisGridWidth     = xAxisLabelsIndent + xAxisLabelsWidth
 	yAxisLabelsHeight  = 1
 	yAxisLabelsIndent  = 1
 	historyReserveMin  = 20

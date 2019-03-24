@@ -11,11 +11,12 @@ import (
 )
 
 type Config struct {
-	Theme      *console.Theme   `yaml:"theme,omitempty"`
-	RunCharts  []RunChartConfig `yaml:"runcharts,omitempty"`
-	BarCharts  []BarChartConfig `yaml:"barcharts,omitempty"`
-	Gauges     []GaugeConfig    `yaml:"gauges,omitempty"`
-	AsciiBoxes []AsciiBoxConfig `yaml:"asciiboxes,omitempty"`
+	Theme      *console.Theme    `yaml:"theme,omitempty"`
+	RunCharts  []RunChartConfig  `yaml:"runcharts,omitempty"`
+	BarCharts  []BarChartConfig  `yaml:"barcharts,omitempty"`
+	Gauges     []GaugeConfig     `yaml:"gauges,omitempty"`
+	AsciiBoxes []AsciiBoxConfig  `yaml:"asciiboxes,omitempty"`
+	SparkLines []SparkLineConfig `yaml:"sparklines,omitempty"`
 }
 
 func Load() (Config, Options) {
@@ -68,6 +69,12 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 		for i, component := range c.AsciiBoxes {
 			if component.Title == componentTitle {
 				return &c.AsciiBoxes[i].ComponentConfig
+			}
+		}
+	case TypeSparkLine:
+		for i, component := range c.SparkLines {
+			if component.Title == componentTitle {
+				return &c.SparkLines[i].ComponentConfig
 			}
 		}
 	}

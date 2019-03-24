@@ -80,6 +80,11 @@ asciiboxes:
   position: [[53, 17], [27, 5]]
   value: date +%r
 - title: UTC TIME
-  position: [[53, 22], [27, 6]]
+  position: [[53, 22], [27, 7]]
   value: env TZ=UTC date +%r
   font: 3d
+sparklines:
+- title: CPU usage
+  position: [[28, 17], [25, 12]]
+  scale: 0
+  value: ps -A -o %cpu | awk '{s+=$1} END {print s}'

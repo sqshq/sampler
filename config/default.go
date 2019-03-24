@@ -43,6 +43,23 @@ func (c *Config) setDefaultValues() {
 		c.RunCharts[i] = chart
 	}
 
+	for i, line := range c.SparkLines {
+
+		setDefaultTriggersValues(line.Triggers)
+		line.ComponentConfig.Type = TypeSparkLine
+		line.Item.Label = &line.Title
+
+		if line.RefreshRateMs == nil {
+			r := defaultRefreshRateMs
+			line.RefreshRateMs = &r
+		}
+		if line.Scale == nil {
+			p := defaultScale
+			line.Scale = &p
+		}
+		c.SparkLines[i] = line
+	}
+
 	for i, chart := range c.BarCharts {
 
 		setDefaultTriggersValues(chart.Triggers)

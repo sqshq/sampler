@@ -53,6 +53,12 @@ type GaugeConfig struct {
 	Items           []Item            `yaml:",omitempty"`
 }
 
+type SparkLineConfig struct {
+	ComponentConfig `yaml:",inline"`
+	Scale           *int `yaml:"scale,omitempty"`
+	Item            Item `yaml:",inline"`
+}
+
 type BarChartConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Scale           *int   `yaml:"scale,omitempty"`

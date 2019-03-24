@@ -9,6 +9,7 @@ import (
 	"github.com/sqshq/sampler/component/gauge"
 	"github.com/sqshq/sampler/component/layout"
 	"github.com/sqshq/sampler/component/runchart"
+	"github.com/sqshq/sampler/component/sparkline"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -48,6 +49,12 @@ func main() {
 	for _, c := range cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
+	}
+
+	for _, c := range cfg.SparkLines {
+		println(c.Title)
+		cpt := sparkline.NewSparkLine(c, palette)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
 
 	for _, c := range cfg.AsciiBoxes {
