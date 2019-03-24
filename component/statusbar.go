@@ -12,16 +12,16 @@ const (
 )
 
 type StatusBar struct {
-	ui.Block
+	*ui.Block
 	keyBindings    []string
 	configFileName string
 }
 
-func NewStatusLine(configFileName string) *StatusBar {
+func NewStatusLine(configFileName string, palette console.Palette) *StatusBar {
 	block := *ui.NewBlock()
 	block.Border = false
 	return &StatusBar{
-		Block:          block,
+		Block:          NewBlock("", false, palette),
 		configFileName: configFileName,
 		keyBindings: []string{
 			"(Q) quit",

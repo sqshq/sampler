@@ -3,7 +3,6 @@ package runchart
 import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
-	"github.com/sqshq/sampler/console"
 	"image"
 	"math"
 )
@@ -55,7 +54,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			y := c.Inner.Min.Y + yAxisLegendIndent + row*height
 
 			titleStyle := ui.NewStyle(line.color)
-			detailsStyle := ui.NewStyle(console.ColorWhite)
+			detailsStyle := ui.NewStyle(c.palette.BaseColor)
 
 			buffer.SetString(string(ui.DOT), titleStyle, image.Pt(x-2, y))
 			buffer.SetString(line.label, titleStyle, image.Pt(x, y))

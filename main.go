@@ -38,28 +38,30 @@ func main() {
 	player := asset.NewAudioPlayer()
 	defer player.Close()
 
+	palette := console.GetPalette(*cfg.Theme)
 	width, height := ui.TerminalDimensions()
-	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile), component.NewMenu())
+
+	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette), component.NewMenu(palette))
 
 	starter := &Starter{lout, player, opt}
 
 	for _, c := range cfg.RunCharts {
-		cpt := runchart.NewRunChart(c)
+		cpt := runchart.NewRunChart(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 
 	for _, c := range cfg.AsciiBoxes {
-		cpt := asciibox.NewAsciiBox(c)
+		cpt := asciibox.NewAsciiBox(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
 
 	for _, c := range cfg.BarCharts {
-		cpt := barchart.NewBarChart(c)
+		cpt := barchart.NewBarChart(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 
 	for _, c := range cfg.Gauges {
-		cpt := gauge.NewGauge(c)
+		cpt := gauge.NewGauge(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
 

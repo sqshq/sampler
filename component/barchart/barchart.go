@@ -25,6 +25,7 @@ type BarChart struct {
 	scale    int
 	maxValue float64
 	count    int64
+	palette  console.Palette
 }
 
 type Bar struct {
@@ -34,14 +35,15 @@ type Bar struct {
 	delta float64
 }
 
-func NewBarChart(c config.BarChartConfig) *BarChart {
+func NewBarChart(c config.BarChartConfig, palette console.Palette) *BarChart {
 
 	chart := BarChart{
-		Block:    component.NewBlock(c.Title, true),
+		Block:    component.NewBlock(c.Title, true, palette),
 		Consumer: data.NewConsumer(),
 		bars:     []Bar{},
 		scale:    *c.Scale,
 		maxValue: -math.MaxFloat64,
+		palette:  palette,
 	}
 
 	for _, i := range c.Items {
@@ -119,7 +121,7 @@ func (b *BarChart) Draw(buffer *ui.Buffer) {
 	barWidth := int(math.Ceil(float64(b.Inner.Dx()-2*barIndent-len(b.bars)*barIndent) / float64(len(b.bars))))
 	barXCoordinate := b.Inner.Min.X + barIndent
 
-	labelStyle := ui.NewStyle(console.ColorWhite)
+	labelStyle := ui.NewStyle(b.palette.BaseColor)
 
 	for _, bar := range b.bars {
 

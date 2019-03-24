@@ -27,15 +27,17 @@ type Gauge struct {
 	curValue float64
 	color    ui.Color
 	scale    int
+	palette  console.Palette
 }
 
-func NewGauge(c config.GaugeConfig) *Gauge {
+func NewGauge(c config.GaugeConfig, palette console.Palette) *Gauge {
 
 	gauge := Gauge{
-		Block:    component.NewBlock(c.Title, true),
+		Block:    component.NewBlock(c.Title, true, palette),
 		Consumer: data.NewConsumer(),
 		scale:    *c.Scale,
 		color:    *c.Color,
+		palette:  palette,
 	}
 
 	go func() {
@@ -105,9 +107,9 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 	labelYCoordinate := g.Inner.Min.Y + ((g.Inner.Dy() - 1) / 2)
 	if labelYCoordinate < g.Inner.Max.Y {
 		for i, char := range label {
-			style := ui.NewStyle(console.ColorWhite)
+			style := ui.NewStyle(g.palette.BaseColor)
 			if labelXCoordinate+i+1 <= g.Inner.Min.X+barWidth {
-				style = ui.NewStyle(console.ColorWhite, ui.ColorClear)
+				style = ui.NewStyle(g.palette.BaseColor, ui.ColorClear)
 			}
 			buffer.SetCell(ui.NewCell(char, style), image.Pt(labelXCoordinate+i, labelYCoordinate))
 		}

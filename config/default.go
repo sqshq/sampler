@@ -98,10 +98,6 @@ func (c *Config) setDefaultValues() {
 			font := console.AsciiFontFlat
 			box.Font = &font
 		}
-		if box.Color == nil {
-			color := console.ColorWhite
-			box.Color = &color
-		}
 		c.AsciiBoxes[i] = box
 	}
 }
@@ -139,12 +135,12 @@ func (c *Config) setDefaultLayout() {
 func (c *Config) setDefaultColors() {
 
 	palette := console.GetPalette(*c.Theme)
-	colorsCount := len(palette.Colors)
+	colorsCount := len(palette.ContentColors)
 
 	for _, ch := range c.RunCharts {
 		for j, item := range ch.Items {
 			if item.Color == nil {
-				item.Color = &palette.Colors[j%colorsCount]
+				item.Color = &palette.ContentColors[j%colorsCount]
 				ch.Items[j] = item
 			}
 		}
@@ -153,7 +149,7 @@ func (c *Config) setDefaultColors() {
 	for _, b := range c.BarCharts {
 		for j, item := range b.Items {
 			if item.Color == nil {
-				item.Color = &palette.Colors[j%colorsCount]
+				item.Color = &palette.ContentColors[j%colorsCount]
 				b.Items[j] = item
 			}
 		}
@@ -161,7 +157,7 @@ func (c *Config) setDefaultColors() {
 
 	for i, g := range c.Gauges {
 		if g.Color == nil {
-			g.Color = &palette.Colors[i%colorsCount]
+			g.Color = &palette.ContentColors[i%colorsCount]
 			c.Gauges[i] = g
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/config"
+	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
 )
@@ -19,11 +20,12 @@ type AsciiBox struct {
 	style   ui.Style
 	render  *fl.AsciiRender
 	options *fl.RenderOptions
+	palette console.Palette
 }
 
 const asciiFontExtension = ".flf"
 
-func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
+func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 
 	options := fl.NewRenderOptions()
 	options.FontName = string(*c.Font)
@@ -36,12 +38,18 @@ func NewAsciiBox(c config.AsciiBoxConfig) *AsciiBox {
 	render := fl.NewAsciiRender()
 	_ = render.LoadBindataFont(fontStr, options.FontName)
 
+	color := c.Color
+	if color == nil {
+		color = &palette.BaseColor
+	}
+
 	box := AsciiBox{
-		Block:    component.NewBlock(c.Title, true),
+		Block:    component.NewBlock(c.Title, true, palette),
 		Consumer: data.NewConsumer(),
-		style:    ui.NewStyle(*c.Color),
+		style:    ui.NewStyle(*color),
 		render:   render,
 		options:  options,
+		palette:  palette,
 	}
 
 	go func() {

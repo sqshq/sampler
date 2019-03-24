@@ -8,11 +8,12 @@ import (
 )
 
 type Menu struct {
-	ui.Block
+	*ui.Block
 	options   []MenuOption
 	component Component
 	mode      MenuMode
 	option    MenuOption
+	palette   console.Palette
 }
 
 type MenuMode rune
@@ -37,14 +38,13 @@ const (
 	minimalMenuHeight = 8
 )
 
-func NewMenu() *Menu {
-	block := *ui.NewBlock()
-	block.Border = true
+func NewMenu(palette console.Palette) *Menu {
 	return &Menu{
-		Block:   block,
+		Block:   NewBlock("", true, palette),
 		options: []MenuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionResume},
 		mode:    MenuModeIdle,
 		option:  MenuOptionMove,
+		palette: palette,
 	}
 }
 
@@ -102,7 +102,7 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 	}
 
 	m.updateDimensions()
-	buffer.Fill(ui.NewCell(' ', ui.NewStyle(ui.ColorBlack)), m.GetRect())
+	buffer.Fill(ui.NewCell(' ', ui.NewStyle(m.palette.ReverseColor)), m.GetRect())
 
 	if m.Dy() > minimalMenuHeight {
 		m.drawInnerBorder(buffer)
@@ -198,9 +198,8 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 
 func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
-	// TODO extract styles to console.Palette
-	highlightedStyle := ui.NewStyle(console.ColorBlack, console.ColorOlive)
-	regularStyle := ui.NewStyle(console.ColorWhite, console.ColorBlack)
+	highlightedStyle := ui.NewStyle(m.palette.BaseColor, console.ColorOlive)
+	regularStyle := ui.NewStyle(m.palette.BaseColor, m.palette.ReverseColor)
 
 	offset := 1
 	for _, option := range m.options {
@@ -212,7 +211,7 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 		if option != MenuOptionPinpoint || m.component.Type == config.TypeRunChart {
 			offset += 2
-			point := getMiddlePoint(m.Block.Rectangle, string(option), offset-5)
+			point := getMiddlePoint(m.Block.Rectangle, string(option), offset-6)
 			buffer.SetString(string(option), style, point)
 		}
 	}

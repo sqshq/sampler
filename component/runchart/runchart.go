@@ -51,6 +51,7 @@ type RunChart struct {
 	selection time.Time
 	scale     int
 	legend    Legend
+	palette   console.Palette
 }
 
 type TimePoint struct {
@@ -78,10 +79,10 @@ type ValueExtrema struct {
 	min float64
 }
 
-func NewRunChart(c config.RunChartConfig) *RunChart {
+func NewRunChart(c config.RunChartConfig, palette console.Palette) *RunChart {
 
 	chart := RunChart{
-		Block:     component.NewBlock(c.Title, true),
+		Block:     component.NewBlock(c.Title, true, palette),
 		Consumer:  data.NewConsumer(),
 		lines:     []TimeLine{},
 		timescale: calculateTimescale(*c.RefreshRateMs),
@@ -89,6 +90,7 @@ func NewRunChart(c config.RunChartConfig) *RunChart {
 		scale:     *c.Scale,
 		mode:      ModeDefault,
 		legend:    Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details},
+		palette:   palette,
 	}
 
 	for _, i := range c.Items {
