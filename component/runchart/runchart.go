@@ -1,8 +1,8 @@
 package runchart
 
 import (
-	"fmt"
 	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/component/util"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -324,7 +324,7 @@ func (c *RunChart) getMaxValueLength() int {
 
 	for _, line := range c.lines {
 		for _, point := range line.points {
-			l := len(formatValue(point.value, c.scale))
+			l := len(util.FormatValue(point.value, c.scale))
 			if l > maxValueLength {
 				maxValueLength = l
 			}
@@ -364,25 +364,6 @@ func (c *RunChart) disableSelection() {
 func getMidRangeTime(r TimeRange) time.Time {
 	delta := r.max.Sub(r.min)
 	return r.max.Add(-delta / 2)
-}
-
-func formatValue(value float64, scale int) string {
-	if math.Abs(value) == math.MaxFloat64 {
-		return "Inf"
-	} else {
-		format := "%." + strconv.Itoa(scale) + "f"
-		return fmt.Sprintf(format, value)
-	}
-}
-
-func formatValueWithSign(value float64, scale int) string {
-	if value == 0 {
-		return " 0"
-	} else if value > 0 {
-		return "+" + formatValue(value, scale)
-	} else {
-		return formatValue(value, scale)
-	}
 }
 
 // time duration between grid lines

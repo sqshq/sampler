@@ -3,6 +3,7 @@ package runchart
 import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
+	"github.com/sqshq/sampler/component/util"
 	"image"
 	"math"
 )
@@ -61,7 +62,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 			if c.mode == ModePinpoint {
 				buffer.SetString(fmt.Sprintf("time  %s", line.selectionPoint.time.Format("15:04:05.000")), detailsStyle, image.Pt(x, y+1))
-				buffer.SetString(fmt.Sprintf("value %s", formatValue(line.selectionPoint.value, c.scale)), detailsStyle, image.Pt(x, y+2))
+				buffer.SetString(fmt.Sprintf("value %s", util.FormatValue(line.selectionPoint.value, c.scale)), detailsStyle, image.Pt(x, y+2))
 				continue
 			}
 
@@ -70,10 +71,10 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			}
 
 			details := [4]string{
-				fmt.Sprintf("cur  %s", formatValue(getCurrentValue(line), c.scale)),
-				fmt.Sprintf("dlt %s", formatValueWithSign(getDiffWithPreviousValue(line), c.scale)),
-				fmt.Sprintf("max  %s", formatValue(line.extrema.max, c.scale)),
-				fmt.Sprintf("min  %s", formatValue(line.extrema.min, c.scale)),
+				fmt.Sprintf("cur  %s", util.FormatValue(getCurrentValue(line), c.scale)),
+				fmt.Sprintf("dlt %s", util.FormatValueWithSign(getDiffWithPreviousValue(line), c.scale)),
+				fmt.Sprintf("max  %s", util.FormatValue(line.extrema.max, c.scale)),
+				fmt.Sprintf("min  %s", util.FormatValue(line.extrema.min, c.scale)),
 			}
 
 			for i, detail := range details {
@@ -89,7 +90,7 @@ func getColumnWidth(mode Mode, lines []TimeLine, scale int) int {
 		return len(timeFormat)
 	}
 
-	width := len(formatValue(0, scale))
+	width := len(util.FormatValue(0, scale))
 	for _, line := range lines {
 		if len(line.label) > width {
 			width = len(line.label)

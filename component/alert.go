@@ -3,6 +3,7 @@ package component
 import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
+	"github.com/sqshq/sampler/component/util"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
@@ -21,7 +22,7 @@ func RenderAlert(alert *data.Alert, area image.Rectangle, buffer *ui.Buffer) {
 		color = *alert.Color
 	}
 
-	width := max(len(alert.Title), len(alert.Text)) + 10
+	width := util.Max([]int{len(alert.Title), len(alert.Text)}) + 10
 
 	if width > area.Dx() {
 		width = area.Dx()
@@ -55,15 +56,7 @@ func RenderAlert(alert *data.Alert, area image.Rectangle, buffer *ui.Buffer) {
 	}
 }
 
-//TODO move to utils
-func max(a int, b int) int {
-	if a > b {
-		return a
-	} else {
-		return b
-	}
-}
-
+// TODO move to utils
 func getRectCoordinates(area image.Rectangle, width int, height int) (int, int, int, int) {
 	x1 := area.Min.X + area.Dx()/2 - width/2
 	y1 := area.Min.Y + area.Dy()/2 - height

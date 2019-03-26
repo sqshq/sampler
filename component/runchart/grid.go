@@ -2,6 +2,7 @@ package runchart
 
 import (
 	ui "github.com/gizak/termui/v3"
+	"github.com/sqshq/sampler/component/util"
 	"image"
 	"math"
 	"time"
@@ -76,13 +77,13 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 		for i := 0; i < int(labelsCount); i++ {
 			value := c.grid.valueExtrema.max - (valuePerY * float64(i) * (yAxisLabelsIndent + yAxisLabelsHeight))
 			buffer.SetString(
-				formatValue(value, c.scale),
+				util.FormatValue(value, c.scale),
 				ui.NewStyle(c.palette.BaseColor),
 				image.Pt(c.Inner.Min.X, 1+c.Inner.Min.Y+i*(yAxisLabelsIndent+yAxisLabelsHeight)))
 		}
 	} else {
 		buffer.SetString(
-			formatValue(c.grid.valueExtrema.max, c.scale),
+			util.FormatValue(c.grid.valueExtrema.max, c.scale),
 			ui.NewStyle(c.palette.BaseColor),
 			image.Pt(c.Inner.Min.X, c.Inner.Min.Y+c.Inner.Dy()/2))
 	}

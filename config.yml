@@ -1,9 +1,9 @@
 runcharts:
 - title: SEARCH ENGINE RESPONSE TIME (sec)
-  position: [[0, 0], [53, 16]]
+  position: [[0, 0], [52, 16]]
   triggers:
   - title: Latency threshold exceeded
-    condition: echo "$prev < 0.35 && $cur > 0.35" |bc -l
+    condition: echo "$prev < 0.55 && $cur > 0.55" |bc -l
     actions:
       terminal-bell: true
       sound: true
@@ -31,7 +31,7 @@ runcharts:
 barcharts:
 - title: EVENTS BY STATUS
   refresh-rate-ms: 1000
-  position: [[0, 17], [28, 12]]
+  position: [[0, 17], [27, 12]]
   scale: 0
   items:
   - label: NEW
@@ -85,6 +85,6 @@ asciiboxes:
   font: 3d
 sparklines:
 - title: CPU usage
-  position: [[28, 17], [25, 12]]
+  position: [[27, 17], [25, 5]]
   scale: 0
   value: ps -A -o %cpu | awk '{s+=$1} END {print s}'
