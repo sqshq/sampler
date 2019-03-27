@@ -3,7 +3,7 @@ runcharts:
   position: [[0, 0], [52, 16]]
   triggers:
   - title: Latency threshold exceeded
-    condition: echo "$prev < 0.55 && $cur > 0.55" |bc -l
+    condition: echo "$prev < 0.8 && $cur > 0.8" |bc -l
     actions:
       terminal-bell: true
       sound: true
@@ -88,3 +88,7 @@ sparklines:
   position: [[27, 17], [25, 5]]
   scale: 0
   value: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+- title: Memory pages free
+  position: [[27, 27], [25, 5]]
+  scale: 0
+  value: memory_pressure | grep 'Pages free' | awk '{print $3}'

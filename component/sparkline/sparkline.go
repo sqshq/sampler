@@ -61,24 +61,29 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 	}
 
 	s.values = append(s.values, float)
-	// TODO cleanup old ones
+	max, min := s.values[0], s.values[0]
 
 	for i := len(s.values) - 1; i >= 0; i-- {
 		if len(s.values)-i > s.Dx() {
 			break
 		}
-		if s.values[i] > s.maxValue {
-			s.maxValue = s.values[i]
+		if s.values[i] > max {
+			max = s.values[i]
 		}
-		if s.values[i] < s.minValue {
-			s.minValue = s.values[i]
+		if s.values[i] < min {
+			min = s.values[i]
 		}
+	}
+
+	s.maxValue = max
+	s.minValue = min
+
+	// perform cleanup once in a while
+	if len(s.values)%100 == 0 {
+		s.values = append(s.values[:0], s.values[len(s.values)-s.Dx()+1:]...)
 	}
 }
 
-// TODO make sure that 0 value is still printed
-// TODO make sure that cur value is printed on the same Y as sparkline (include in for loop for last iteratiton)
-// TODO gradient color
 func (s *SparkLine) Draw(buffer *ui.Buffer) {
 
 	textStyle := ui.NewStyle(s.palette.BaseColor)
@@ -88,12 +93,6 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 	maxValue := util.FormatValue(s.maxValue, s.scale)
 	curValue := util.FormatValue(s.values[len(s.values)-1], s.scale)
 
-	buffer.SetString(minValue, textStyle, image.Pt(s.Min.X+2, s.Max.Y-2))
-	buffer.SetString(maxValue, textStyle, image.Pt(s.Min.X+2, s.Min.Y+2))
-
-	curY := int((s.values[len(s.values)-1]/s.maxValue)*float64(s.Dy())) - 1
-	buffer.SetString(curValue, textStyle, image.Pt(s.Max.X-len(curValue)-2, s.Max.Y-util.Max([]int{curY, 2})))
-
 	indent := 2 + util.Max([]int{
 		len(minValue), len(maxValue), len(curValue),
 	})
@@ -102,12 +101,23 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 
 		n := len(s.values) - i
 
-		if n > s.Dx()-indent*2-2 {
+		if n > s.Dx()-indent-3 {
 			break
 		}
 
-		for j := 1; j < int((s.values[i]/s.maxValue)*float64(s.Dy()-2))+2; j++ {
-			buffer.SetString("▪", lineStyle, image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j))
+		top := int((s.values[i] / s.maxValue) * float64(s.Dy()-2))
+
+		if top == 0 {
+			top = 1
+		}
+
+		for j := 1; j <= top; j++ {
+			buffer.SetCell(ui.NewCell(console.SymbolSquare, lineStyle), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j))
+			if i == len(s.values)-1 && j == top {
+				buffer.SetString(curValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Max.Y-j))
+				buffer.SetString(minValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Max.Y-2))
+				buffer.SetString(maxValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Min.Y+1))
+			}
 		}
 	}
 
