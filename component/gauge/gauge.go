@@ -59,7 +59,7 @@ func (g *Gauge) ConsumeSample(sample *data.Sample) {
 	float, err := strconv.ParseFloat(sample.Value, 64)
 	if err != nil {
 		g.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE NUMBER",
+			Title: "FAILED TO PARSE A NUMBER",
 			Text:  err.Error(),
 			Color: sample.Color,
 		}

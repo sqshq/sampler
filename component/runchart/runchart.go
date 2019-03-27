@@ -161,7 +161,7 @@ func (c *RunChart) consumeSample(sample *data.Sample) {
 
 	if err != nil {
 		c.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE NUMBER",
+			Title: "FAILED TO PARSE A NUMBER",
 			Text:  err.Error(),
 			Color: sample.Color,
 		}

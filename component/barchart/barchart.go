@@ -72,7 +72,7 @@ func (b *BarChart) consumeSample(sample *data.Sample) {
 
 	if err != nil {
 		b.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE NUMBER",
+			Title: "FAILED TO PARSE A NUMBER",
 			Text:  err.Error(),
 			Color: sample.Color,
 		}

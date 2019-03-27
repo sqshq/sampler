@@ -89,6 +89,6 @@ sparklines:
   scale: 0
   value: ps -A -o %cpu | awk '{s+=$1} END {print s}'
 - title: Memory pages free
-  position: [[27, 27], [25, 5]]
+  position: [[27, 22], [25, 7]]
   scale: 0
   value: memory_pressure | grep 'Pages free' | awk '{print $3}'

@@ -53,7 +53,7 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 
 	if err != nil {
 		s.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE NUMBER",
+			Title: "FAILED TO PARSE A NUMBER",
 			Text:  err.Error(),
 			Color: sample.Color,
 		}
