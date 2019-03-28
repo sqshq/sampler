@@ -52,7 +52,6 @@ func main() {
 	}
 
 	for _, c := range cfg.SparkLines {
-		println(c.Title)
 		cpt := sparkline.NewSparkLine(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
