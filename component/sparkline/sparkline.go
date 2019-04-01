@@ -87,8 +87,8 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 func (s *SparkLine) Draw(buffer *ui.Buffer) {
 
 	textStyle := ui.NewStyle(s.palette.BaseColor)
-	lineStyle := ui.NewStyle(s.color)
 
+	height := s.Dy() - 2
 	minValue := util.FormatValue(s.minValue, s.scale)
 	maxValue := util.FormatValue(s.maxValue, s.scale)
 	curValue := util.FormatValue(s.values[len(s.values)-1], s.scale)
@@ -105,14 +105,14 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 			break
 		}
 
-		top := int((s.values[i] / s.maxValue) * float64(s.Dy()-2))
+		top := int((s.values[i] / s.maxValue) * float64(height))
 
 		if top == 0 {
 			top = 1
 		}
 
 		for j := 1; j <= top; j++ {
-			buffer.SetCell(ui.NewCell(console.SymbolSquare, lineStyle), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j))
+			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(s.palette.GetGradientColor(j-1, height))), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j))
 			if i == len(s.values)-1 && j == top {
 				buffer.SetString(curValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Max.Y-j))
 				buffer.SetString(minValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Max.Y-2))

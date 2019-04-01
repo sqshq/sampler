@@ -48,7 +48,7 @@ func GetPalette(theme Theme) Palette {
 	case ThemeDark:
 		return Palette{
 			ContentColors:  []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorWhite, ColorGrey, ColorGreen, ColorOrange, ColorCian, ColorPurple},
-			GradientColors: []ui.Color{39, 44, 47, 82, 148, 185, 208, 203, 198, 196},
+			GradientColors: []ui.Color{39, 44, 47, 82, 148, 185, 209, 203, 198, 196, 125},
 			BaseColor:      ColorWhite,
 			MediumColor:    ColorDarkGrey,
 			ReverseColor:   ColorBlack,
@@ -56,7 +56,7 @@ func GetPalette(theme Theme) Palette {
 	case ThemeLight:
 		return Palette{
 			ContentColors:  []ui.Color{ColorBlack, ColorDarkRed, ColorBlueViolet, ColorGrey, ColorGreen},
-			GradientColors: []ui.Color{250, 248, 246, 244, 242, 240, 238, 236, 234, 232},
+			GradientColors: []ui.Color{250, 248, 246, 244, 242, 240, 238, 236, 234, 232, 16},
 			BaseColor:      ColorBlack,
 			MediumColor:    ColorLightGrey,
 			ReverseColor:   ColorWhite,
@@ -64,4 +64,10 @@ func GetPalette(theme Theme) Palette {
 	default:
 		panic(fmt.Sprintf("Following theme is not supported: %v", theme))
 	}
+}
+
+// selects gradient color for cur item (out of max items)
+func (palette *Palette) GetGradientColor(cur int, max int) ui.Color {
+	ratio := float64(len(palette.GradientColors)) / float64(max)
+	return palette.GradientColors[int(ratio*float64(cur))]
 }
