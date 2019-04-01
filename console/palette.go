@@ -37,7 +37,7 @@ const (
 
 type Palette struct {
 	ContentColors  []ui.Color
-	GradientColors []ui.Color
+	GradientColors [][]ui.Color
 	BaseColor      ui.Color
 	MediumColor    ui.Color
 	ReverseColor   ui.Color
@@ -48,7 +48,7 @@ func GetPalette(theme Theme) Palette {
 	case ThemeDark:
 		return Palette{
 			ContentColors:  []ui.Color{ColorOlive, ColorDeepSkyBlue, ColorDeepPink, ColorWhite, ColorGrey, ColorGreen, ColorOrange, ColorCian, ColorPurple},
-			GradientColors: []ui.Color{39, 44, 47, 82, 148, 185, 209, 203, 198, 196, 125},
+			GradientColors: [][]ui.Color{{39, 33, 62, 93, 164, 161}, {95, 138, 180, 179, 178, 178}},
 			BaseColor:      ColorWhite,
 			MediumColor:    ColorDarkGrey,
 			ReverseColor:   ColorBlack,
@@ -56,7 +56,7 @@ func GetPalette(theme Theme) Palette {
 	case ThemeLight:
 		return Palette{
 			ContentColors:  []ui.Color{ColorBlack, ColorDarkRed, ColorBlueViolet, ColorGrey, ColorGreen},
-			GradientColors: []ui.Color{250, 248, 246, 244, 242, 240, 238, 236, 234, 232, 16},
+			GradientColors: [][]ui.Color{{250, 248, 246, 244, 242, 240, 238, 236, 234, 232, 16}},
 			BaseColor:      ColorBlack,
 			MediumColor:    ColorLightGrey,
 			ReverseColor:   ColorWhite,
@@ -66,8 +66,7 @@ func GetPalette(theme Theme) Palette {
 	}
 }
 
-// selects gradient color for cur item (out of max items)
-func (palette *Palette) GetGradientColor(cur int, max int) ui.Color {
-	ratio := float64(len(palette.GradientColors)) / float64(max)
-	return palette.GradientColors[int(ratio*float64(cur))]
+func GetGradientColor(gradient []ui.Color, cur int, max int) ui.Color {
+	ratio := float64(len(gradient)) / float64(max)
+	return gradient[int(ratio*float64(cur))]
 }

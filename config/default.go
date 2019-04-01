@@ -173,10 +173,8 @@ func (c *Config) setDefaultColors() {
 	}
 
 	for i, s := range c.SparkLines {
-		if s.Item.Color == nil {
-			s.Item.Color = &palette.ContentColors[i%colorsCount]
-			c.SparkLines[i] = s
-		}
+		s.Gradient = &palette.GradientColors[i%(len(palette.GradientColors))]
+		c.SparkLines[i] = s
 	}
 
 	for i, g := range c.Gauges {
