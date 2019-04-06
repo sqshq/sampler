@@ -89,12 +89,15 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			g.Scale = &p
 		}
-		var items []Item
-		for label, script := range g.Values {
-			l := label
-			items = append(items, Item{Label: &l, Script: script})
-		}
-		g.Items = items
+
+		cur := "cur"
+		max := "max"
+		min := "min"
+
+		g.Cur.Label = &cur
+		g.Max.Label = &max
+		g.Min.Label = &min
+
 		c.Gauges[i] = g
 	}
 

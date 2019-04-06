@@ -68,7 +68,7 @@ func main() {
 
 	for _, c := range cfg.Gauges {
 		cpt := gauge.NewGauge(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers)
 	}
 
 	handler := event.NewHandler(lout, opt)

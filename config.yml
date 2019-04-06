@@ -12,11 +12,11 @@ runcharts:
   scale: 3
   items:
   - label: GOOGLE
-    value: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+    sample: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
   - label: YAHOO
-    value: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
+    sample: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
   - label: BING
-    value: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
+    sample: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 - title: MONGO COLLECTIONS COUNT
   position: [[53, 0], [27, 8]]
   legend:
@@ -25,9 +25,11 @@ runcharts:
   scale: 0
   items:
   - label: ACTIVE
-    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    init: mongo --quiet --host=localhost blog
+    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    transform: $sample | grep cpu
   - label: INACTIVE
-    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 barcharts:
 - title: EVENTS BY STATUS
   refresh-rate-ms: 1000
@@ -35,34 +37,40 @@ barcharts:
   scale: 0
   items:
   - label: NEW
-    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
   - label: TRIGGERED
-    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
   - label: IN_PROCESS
-    value: echo 0
+    sample: echo 0
   - label: FAILED
-    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
   - label: FINISHED
-    value: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 gauges:
 - title: YEAR PROGRESS
   position: [[53, 8], [27, 2]]
-  values:
-    cur: date +%j
-    max: echo 365
-    min: echo 0
+  cur:
+    sample: date +%j
+  max:
+    sample: echo 365
+  min:
+    sample: echo 0
 - title: DAY PROGRESS
   position: [[53, 10], [27, 2]]
-  values:
-    cur: date +%H
-    max: echo 24
-    min: echo 0
+  cur:
+    sample: date +%H
+  max:
+    sample: echo 24
+  min:
+    sample: echo 0
 - title: HOUR PROGRESS
   position: [[53, 12], [27, 2]]
-  values:
-    cur: date +%M
-    max: echo 60
-    min: echo 0
+  cur:
+    sample: date +%M
+  max:
+    sample: echo 60
+  min:
+    sample: echo 0
 - title: MINUTE PROGRESS
   position: [[53, 14], [27, 2]]
   triggers:
@@ -71,24 +79,26 @@ gauges:
     actions:
       sound: true
       script: say -v samantha `date +%I:%M%p`
-  values:
-    cur: date +%S
-    max: echo 60
-    min: echo 0
+  cur:
+    sample: date +%S
+  max:
+    sample: echo 60
+  min:
+    sample: echo 0
 asciiboxes:
 - title: LOCAL TIME
   position: [[53, 17], [27, 5]]
-  value: date +%r
+  sample: date +%r
 - title: UTC TIME
   position: [[53, 22], [27, 7]]
-  value: env TZ=UTC date +%r
+  sample: env TZ=UTC date +%r
   font: 3d
 sparklines:
 - title: CPU usage
   position: [[27, 22], [25, 7]]
   scale: 0
-  value: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+  sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
 - title: Memory pages free
   position: [[27, 17], [25, 5]]
   scale: 0
-  value: memory_pressure | grep 'Pages free' | awk '{print $3}'
+  sample: memory_pressure | grep 'Pages free' | awk '{print $3}'

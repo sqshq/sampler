@@ -9,9 +9,11 @@ import (
 )
 
 type Item struct {
-	Label  string
-	Script string
-	Color  *ui.Color
+	Label           string
+	SampleScript    string
+	InitScript      *string
+	TransformScript *string
+	Color           *ui.Color
 }
 
 func NewItems(cfgs []config.Item) []Item {
@@ -19,7 +21,12 @@ func NewItems(cfgs []config.Item) []Item {
 	items := make([]Item, 0)
 
 	for _, i := range cfgs {
-		item := Item{Label: *i.Label, Script: i.Script, Color: i.Color}
+		item := Item{
+			Label:           *i.Label,
+			SampleScript:    *i.SampleScript,
+			InitScript:      i.InitScript,
+			TransformScript: i.TransformScript,
+			Color:           i.Color}
 		items = append(items, item)
 	}
 
@@ -28,7 +35,7 @@ func NewItems(cfgs []config.Item) []Item {
 
 func (i *Item) nextValue(variables []string) (value string, err error) {
 
-	cmd := exec.Command("sh", "-c", i.Script)
+	cmd := exec.Command("sh", "-c", i.SampleScript)
 	cmd.Env = os.Environ()
 
 	for _, variable := range variables {

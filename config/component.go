@@ -47,10 +47,11 @@ type ActionsConfig struct {
 
 type GaugeConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Scale           *int              `yaml:"scale,omitempty"`
-	Color           *ui.Color         `yaml:"color,omitempty"`
-	Values          map[string]string `yaml:"values"`
-	Items           []Item            `yaml:",omitempty"`
+	Scale           *int      `yaml:"scale,omitempty"`
+	Color           *ui.Color `yaml:"color,omitempty"`
+	Cur             Item      `yaml:"cur"`
+	Max             Item      `yaml:"max"`
+	Min             Item      `yaml:"min"`
 }
 
 type SparkLineConfig struct {
@@ -85,9 +86,11 @@ type LegendConfig struct {
 }
 
 type Item struct {
-	Label  *string   `yaml:"label,omitempty"`
-	Script string    `yaml:"value"`
-	Color  *ui.Color `yaml:"color,omitempty"`
+	Label           *string   `yaml:"label,omitempty"`
+	Color           *ui.Color `yaml:"color,omitempty"`
+	InitScript      *string   `yaml:"init,omitempty"`
+	SampleScript    *string   `yaml:"sample"`
+	TransformScript *string   `yaml:"transform,omitempty"`
 }
 
 type Location struct {
