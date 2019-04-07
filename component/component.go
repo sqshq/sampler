@@ -9,22 +9,22 @@ import (
 type Component struct {
 	ui.Drawable
 	*data.Consumer
-	Type          config.ComponentType
-	Title         string
-	Location      config.Location
-	Size          config.Size
-	RefreshRateMs int
+	Type     config.ComponentType
+	Title    string
+	Location config.Location
+	Size     config.Size
+	RateMs   int
 }
 
 func NewComponent(dbl ui.Drawable, cmr *data.Consumer, cfg config.ComponentConfig) *Component {
 	return &Component{
-		Drawable:      dbl,
-		Consumer:      cmr,
-		Type:          cfg.Type,
-		Title:         cfg.Title,
-		Location:      cfg.GetLocation(),
-		Size:          cfg.GetSize(),
-		RefreshRateMs: *cfg.RefreshRateMs,
+		Drawable: dbl,
+		Consumer: cmr,
+		Type:     cfg.Type,
+		Title:    cfg.Title,
+		Location: cfg.GetLocation(),
+		Size:     cfg.GetSize(),
+		RateMs:   *cfg.RateMs,
 	}
 }
 

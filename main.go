@@ -25,7 +25,7 @@ type Starter struct {
 func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
 	cpt := component.NewComponent(drawable, consumer, componentConfig)
 	triggers := data.NewTriggers(triggersConfig, consumer, s.opt, s.player)
-	data.NewSampler(consumer, data.NewItems(itemsConfig, *componentConfig.RefreshRateMs), triggers, s.opt, *componentConfig.RefreshRateMs)
+	data.NewSampler(consumer, data.NewItems(itemsConfig, *componentConfig.RateMs), triggers, s.opt, *componentConfig.RateMs)
 	s.lout.AddComponent(cpt)
 }
 

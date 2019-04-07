@@ -84,15 +84,15 @@ func (h *Handler) handleExit() {
 
 func calcMinRenderRate(layout *layout.Layout) time.Duration {
 
-	minRefreshRateMs := layout.Components[0].RefreshRateMs
+	minRateMs := layout.Components[0].RateMs
 	for _, c := range layout.Components {
-		if c.RefreshRateMs < minRefreshRateMs {
-			minRefreshRateMs = c.RefreshRateMs
+		if c.RateMs < minRateMs {
+			minRateMs = c.RateMs
 		}
 	}
 
 	renderRate := time.Duration(
-		int(float64(minRefreshRateMs)*refreshRateToRenderRateRatio)) * time.Millisecond
+		int(float64(minRateMs)*refreshRateToRenderRateRatio)) * time.Millisecond
 
 	if renderRate < console.MinRenderInterval {
 		return console.MinRenderInterval

@@ -32,7 +32,7 @@ runcharts:
     sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
 barcharts:
 - title: EVENTS BY STATUS
-  refresh-rate-ms: 1000
+  rate-ms: 1000
   position: [[0, 17], [27, 12]]
   scale: 0
   items:

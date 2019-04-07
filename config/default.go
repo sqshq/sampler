@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	defaultRefreshRateMs = 1000
-	defaultScale         = 1
-	defaultTheme         = console.ThemeDark
+	defaultRateMs = 1000
+	defaultScale  = 1
+	defaultTheme  = console.ThemeDark
 )
 
 func (c *Config) setDefaults() {
@@ -28,9 +28,9 @@ func (c *Config) setDefaultValues() {
 		setDefaultTriggersValues(chart.Triggers)
 		chart.ComponentConfig.Type = TypeRunChart
 
-		if chart.RefreshRateMs == nil {
-			r := defaultRefreshRateMs
-			chart.RefreshRateMs = &r
+		if chart.RateMs == nil {
+			r := defaultRateMs
+			chart.RateMs = &r
 		}
 		if chart.Scale == nil {
 			p := defaultScale
@@ -49,9 +49,9 @@ func (c *Config) setDefaultValues() {
 		line.ComponentConfig.Type = TypeSparkLine
 		line.Item.Label = &line.Title
 
-		if line.RefreshRateMs == nil {
-			r := defaultRefreshRateMs
-			line.RefreshRateMs = &r
+		if line.RateMs == nil {
+			r := defaultRateMs
+			line.RateMs = &r
 		}
 		if line.Scale == nil {
 			p := defaultScale
@@ -65,9 +65,9 @@ func (c *Config) setDefaultValues() {
 		setDefaultTriggersValues(chart.Triggers)
 		chart.ComponentConfig.Type = TypeBarChart
 
-		if chart.RefreshRateMs == nil {
-			r := defaultRefreshRateMs
-			chart.RefreshRateMs = &r
+		if chart.RateMs == nil {
+			r := defaultRateMs
+			chart.RateMs = &r
 		}
 		if chart.Scale == nil {
 			p := defaultScale
@@ -81,9 +81,9 @@ func (c *Config) setDefaultValues() {
 		setDefaultTriggersValues(g.Triggers)
 		g.ComponentConfig.Type = TypeGauge
 
-		if g.RefreshRateMs == nil {
-			r := defaultRefreshRateMs
-			g.RefreshRateMs = &r
+		if g.RateMs == nil {
+			r := defaultRateMs
+			g.RateMs = &r
 		}
 		if g.Scale == nil {
 			p := defaultScale
@@ -106,9 +106,9 @@ func (c *Config) setDefaultValues() {
 		setDefaultTriggersValues(box.Triggers)
 		box.ComponentConfig.Type = TypeAsciiBox
 
-		if box.RefreshRateMs == nil {
-			r := defaultRefreshRateMs
-			box.RefreshRateMs = &r
+		if box.RateMs == nil {
+			r := defaultRateMs
+			box.RateMs = &r
 		}
 		if box.Label == nil {
 			label := string(i)

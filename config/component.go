@@ -17,11 +17,11 @@ const (
 )
 
 type ComponentConfig struct {
-	Title         string          `yaml:"title"`
-	RefreshRateMs *int            `yaml:"refresh-rate-ms,omitempty"`
-	Position      [][]int         `yaml:"position,flow"`
-	Triggers      []TriggerConfig `yaml:"triggers,omitempty"`
-	Type          ComponentType   `yaml:",omitempty"`
+	Title    string          `yaml:"title"`
+	RateMs   *int            `yaml:"rate-ms,omitempty"`
+	Position [][]int         `yaml:"position,flow"`
+	Triggers []TriggerConfig `yaml:"triggers,omitempty"`
+	Type     ComponentType   `yaml:",omitempty"`
 }
 
 func (c *ComponentConfig) GetLocation() Location {

@@ -18,7 +18,7 @@ type Item struct {
 	InitScript       *string
 	TransformScript  *string
 	Color            *ui.Color
-	RefreshRateMs    int
+	RateMs           int
 	InteractiveShell *InteractiveShell
 }
 
@@ -29,7 +29,7 @@ type InteractiveShell struct {
 	Cmd      *exec.Cmd
 }
 
-func NewItems(cfgs []config.Item, refreshRateMs int) []*Item {
+func NewItems(cfgs []config.Item, rateMs int) []*Item {
 
 	items := make([]*Item, 0)
 
@@ -40,7 +40,7 @@ func NewItems(cfgs []config.Item, refreshRateMs int) []*Item {
 			InitScript:      i.InitScript,
 			TransformScript: i.TransformScript,
 			Color:           i.Color,
-			RefreshRateMs:   refreshRateMs,
+			RateMs:          rateMs,
 		}
 		items = append(items, item)
 	}
@@ -136,7 +136,7 @@ func (i *Item) executeInteractiveShellCmd(variables []string) (string, error) {
 	timeout := make(chan bool, 1)
 
 	go func() {
-		time.Sleep(time.Duration(i.RefreshRateMs))
+		time.Sleep(time.Duration(i.RateMs))
 		timeout <- true
 	}()
 

@@ -85,7 +85,7 @@ func NewRunChart(c config.RunChartConfig, palette console.Palette) *RunChart {
 		Block:     component.NewBlock(c.Title, true, palette),
 		Consumer:  data.NewConsumer(),
 		lines:     []TimeLine{},
-		timescale: calculateTimescale(*c.RefreshRateMs),
+		timescale: calculateTimescale(*c.RateMs),
 		mutex:     &sync.Mutex{},
 		scale:     *c.Scale,
 		mode:      ModeDefault,
@@ -367,9 +367,9 @@ func getMidRangeTime(r TimeRange) time.Time {
 }
 
 // time duration between grid lines
-func calculateTimescale(refreshRateMs int) time.Duration {
+func calculateTimescale(rateMs int) time.Duration {
 
-	multiplier := refreshRateMs * xAxisGridWidth / 2
+	multiplier := rateMs * xAxisGridWidth / 2
 	timescale := time.Duration(time.Millisecond * time.Duration(multiplier)).Round(time.Second)
 
 	if timescale.Seconds() == 0 {
