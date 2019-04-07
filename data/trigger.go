@@ -38,9 +38,9 @@ type Values struct {
 	previous string
 }
 
-func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) []Trigger {
+func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) []*Trigger {
 
-	triggers := make([]Trigger, 0)
+	triggers := make([]*Trigger, 0)
 
 	for _, cfg := range cfgs {
 		triggers = append(triggers, NewTrigger(cfg, consumer, options, player))
@@ -49,8 +49,8 @@ func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, options config
 	return triggers
 }
 
-func NewTrigger(config config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) Trigger {
-	return Trigger{
+func NewTrigger(config config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) *Trigger {
+	return &Trigger{
 		title:         config.Title,
 		condition:     config.Condition,
 		consumer:      consumer,

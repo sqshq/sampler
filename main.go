@@ -22,10 +22,10 @@ type Starter struct {
 	opt    config.Options
 }
 
-func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, conponentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
-	cpt := component.NewComponent(drawable, consumer, conponentConfig)
+func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
+	cpt := component.NewComponent(drawable, consumer, componentConfig)
 	triggers := data.NewTriggers(triggersConfig, consumer, s.opt, s.player)
-	data.NewSampler(consumer, data.NewItems(itemsConfig), triggers, s.opt, *conponentConfig.RefreshRateMs)
+	data.NewSampler(consumer, data.NewItems(itemsConfig, *componentConfig.RefreshRateMs), triggers, s.opt, *componentConfig.RefreshRateMs)
 	s.lout.AddComponent(cpt)
 }
 

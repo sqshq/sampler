@@ -26,7 +26,7 @@ runcharts:
   items:
   - label: ACTIVE
     init: mongo --quiet --host=localhost blog
-    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
     transform: $sample | grep cpu
   - label: INACTIVE
     sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
@@ -37,15 +37,19 @@ barcharts:
   scale: 0
   items:
   - label: NEW
-    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    init: mongo --quiet --host=localhost blog
+    sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
   - label: TRIGGERED
-    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    init: mongo --quiet --host=localhost blog
+    sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
   - label: IN_PROCESS
     sample: echo 0
   - label: FAILED
-    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'ACTIVE'}).itcount()"
+    init: mongo --quiet --host=localhost blog
+    sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
   - label: FINISHED
-    sample: mongo --quiet --host=localhost blog --eval "db.getCollection('posts').find({status:'INACTIVE'}).itcount()"
+    init: mongo --quiet --host=localhost blog
+    sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
 gauges:
 - title: YEAR PROGRESS
   position: [[53, 8], [27, 2]]
