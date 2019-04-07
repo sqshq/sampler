@@ -27,8 +27,8 @@ type Command struct {
 
 func NewConsumer() *Consumer {
 	return &Consumer{
-		SampleChannel:  make(chan *Sample),
-		AlertChannel:   make(chan *Alert),
-		CommandChannel: make(chan *Command),
+		SampleChannel:  make(chan *Sample, 10),
+		AlertChannel:   make(chan *Alert, 10),
+		CommandChannel: make(chan *Command, 10),
 	}
 }

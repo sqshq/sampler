@@ -108,6 +108,7 @@ func (t *Trigger) evaluate(sample *Sample) bool {
 		t.consumer.AlertChannel <- &Alert{
 			Title: "TRIGGER CONDITION FAILURE",
 			Text:  getErrorMessage(err),
+			Color: sample.Color,
 		}
 	}
 

@@ -136,7 +136,7 @@ func (i *Item) executeInteractiveShellCmd(variables []string) (string, error) {
 	timeout := make(chan bool, 1)
 
 	go func() {
-		time.Sleep(time.Duration(i.RateMs))
+		time.Sleep(time.Duration(i.RateMs / 2))
 		timeout <- true
 	}()
 
@@ -165,9 +165,15 @@ func (i *Item) executeInteractiveShellCmd(variables []string) (string, error) {
 	}
 }
 
-func (i *Item) transformInteractiveShellCmd(value string) (string, error) {
-	// TODO use transform script, if any
-	return strings.TrimSpace(value), nil
+func (i *Item) transformInteractiveShellCmd(sample string) (string, error) {
+
+	result := sample
+
+	if i.TransformScript != nil {
+		result = result // TODO
+	}
+
+	return strings.TrimSpace(result), nil
 }
 
 func enrichEnvVariables(cmd *exec.Cmd, variables []string) {
