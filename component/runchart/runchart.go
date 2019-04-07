@@ -8,7 +8,6 @@ import (
 	"github.com/sqshq/sampler/data"
 	"image"
 	"math"
-	"strconv"
 	"sync"
 	"time"
 
@@ -157,8 +156,7 @@ func (c *RunChart) AddLine(Label string, color ui.Color) {
 
 func (c *RunChart) consumeSample(sample *data.Sample) {
 
-	float, err := strconv.ParseFloat(sample.Value, 64)
-
+	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
 		c.AlertChannel <- &data.Alert{
 			Title: "FAILED TO PARSE A NUMBER",

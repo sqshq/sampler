@@ -4,6 +4,7 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/component/util"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -56,7 +57,7 @@ func NewGauge(c config.GaugeConfig, palette console.Palette) *Gauge {
 
 func (g *Gauge) ConsumeSample(sample *data.Sample) {
 
-	float, err := strconv.ParseFloat(sample.Value, 64)
+	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
 		g.AlertChannel <- &data.Alert{
 			Title: "FAILED TO PARSE A NUMBER",

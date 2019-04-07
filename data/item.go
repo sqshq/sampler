@@ -173,7 +173,7 @@ func (i *Item) transformInteractiveShellCmd(sample string) (string, error) {
 		result = result // TODO
 	}
 
-	return strings.TrimSpace(result), nil
+	return result, nil
 }
 
 func enrichEnvVariables(cmd *exec.Cmd, variables []string) {

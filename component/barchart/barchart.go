@@ -5,6 +5,7 @@ import (
 	ui "github.com/gizak/termui/v3"
 	rw "github.com/mattn/go-runewidth"
 	"github.com/sqshq/sampler/component"
+	"github.com/sqshq/sampler/component/util"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -68,8 +69,7 @@ func (b *BarChart) consumeSample(sample *data.Sample) {
 
 	b.count++
 
-	float, err := strconv.ParseFloat(sample.Value, 64)
-
+	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
 		b.AlertChannel <- &data.Alert{
 			Title: "FAILED TO PARSE A NUMBER",

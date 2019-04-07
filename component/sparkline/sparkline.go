@@ -8,7 +8,6 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
-	"strconv"
 )
 
 type SparkLine struct {
@@ -49,8 +48,8 @@ func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine 
 }
 
 func (s *SparkLine) consumeSample(sample *data.Sample) {
-	float, err := strconv.ParseFloat(sample.Value, 64)
 
+	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
 		s.AlertChannel <- &data.Alert{
 			Title: "FAILED TO PARSE A NUMBER",
