@@ -60,13 +60,13 @@ func (i *Item) nextValue(variables []string) (string, error) {
 	if i.InitScript != nil {
 		return i.executeInteractiveShellCmd(variables)
 	} else {
-		return i.executeCmd(variables)
+		return i.executeCmd(variables, i.SampleScript)
 	}
 }
 
-func (i *Item) executeCmd(variables []string) (string, error) {
+func (i *Item) executeCmd(variables []string, script string) (string, error) {
 
-	cmd := exec.Command("sh", "-c", i.SampleScript)
+	cmd := exec.Command("sh", "-c", script)
 	enrichEnvVariables(cmd, variables)
 
 	output, err := cmd.Output()
@@ -75,7 +75,7 @@ func (i *Item) executeCmd(variables []string) (string, error) {
 		return "", err
 	}
 
-	return strings.TrimSpace(string(output)), nil
+	return string(output), nil
 }
 
 func (i *Item) initInteractiveShell(variables []string) error {
@@ -167,13 +167,11 @@ func (i *Item) executeInteractiveShellCmd(variables []string) (string, error) {
 
 func (i *Item) transformInteractiveShellCmd(sample string) (string, error) {
 
-	result := sample
-
-	if i.TransformScript != nil {
-		result = result // TODO
+	if i.TransformScript != nil && len(sample) > 0 {
+		return i.executeCmd([]string{"sample=" + sample}, *i.TransformScript)
 	}
 
-	return result, nil
+	return sample, nil
 }
 
 func enrichEnvVariables(cmd *exec.Cmd, variables []string) {

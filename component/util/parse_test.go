@@ -13,7 +13,7 @@ func TestParseFloat(t *testing.T) {
 		wantErr bool
 	}{
 		{"should parse a regular number", args{"123"}, 123, false},
-		{"should parse a regular number with spaces", args{" 123 "}, 123, false},
+		{"should parse a regular number with spaces, tabs and line breaks", args{"         \t 123 \t \n    "}, 123, false},
 		{"should parse a last line in the given string", args{"123\n456"}, 456, false},
 	}
 	for _, tt := range tests {

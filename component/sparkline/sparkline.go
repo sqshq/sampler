@@ -121,4 +121,5 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 	}
 
 	s.Block.Draw(buffer)
+	component.RenderAlert(s.alert, s.Rectangle, buffer)
 }
