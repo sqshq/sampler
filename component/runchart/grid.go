@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const DefaultValueLength = 4
+
 type ChartGrid struct {
 	timeRange    TimeRange
 	timePerPoint time.Duration
@@ -135,4 +137,25 @@ func getLocalExtrema(items []TimeLine, timeRange TimeRange) ValueExtrema {
 
 func (r *TimeRange) isInRange(time time.Time) bool {
 	return time.After(r.min) && time.Before(r.max)
+}
+
+// TODO add boundaries for values in range
+func (c *RunChart) getMaxValueLength() int {
+
+	maxValueLength := -1
+
+	for _, line := range c.lines {
+		for _, point := range line.points {
+			l := len(util.FormatValue(point.value, c.scale))
+			if l > maxValueLength {
+				maxValueLength = l
+			}
+		}
+	}
+
+	if maxValueLength < 0 {
+		return DefaultValueLength
+	}
+
+	return maxValueLength
 }

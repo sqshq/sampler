@@ -12,6 +12,7 @@ import (
 
 type Config struct {
 	Theme      *console.Theme    `yaml:"theme,omitempty"`
+	Variables  map[string]string `yaml:"variables,omitempty"`
 	RunCharts  []RunChartConfig  `yaml:"runcharts,omitempty"`
 	BarCharts  []BarChartConfig  `yaml:"barcharts,omitempty"`
 	Gauges     []GaugeConfig     `yaml:"gauges,omitempty"`

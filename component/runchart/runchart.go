@@ -315,23 +315,6 @@ func (c *RunChart) calculateTimeCoordinate(t time.Time) int {
 	return c.grid.maxTimeWidth - int(math.Ceil(float64(xAxisGridWidth)*timeDeltaToPaddingRelation))
 }
 
-// TODO add boundaries for values in range
-func (c *RunChart) getMaxValueLength() int {
-
-	maxValueLength := 0
-
-	for _, line := range c.lines {
-		for _, point := range line.points {
-			l := len(util.FormatValue(point.value, c.scale))
-			if l > maxValueLength {
-				maxValueLength = l
-			}
-		}
-	}
-
-	return maxValueLength
-}
-
 func (c *RunChart) moveSelection(shift int) {
 
 	if c.mode == ModeDefault {

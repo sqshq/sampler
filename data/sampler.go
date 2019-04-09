@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"github.com/sqshq/sampler/config"
 	"time"
 )
@@ -10,9 +11,10 @@ type Sampler struct {
 	items           []*Item
 	triggers        []*Trigger
 	triggersChannel chan *Sample
+	variables       []string
 }
 
-func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options config.Options, rateMs int) Sampler {
+func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options config.Options, fileVariables map[string]string, rateMs int) Sampler {
 
 	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
 
@@ -21,6 +23,7 @@ func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options 
 		items,
 		triggers,
 		make(chan *Sample),
+		mergeVariables(fileVariables, options.Variables),
 	}
 
 	go func() {
@@ -47,7 +50,7 @@ func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options 
 
 func (s *Sampler) sample(item *Item, options config.Options) {
 
-	val, err := item.nextValue(options.Variables)
+	val, err := item.nextValue(s.variables)
 
 	if len(val) > 0 {
 		sample := &Sample{Label: item.Label, Value: val, Color: item.Color}
@@ -60,4 +63,16 @@ func (s *Sampler) sample(item *Item, options config.Options) {
 			Color: item.Color,
 		}
 	}
+}
+
+// option variables takes precedence over the file variables with the same name
+func mergeVariables(fileVariables map[string]string, optionsVariables []string) []string {
+
+	result := optionsVariables
+
+	for key, value := range fileVariables {
+		result = append([]string{fmt.Sprintf("%s=%s", key, value)}, result...)
+	}
+
+	return result
 }

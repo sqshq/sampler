@@ -20,12 +20,14 @@ type Starter struct {
 	lout   *layout.Layout
 	player *asset.AudioPlayer
 	opt    config.Options
+	cfg    config.Config
 }
 
 func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
 	cpt := component.NewComponent(drawable, consumer, componentConfig)
 	triggers := data.NewTriggers(triggersConfig, consumer, s.opt, s.player)
-	data.NewSampler(consumer, data.NewItems(itemsConfig, *componentConfig.RateMs), triggers, s.opt, *componentConfig.RateMs)
+	items := data.NewItems(itemsConfig, *componentConfig.RateMs)
+	data.NewSampler(consumer, items, triggers, s.opt, s.cfg.Variables, *componentConfig.RateMs)
 	s.lout.AddComponent(cpt)
 }
 
@@ -44,7 +46,7 @@ func main() {
 
 	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette), component.NewMenu(palette))
 
-	starter := &Starter{lout, player, opt}
+	starter := &Starter{lout, player, opt, cfg}
 
 	for _, c := range cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, palette)

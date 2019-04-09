@@ -9,6 +9,7 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
+	"strings"
 )
 
 type AsciiBox struct {
@@ -56,8 +57,8 @@ func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 		for {
 			select {
 			case sample := <-box.SampleChannel:
-				box.text = sample.Value
-				box.ascii, _ = box.render.RenderOpts(sample.Value, box.options)
+				box.text = strings.TrimSpace(sample.Value)
+				box.ascii, _ = box.render.RenderOpts(box.text, box.options)
 			case alert := <-box.AlertChannel:
 				box.alert = alert
 			}
