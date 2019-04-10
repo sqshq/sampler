@@ -45,7 +45,7 @@ func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 	}
 
 	box := AsciiBox{
-		Block:    component.NewBlock(c.Title, true, palette),
+		Block:    component.NewBlock(c.Title, *c.Border, palette),
 		Consumer: data.NewConsumer(),
 		style:    ui.NewStyle(*color),
 		render:   render,

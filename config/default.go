@@ -118,6 +118,10 @@ func (c *Config) setDefaultValues() {
 			font := console.AsciiFontFlat
 			box.Font = &font
 		}
+		if box.Border == nil {
+			border := true
+			box.Border = &border
+		}
 		c.AsciiBoxes[i] = box
 	}
 
