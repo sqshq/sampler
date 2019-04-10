@@ -16,8 +16,9 @@ type Config struct {
 	RunCharts  []RunChartConfig  `yaml:"runcharts,omitempty"`
 	BarCharts  []BarChartConfig  `yaml:"barcharts,omitempty"`
 	Gauges     []GaugeConfig     `yaml:"gauges,omitempty"`
-	AsciiBoxes []AsciiBoxConfig  `yaml:"asciiboxes,omitempty"`
 	SparkLines []SparkLineConfig `yaml:"sparklines,omitempty"`
+	TextBoxes  []TextBoxConfig   `yaml:"textboxes,omitempty"`
+	AsciiBoxes []AsciiBoxConfig  `yaml:"asciiboxes,omitempty"`
 }
 
 func Load() (Config, Options) {
@@ -66,16 +67,22 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 				return &c.Gauges[i].ComponentConfig
 			}
 		}
+	case TypeSparkLine:
+		for i, component := range c.SparkLines {
+			if component.Title == componentTitle {
+				return &c.SparkLines[i].ComponentConfig
+			}
+		}
 	case TypeAsciiBox:
 		for i, component := range c.AsciiBoxes {
 			if component.Title == componentTitle {
 				return &c.AsciiBoxes[i].ComponentConfig
 			}
 		}
-	case TypeSparkLine:
-		for i, component := range c.SparkLines {
+	case TypeTextBox:
+		for i, component := range c.TextBoxes {
 			if component.Title == componentTitle {
-				return &c.SparkLines[i].ComponentConfig
+				return &c.TextBoxes[i].ComponentConfig
 			}
 		}
 	}

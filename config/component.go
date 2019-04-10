@@ -70,7 +70,14 @@ type BarChartConfig struct {
 type AsciiBoxConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Item            `yaml:",inline"`
+	Border          *bool              `yaml:"border,omitempty"`
 	Font            *console.AsciiFont `yaml:"font,omitempty"`
+}
+
+type TextBoxConfig struct {
+	ComponentConfig `yaml:",inline"`
+	Item            `yaml:",inline"`
+	Border          *bool `yaml:"border,omitempty"`
 }
 
 type RunChartConfig struct {

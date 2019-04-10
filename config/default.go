@@ -120,6 +120,27 @@ func (c *Config) setDefaultValues() {
 		}
 		c.AsciiBoxes[i] = box
 	}
+
+	for i, box := range c.TextBoxes {
+
+		setDefaultTriggersValues(box.Triggers)
+		box.ComponentConfig.Type = TypeTextBox
+
+		if box.RateMs == nil {
+			r := defaultRateMs
+			box.RateMs = &r
+		}
+		if box.Label == nil {
+			label := string(i)
+			box.Label = &label
+		}
+		if box.Border == nil {
+			border := true
+			box.Border = &border
+		}
+
+		c.TextBoxes[i] = box
+	}
 }
 
 func setDefaultTriggersValues(triggers []TriggerConfig) {

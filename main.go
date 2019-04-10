@@ -10,6 +10,7 @@ import (
 	"github.com/sqshq/sampler/component/layout"
 	"github.com/sqshq/sampler/component/runchart"
 	"github.com/sqshq/sampler/component/sparkline"
+	"github.com/sqshq/sampler/component/textbox"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -58,11 +59,6 @@ func main() {
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
 
-	for _, c := range cfg.AsciiBoxes {
-		cpt := asciibox.NewAsciiBox(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
-	}
-
 	for _, c := range cfg.BarCharts {
 		cpt := barchart.NewBarChart(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
@@ -71,6 +67,16 @@ func main() {
 	for _, c := range cfg.Gauges {
 		cpt := gauge.NewGauge(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers)
+	}
+
+	for _, c := range cfg.AsciiBoxes {
+		cpt := asciibox.NewAsciiBox(c, palette)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+	}
+
+	for _, c := range cfg.TextBoxes {
+		cpt := textbox.NewTextBox(c, palette)
+		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
 
 	handler := event.NewHandler(lout, opt)

@@ -27,30 +27,30 @@ runcharts:
   scale: 0
   items:
     - label: ACTIVE
-      init: ${mongoconnection}
+      init: $mongoconnection
       sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
     - label: INACTIVE
-      init: ${mongoconnection}
+      init: $mongoconnection
       sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
 barcharts:
 - title: EVENTS BY STATUS
-  position: [[0, 17], [27, 12]]
+  position: [[0, 17], [28, 12]]
   rate-ms: 300
   scale: 0
   items:
     - label: NEW
-      init: ${mongoconnection}
+      init: $mongoconnection
       sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
     - label: TRIGGERED
-      init: ${mongoconnection}
+      init: $mongoconnection
       sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
     - label: IN_PROCESS
       sample: echo 0
     - label: FAILED
-      init: ${mongoconnection}
+      init: $mongoconnection
       sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
     - label: FINISHED
-      init: ${mongoconnection}
+      init: $mongoconnection
       sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
 gauges:
 - title: YEAR PROGRESS
@@ -91,6 +91,31 @@ gauges:
     sample: echo 60
   min:
     sample: echo 0
+sparklines:
+  - title: CPU usage
+    position: [[28, 22], [24, 7]]
+    scale: 0
+    sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+  - title: Memory pages free
+    position: [[28, 17], [24, 5]]
+    scale: 0
+    sample: memory_pressure | grep 'Pages free' | awk '{print $3}'
+textboxes:
+  - title: Local weather
+    position: [[0, 30], [13, 7]]
+    rate-ms: 10000
+    sample: curl wttr.in?0ATQF
+    border: false
+  - title: New York weather
+    position: [[8, 30], [13, 7]]
+    rate-ms: 10000
+    sample: curl wttr.in/newyork?0ATQF
+    border: false
+  - title: San Francisco weather
+    position: [[17, 30], [13, 7]]
+    rate-ms: 10000
+    sample: curl wttr.in/sanfrancisco?0ATQF
+    border: false
 asciiboxes:
 - title: LOCAL TIME
   position: [[53, 17], [27, 5]]
@@ -99,12 +124,3 @@ asciiboxes:
   position: [[53, 22], [27, 7]]
   sample: env TZ=UTC date +%r
   font: 3d
-sparklines:
-- title: CPU usage
-  position: [[27, 22], [25, 7]]
-  scale: 0
-  sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
-- title: Memory pages free
-  position: [[27, 17], [25, 5]]
-  scale: 0
-  sample: memory_pressure | grep 'Pages free' | awk '{print $3}'
