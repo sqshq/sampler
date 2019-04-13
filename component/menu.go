@@ -182,7 +182,7 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 
 	arrows := []string{
 		"  ↑  ",
-		"←· →",
+		"←   →",
 		"  ↓  ",
 	}
 
