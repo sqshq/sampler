@@ -90,7 +90,11 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 	height := s.Dy() - 2
 	minValue := util.FormatValue(s.minValue, s.scale)
 	maxValue := util.FormatValue(s.maxValue, s.scale)
-	curValue := util.FormatValue(s.values[len(s.values)-1], s.scale)
+	curValue := util.FormatValue(0, s.scale)
+
+	if len(s.values) > 0 {
+		curValue = util.FormatValue(s.values[len(s.values)-1], s.scale)
+	}
 
 	indent := 2 + util.Max([]int{
 		len(minValue), len(maxValue), len(curValue),
