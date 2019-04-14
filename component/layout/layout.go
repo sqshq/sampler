@@ -66,7 +66,20 @@ func (l *Layout) changeMode(m Mode) {
 	l.ChangeModeEvents <- m
 }
 
-func (l *Layout) HandleConsoleEvent(e string) {
+func (l *Layout) HandleMouseClick(x int, y int) {
+	l.getSelection().CommandChannel <- &data.Command{Type: runchart.CommandMoveSelection, Value: 0}
+	l.menu.Idle()
+	selected, i := l.findComponentAtPoint(image.Point{X: x, Y: y})
+	if selected == nil {
+		l.changeMode(ModeDefault)
+	} else {
+		l.selection = i
+		l.menu.Highlight(selected)
+		l.changeMode(ModeComponentSelect)
+	}
+}
+
+func (l *Layout) HandleKeyboardEvent(e string) {
 
 	selected := l.getSelection()
 
@@ -287,6 +300,39 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 
 	l.statusbar.Draw(buffer)
 	l.menu.Draw(buffer)
+}
+
+func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, int) {
+
+	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
+	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(rowsCount)
+
+	for i, c := range l.Components {
+
+		x1 := math.Floor(float64(c.Location.X) * columnWidth)
+		y1 := math.Floor(float64(c.Location.Y) * rowHeight)
+		x2 := x1 + math.Floor(float64(c.Size.X))*columnWidth
+		y2 := y1 + math.Floor(float64(c.Size.Y))*rowHeight
+
+		if x2-x1 < minDimension {
+			x2 = x1 + minDimension
+		}
+
+		if y2-y1 < minDimension {
+			y2 = y1 + minDimension
+		}
+
+		rectangle := image.Rectangle{Min: image.Point{
+			X: int(x1), Y: int(y1)},
+			Max: image.Point{X: int(x2), Y: int(y2)},
+		}
+
+		if point.In(rectangle) {
+			return c, i
+		}
+	}
+
+	return nil, -1
 }
 
 func (l *Layout) resetAlerts() {

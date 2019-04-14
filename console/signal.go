@@ -2,6 +2,7 @@ package console
 
 const (
 	SignalResize = "<Resize>"
+	SignalClick  = "<MouseLeft>"
 )
 
 const (

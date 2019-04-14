@@ -44,6 +44,9 @@ func (h *Handler) HandleEvents() {
 			ui.Render(h.layout)
 		case e := <-h.consoleEvents:
 			switch e.ID {
+			case console.SignalClick:
+				payload := e.Payload.(ui.Mouse)
+				h.layout.HandleMouseClick(payload.X, payload.Y)
 			case console.KeyQuit, console.KeyExit:
 				h.handleExit()
 				return
@@ -51,7 +54,7 @@ func (h *Handler) HandleEvents() {
 				payload := e.Payload.(ui.Resize)
 				h.layout.ChangeDimensions(payload.Width, payload.Height)
 			default:
-				h.layout.HandleConsoleEvent(e.ID)
+				h.layout.HandleKeyboardEvent(e.ID)
 			}
 		}
 	}
