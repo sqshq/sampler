@@ -77,9 +77,14 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 	s.maxValue = max
 	s.minValue = min
 
-	// perform cleanup once in a while
 	if len(s.values)%100 == 0 {
-		s.values = append(s.values[:0], s.values[len(s.values)-s.Dx()+1:]...)
+		s.cleanup(s.Dx())
+	}
+}
+
+func (s *SparkLine) cleanup(maxSize int) {
+	if maxSize < len(s.values) {
+		s.values = append(s.values[:0], s.values[len(s.values)-maxSize:]...)
 	}
 }
 
