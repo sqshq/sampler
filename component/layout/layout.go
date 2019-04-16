@@ -275,21 +275,8 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(rowsCount)
 
 	for _, c := range l.Components {
-
-		x1 := math.Floor(float64(c.Location.X) * columnWidth)
-		y1 := math.Floor(float64(c.Location.Y) * rowHeight)
-		x2 := x1 + math.Floor(float64(c.Size.X))*columnWidth
-		y2 := y1 + math.Floor(float64(c.Size.Y))*rowHeight
-
-		if x2-x1 < minDimension {
-			x2 = x1 + minDimension
-		}
-
-		if y2-y1 < minDimension {
-			y2 = y1 + minDimension
-		}
-
-		c.SetRect(int(x1), int(y1), int(x2), int(y2))
+		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)
+		c.SetRect(rectangle.Min.X, rectangle.Min.Y, rectangle.Max.X, rectangle.Max.Y)
 		c.Draw(buffer)
 	}
 
@@ -301,7 +288,6 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	l.menu.Draw(buffer)
 }
 
-// TODO extract x/y calculation to a separate method
 func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, int) {
 
 	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
@@ -309,23 +295,7 @@ func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, 
 
 	for i, c := range l.Components {
 
-		x1 := math.Floor(float64(c.Location.X) * columnWidth)
-		y1 := math.Floor(float64(c.Location.Y) * rowHeight)
-		x2 := x1 + math.Floor(float64(c.Size.X))*columnWidth
-		y2 := y1 + math.Floor(float64(c.Size.Y))*rowHeight
-
-		if x2-x1 < minDimension {
-			x2 = x1 + minDimension
-		}
-
-		if y2-y1 < minDimension {
-			y2 = y1 + minDimension
-		}
-
-		rectangle := image.Rectangle{Min: image.Point{
-			X: int(x1), Y: int(y1)},
-			Max: image.Point{X: int(x2), Y: int(y2)},
-		}
+		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)
 
 		if point.In(rectangle) {
 			return c, i
@@ -333,6 +303,27 @@ func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, 
 	}
 
 	return nil, -1
+}
+
+func calculateComponentCoordinates(c *component.Component, columnWidth float64, rowHeight float64) image.Rectangle {
+
+	x1 := math.Floor(float64(c.Location.X) * columnWidth)
+	y1 := math.Floor(float64(c.Location.Y) * rowHeight)
+	x2 := x1 + math.Floor(float64(c.Size.X))*columnWidth
+	y2 := y1 + math.Floor(float64(c.Size.Y))*rowHeight
+
+	if x2-x1 < minDimension {
+		x2 = x1 + minDimension
+	}
+
+	if y2-y1 < minDimension {
+		y2 = y1 + minDimension
+	}
+
+	return image.Rectangle{Min: image.Point{
+		X: int(x1), Y: int(y1)},
+		Max: image.Point{X: int(x2), Y: int(y2)},
+	}
 }
 
 func (l *Layout) resetAlerts() {
