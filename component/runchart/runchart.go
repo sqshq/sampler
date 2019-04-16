@@ -21,7 +21,7 @@ const (
 	xAxisLabelsIndent  = 2
 	yAxisLabelsHeight  = 1
 	yAxisLabelsIndent  = 1
-	historyReserveMin  = 20
+	historyReserveMin  = 2
 	xBrailleMultiplier = 2
 	yBrailleMultiplier = 4
 )
@@ -208,7 +208,8 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 	selectionPoints := make(map[int]image.Point)
 
 	probe := c.lines[0].points[0]
-	delta := ui.AbsInt(c.calculateTimeCoordinate(probe.time) - probe.coordinate)
+	probeCalculatedCoordinate := c.calculateTimeCoordinate(probe.time)
+	delta := probe.coordinate - probeCalculatedCoordinate
 
 	for i, line := range c.lines {
 

@@ -67,7 +67,6 @@ func (l *Layout) changeMode(m Mode) {
 }
 
 func (l *Layout) HandleMouseClick(x int, y int) {
-	l.getSelection().CommandChannel <- &data.Command{Type: runchart.CommandMoveSelection, Value: 0}
 	l.menu.Idle()
 	selected, i := l.findComponentAtPoint(image.Point{X: x, Y: y})
 	if selected == nil {
@@ -302,6 +301,7 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	l.menu.Draw(buffer)
 }
 
+// TODO extract x/y calculation to a separate method
 func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, int) {
 
 	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
