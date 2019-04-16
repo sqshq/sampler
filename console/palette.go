@@ -67,9 +67,10 @@ func GetPalette(theme Theme) Palette {
 }
 
 func GetGradientColor(gradient []ui.Color, cur int, max int) ui.Color {
-	if cur > max {
-		cur = max
-	}
 	ratio := float64(len(gradient)) / float64(max)
-	return gradient[int(ratio*float64(cur))]
+	index := int(ratio * float64(cur))
+	if index > len(gradient)-1 {
+		index = len(gradient) - 1
+	}
+	return gradient[index]
 }
