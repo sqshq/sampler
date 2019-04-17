@@ -122,7 +122,7 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 
 func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
-	arrowsText := "Use mouse or arrows for selection"
+	arrowsText := "Use mouse or keyboard for selection"
 	optionsText := "<ENTER> to view options"
 	resumeText := "<ESC> to resume"
 

@@ -232,35 +232,37 @@ func (l *Layout) moveSelection(direction string) {
 			previouslySelectedCornerPoint = component.GetRectLeftSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectRightSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectRightSideCenter(current.GetRect())
-			if currentCornerPoint.X > previouslySelectedCornerPoint.X {
-				continue
-			}
 		case console.KeyRight:
 			previouslySelectedCornerPoint = component.GetRectRightSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectLeftSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectLeftSideCenter(current.GetRect())
-			if currentCornerPoint.X < previouslySelectedCornerPoint.X {
-				continue
-			}
 		case console.KeyUp:
 			previouslySelectedCornerPoint = component.GetRectTopSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectBottomSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectBottomSideCenter(current.GetRect())
-			if currentCornerPoint.Y > previouslySelectedCornerPoint.Y {
-				continue
-			}
 		case console.KeyDown:
 			previouslySelectedCornerPoint = component.GetRectBottomSideCenter(previouslySelected.GetRect())
 			newlySelectedCornerPoint = component.GetRectTopSideCenter(l.getComponent(newlySelectedIndex).GetRect())
 			currentCornerPoint = component.GetRectTopSideCenter(current.GetRect())
-			if currentCornerPoint.Y < previouslySelectedCornerPoint.Y {
-				continue
-			}
 		}
 
-		if component.GetDistance(previouslySelectedCornerPoint, currentCornerPoint) <
-			component.GetDistance(previouslySelectedCornerPoint, newlySelectedCornerPoint) {
-			newlySelectedIndex = i
+		switch direction {
+		case console.KeyLeft:
+			fallthrough
+		case console.KeyRight:
+			if ui.AbsInt(currentCornerPoint.X-previouslySelectedCornerPoint.X) <= ui.AbsInt(newlySelectedCornerPoint.X-previouslySelectedCornerPoint.X) {
+				if ui.AbsInt(currentCornerPoint.Y-previouslySelectedCornerPoint.Y) <= ui.AbsInt(newlySelectedCornerPoint.Y-previouslySelectedCornerPoint.Y) {
+					newlySelectedIndex = i
+				}
+			}
+		case console.KeyUp:
+			fallthrough
+		case console.KeyDown:
+			if ui.AbsInt(currentCornerPoint.Y-previouslySelectedCornerPoint.Y) <= ui.AbsInt(newlySelectedCornerPoint.Y-previouslySelectedCornerPoint.Y) {
+				if ui.AbsInt(currentCornerPoint.X-previouslySelectedCornerPoint.X) <= ui.AbsInt(newlySelectedCornerPoint.X-previouslySelectedCornerPoint.X) {
+					newlySelectedIndex = i
+				}
+			}
 		}
 	}
 
