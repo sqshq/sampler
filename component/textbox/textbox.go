@@ -43,7 +43,7 @@ func (t *TextBox) Draw(buffer *ui.Buffer) {
 	t.Block.Draw(buffer)
 
 	cells := ui.ParseStyles(t.text, ui.Theme.Paragraph.Text)
-	cells = ui.WrapCells(cells, uint(t.Inner.Dx()))
+	cells = ui.WrapCells(cells, uint(t.Inner.Dx()-2))
 
 	rows := ui.SplitCells(cells, '\n')
 
@@ -51,10 +51,10 @@ func (t *TextBox) Draw(buffer *ui.Buffer) {
 		if y+t.Inner.Min.Y >= t.Inner.Max.Y {
 			break
 		}
-		row = ui.TrimCells(row, t.Inner.Dx())
+		row = ui.TrimCells(row, t.Inner.Dx()-2)
 		for _, cx := range ui.BuildCellWithXArray(row) {
 			x, cell := cx.X, cx.Cell
-			buffer.SetCell(cell, image.Pt(x, y+1).Add(t.Inner.Min))
+			buffer.SetCell(cell, image.Pt(x+1, y+1).Add(t.Inner.Min))
 		}
 	}
 
