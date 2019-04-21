@@ -8,6 +8,7 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
+	"sync"
 )
 
 type SparkLine struct {
@@ -20,6 +21,7 @@ type SparkLine struct {
 	scale    int
 	gradient []ui.Color
 	palette  console.Palette
+	mutex    *sync.Mutex
 }
 
 func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine {
@@ -31,6 +33,7 @@ func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine 
 		scale:    *c.Scale,
 		gradient: *c.Gradient,
 		palette:  palette,
+		mutex:    &sync.Mutex{},
 	}
 
 	go func() {
@@ -78,17 +81,21 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 	s.minValue = min
 
 	if len(s.values)%100 == 0 {
-		s.cleanup(s.Dx())
+		s.mutex.Lock()
+		s.trimOutOfRangeValues(s.Dx())
+		s.mutex.Unlock()
 	}
 }
 
-func (s *SparkLine) cleanup(maxSize int) {
+func (s *SparkLine) trimOutOfRangeValues(maxSize int) {
 	if maxSize < len(s.values) {
 		s.values = append(s.values[:0], s.values[len(s.values)-maxSize:]...)
 	}
 }
 
 func (s *SparkLine) Draw(buffer *ui.Buffer) {
+
+	s.mutex.Lock()
 
 	textStyle := ui.NewStyle(s.palette.BaseColor)
 
@@ -130,6 +137,8 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 			}
 		}
 	}
+
+	s.mutex.Unlock()
 
 	s.Block.Draw(buffer)
 	component.RenderAlert(s.alert, s.Rectangle, buffer)

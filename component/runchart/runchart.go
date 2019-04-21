@@ -187,7 +187,6 @@ func (c *RunChart) consumeSample(sample *data.Sample) {
 	line.points = append(line.points, c.newTimePoint(float))
 	c.lines[index] = line
 
-	// perform cleanup once in a while
 	if len(line.points)%100 == 0 {
 		c.trimOutOfRangeValues()
 	}
