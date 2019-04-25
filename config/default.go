@@ -115,7 +115,7 @@ func (c *Config) setDefaultValues() {
 			box.Label = &label
 		}
 		if box.Font == nil {
-			font := console.AsciiFontFlat
+			font := console.AsciiFont2D
 			box.Font = &font
 		}
 		if box.Border == nil {

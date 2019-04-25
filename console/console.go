@@ -21,8 +21,8 @@ const (
 type AsciiFont string
 
 const (
-	AsciiFontFlat AsciiFont = "flat"
-	AsciiFont3D   AsciiFont = "3d"
+	AsciiFont2D AsciiFont = "2d"
+	AsciiFont3D AsciiFont = "3d"
 )
 
 func Init() {
