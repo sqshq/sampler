@@ -1,0 +1,17 @@
+language: go
+go:
+  - 1.11.x
+  - master
+os:
+  - linux
+  - osx
+addons:
+  apt:
+    packages:
+      - libasound2-dev
+dist: trusty
+sudo: false
+install: true
+script:
+  - env GO111MODULE=on go build
+  - env GO111MODULE=on go test -v ./...
