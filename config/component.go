@@ -3,6 +3,7 @@ package config
 import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/console"
+	"image"
 )
 
 type ComponentType rune
@@ -30,6 +31,14 @@ func (c *ComponentConfig) GetLocation() Location {
 
 func (c *ComponentConfig) GetSize() Size {
 	return Size{X: c.Position[1][0], Y: c.Position[1][1]}
+}
+
+func (c *ComponentConfig) GetRectangle() image.Rectangle {
+	if c.Position == nil {
+		return image.ZR
+	} else {
+		return image.Rect(c.Position[0][0], c.Position[0][1], c.Position[0][0]+c.Position[1][0], c.Position[0][1]+c.Position[1][1])
+	}
 }
 
 type TriggerConfig struct {

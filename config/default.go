@@ -13,7 +13,7 @@ const (
 func (c *Config) setDefaults() {
 	c.setDefaultValues()
 	c.setDefaultColors()
-	c.setDefaultLayout()
+	c.setDefaultArrangement()
 }
 
 func (c *Config) setDefaultValues() {
@@ -171,10 +171,6 @@ func setDefaultTriggersValues(triggers []TriggerConfig) {
 
 		triggers[i] = trigger
 	}
-}
-
-func (c *Config) setDefaultLayout() {
-	// TODO auto-arrange components
 }
 
 func (c *Config) setDefaultColors() {

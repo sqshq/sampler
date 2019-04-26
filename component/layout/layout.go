@@ -34,8 +34,6 @@ const (
 )
 
 const (
-	columnsCount    = 80
-	rowsCount       = 40
 	minDimension    = 3
 	statusbarHeight = 1
 )
@@ -130,6 +128,11 @@ func (l *Layout) HandleKeyboardEvent(e string) {
 		case ModeComponentSelect:
 			fallthrough
 		case ModeMenuOptionSelect:
+			l.menu.Idle()
+			l.changeMode(ModeDefault)
+		case ModeComponentMove:
+			fallthrough
+		case ModeComponentResize:
 			l.menu.Idle()
 			l.changeMode(ModeDefault)
 		}
@@ -273,8 +276,8 @@ func (l *Layout) moveSelection(direction string) {
 
 func (l *Layout) Draw(buffer *ui.Buffer) {
 
-	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
-	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(rowsCount)
+	columnWidth := float64(l.GetRect().Dx()) / float64(console.ColumnsCount)
+	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(console.RowsCount)
 
 	for _, c := range l.Components {
 		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)
@@ -292,8 +295,8 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 
 func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, int) {
 
-	columnWidth := float64(l.GetRect().Dx()) / float64(columnsCount)
-	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(rowsCount)
+	columnWidth := float64(l.GetRect().Dx()) / float64(console.ColumnsCount)
+	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(console.RowsCount)
 
 	for i, c := range l.Components {
 

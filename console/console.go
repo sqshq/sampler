@@ -10,6 +10,8 @@ import (
 const (
 	MaxRenderInterval = 1000 * time.Millisecond
 	MinRenderInterval = 100 * time.Millisecond
+	ColumnsCount      = 80
+	RowsCount         = 40
 	AppTitle          = "sampler"
 	AppVersion        = "0.9.0"
 )
