@@ -48,7 +48,7 @@ func (t *TextBox) Draw(buffer *ui.Buffer) {
 	rows := ui.SplitCells(cells, '\n')
 
 	for y, row := range rows {
-		if y+t.Inner.Min.Y >= t.Inner.Max.Y {
+		if y+t.Inner.Min.Y >= t.Inner.Max.Y-1 {
 			break
 		}
 		row = ui.TrimCells(row, t.Inner.Dx()-2)

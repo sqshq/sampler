@@ -34,7 +34,7 @@ func (c *ComponentConfig) GetSize() Size {
 }
 
 func (c *ComponentConfig) GetRectangle() image.Rectangle {
-	if c.Position == nil {
+	if c.Position == nil || len(c.Position) == 0 {
 		return image.ZR
 	} else {
 		return image.Rect(c.Position[0][0], c.Position[0][1], c.Position[0][0]+c.Position[1][0], c.Position[0][1]+c.Position[1][1])
