@@ -9,8 +9,6 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"image"
-	"math"
-	"strconv"
 )
 
 const (
@@ -89,7 +87,7 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 		percent = (100 * g.curValue) / (g.maxValue - g.minValue)
 	}
 
-	label := fmt.Sprintf("%v%% (%v)", formatValue(percent, g.scale), g.curValue)
+	label := fmt.Sprintf("%v%% (%v)", util.FormatValue(percent, g.scale), g.curValue)
 
 	// draw bar
 	barWidth := int((percent / 100) * float64(g.Inner.Dx()))
@@ -117,14 +115,4 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 	}
 
 	component.RenderAlert(g.alert, g.Rectangle, buffer)
-}
-
-// TODO extract to utils
-func formatValue(value float64, scale int) string {
-	if math.Abs(value) == math.MaxFloat64 {
-		return "Inf"
-	} else {
-		format := "%." + strconv.Itoa(scale) + "f"
-		return fmt.Sprintf(format, value)
-	}
 }

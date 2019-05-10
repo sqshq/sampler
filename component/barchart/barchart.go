@@ -11,7 +11,6 @@ import (
 	"github.com/sqshq/sampler/data"
 	"image"
 	"math"
-	"strconv"
 )
 
 const (
@@ -149,9 +148,9 @@ func (b *BarChart) Draw(buffer *ui.Buffer) {
 			image.Pt(labelXCoordinate, b.Inner.Max.Y-1))
 
 		// draw value & delta
-		value := formatValue(bar.value, b.scale)
+		value := util.FormatValue(bar.value, b.scale)
 		if bar.delta != 0 {
-			value = fmt.Sprintf("%s / %s", value, formatValueWithSign(bar.delta, b.scale))
+			value = fmt.Sprintf("%s / %s", value, util.FormatValueWithSign(bar.delta, b.scale))
 		}
 		valueXCoordinate := barXCoordinate +
 			int(float64(barWidth)/2) -
@@ -165,25 +164,4 @@ func (b *BarChart) Draw(buffer *ui.Buffer) {
 	}
 
 	component.RenderAlert(b.alert, b.Rectangle, buffer)
-}
-
-// TODO extract to utils
-func formatValue(value float64, scale int) string {
-	if math.Abs(value) == math.MaxFloat64 {
-		return "Inf"
-	} else {
-		format := "%." + strconv.Itoa(scale) + "f"
-		return fmt.Sprintf(format, value)
-	}
-}
-
-// TODO extract to utils
-func formatValueWithSign(value float64, scale int) string {
-	if value == 0 {
-		return " 0"
-	} else if value > 0 {
-		return "+" + formatValue(value, scale)
-	} else {
-		return formatValue(value, scale)
-	}
 }
