@@ -34,7 +34,12 @@ func NewStatusLine(configFileName string, palette console.Palette) *StatusBar {
 
 func (s *StatusBar) Draw(buffer *ui.Buffer) {
 	buffer.Fill(ui.NewCell(' ', ui.NewStyle(console.ColorClear, console.MenuColorBackground)), s.GetRect())
-	buffer.SetString(fmt.Sprintf(" %s %s @ %s", console.AppTitle, console.AppVersion, s.configFileName), ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
+
+	if false { // TODO check license
+		buffer.SetString(fmt.Sprintf(" %s", console.AppLicenseWarning), ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
+	} else {
+		buffer.SetString(fmt.Sprintf(" %s %s @ %s", console.AppTitle, console.AppVersion, s.configFileName), ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
+	}
 
 	indent := bindingsIndent
 	for _, binding := range s.keyBindings {

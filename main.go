@@ -15,6 +15,7 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
+	"time"
 )
 
 type Starter struct {
@@ -30,6 +31,7 @@ func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, component
 	items := data.NewItems(itemsConfig, *componentConfig.RateMs)
 	data.NewSampler(consumer, items, triggers, s.opt, s.cfg.Variables, *componentConfig.RateMs)
 	s.lout.AddComponent(cpt)
+	time.Sleep(100 * time.Millisecond) // desync coroutines
 }
 
 func main() {

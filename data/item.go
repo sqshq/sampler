@@ -3,7 +3,9 @@ package data
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	ui "github.com/gizak/termui/v3"
+	"github.com/kr/pty"
 	"github.com/sqshq/sampler/config"
 	"io"
 	"os"
@@ -11,6 +13,8 @@ import (
 	"strings"
 	"time"
 )
+
+const interactiveShellStartupTimeout = time.Second
 
 type Item struct {
 	Label            string
@@ -23,10 +27,9 @@ type Item struct {
 }
 
 type InteractiveShell struct {
-	StdoutCh chan string
-	StderrCh chan string
-	Stdin    io.WriteCloser
-	Cmd      *exec.Cmd
+	Channel chan string
+	File    io.WriteCloser
+	Cmd     *exec.Cmd
 }
 
 func NewItems(cfgs []config.Item, rateMs int) []*Item {
@@ -53,7 +56,7 @@ func (i *Item) nextValue(variables []string) (string, error) {
 	if i.InitScript != nil && i.InteractiveShell == nil {
 		err := i.initInteractiveShell(variables)
 		if err != nil {
-			return "", err
+			return "", errors.New(fmt.Sprintf("Failed to init interactive shell: %s", err))
 		}
 	}
 
@@ -83,84 +86,62 @@ func (i *Item) initInteractiveShell(variables []string) error {
 	cmd := exec.Command("sh", "-c", *i.InitScript)
 	enrichEnvVariables(cmd, variables)
 
-	stdout, err := cmd.StdoutPipe()
+	file, err := pty.Start(cmd)
 	if err != nil {
 		return err
 	}
 
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-
-	stdoutScanner := bufio.NewScanner(stdout)
-	stderrScanner := bufio.NewScanner(stderr)
-
-	stdoutCh := make(chan string)
-	stderrCh := make(chan string)
+	scanner := bufio.NewScanner(file)
+	channel := make(chan string)
 
 	go func() {
-		for stdoutScanner.Scan() {
-			stdoutCh <- stdoutScanner.Text()
-			stderrCh <- stderrScanner.Text()
+		for scanner.Scan() {
+			channel <- scanner.Text()
 		}
 	}()
 
 	i.InteractiveShell = &InteractiveShell{
-		StdoutCh: stdoutCh,
-		StderrCh: stderrCh,
-		Stdin:    stdin,
-		Cmd:      cmd,
+		Channel: channel,
+		File:    file,
+		Cmd:     cmd,
 	}
 
-	err = cmd.Start()
+	_, err = file.Read(make([]byte, 4096))
 	if err != nil {
 		return err
 	}
+
+	time.Sleep(interactiveShellStartupTimeout)
 
 	return nil
 }
 
 func (i *Item) executeInteractiveShellCmd(variables []string) (string, error) {
 
-	_, err := io.WriteString(i.InteractiveShell.Stdin, i.SampleScript+"\n")
+	_, err := io.WriteString(i.InteractiveShell.File, fmt.Sprintf(" %s\n", i.SampleScript))
 	if err != nil {
-		return "", err
+		return "", errors.New(fmt.Sprintf("Failed to execute interactive shell cmd: %s", err))
 	}
 
 	timeout := make(chan bool, 1)
 
 	go func() {
-		time.Sleep(time.Duration(i.RateMs / 2))
+		time.Sleep(time.Duration(i.RateMs))
 		timeout <- true
 	}()
 
-	var resultText strings.Builder
-	var errorText strings.Builder
+	var outputText strings.Builder
 
 	for {
 		select {
-		case stdout := <-i.InteractiveShell.StdoutCh:
-			if len(stdout) > 0 {
-				resultText.WriteString(stdout)
-				resultText.WriteString("\n")
-			}
-		case stderr := <-i.InteractiveShell.StderrCh:
-			if len(stderr) > 0 {
-				errorText.WriteString(stderr)
-				errorText.WriteString("\n")
+		case output := <-i.InteractiveShell.Channel:
+			if !strings.Contains(output, i.SampleScript) && len(output) > 0 {
+				outputText.WriteString(output)
+				outputText.WriteString("\n")
 			}
 		case <-timeout:
-			if errorText.Len() > 0 {
-				return "", errors.New(errorText.String())
-			} else {
-				return i.transformInteractiveShellCmd(resultText.String())
-			}
+			sample := cleanupOutput(outputText.String())
+			return i.transformInteractiveShellCmd(sample)
 		}
 	}
 }
@@ -179,4 +160,12 @@ func enrichEnvVariables(cmd *exec.Cmd, variables []string) {
 	for _, variable := range variables {
 		cmd.Env = append(cmd.Env, variable)
 	}
+}
+
+func cleanupOutput(output string) string {
+	s := strings.TrimSpace(output)
+	if idx := strings.Index(s, "\r"); idx != -1 {
+		return s[idx+1:]
+	}
+	return s
 }

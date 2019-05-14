@@ -1,0 +1,29 @@
+variables:
+  PGPASSWORD: fred
+  mongoconnection: mongo --quiet --host=localhost blog
+  mysqlconnection: mysql -u root -s --database mysql --skip-column-names
+  neo4jconnection: cypher-shell -u neo4j -p 121314 --format plain
+  postgresconnection: psql -h localhost -U postgres --no-align --tuples-only
+  sshconnection: ssh -i ~/sqshq.pem ec2-user@3.215.108.82
+textboxes:
+- title: Neo4j
+  position: [[0, 0], [13, 40]]
+  init: $neo4jconnection
+  sample: match (n) return count(n);
+  transform: echo "$sample" | tail -n 1
+- title: Postgres
+  position: [[13, 0], [14, 40]]
+  init: $postgresconnection
+  sample: select random();
+- title: MySQL
+  position: [[27, 0], [14, 40]]
+  init: $mysqlconnection
+  sample: select rand();
+- title: MongoDB
+  position: [[41, 0], [13, 40]]
+  init: $mongoconnection
+  sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
+- title: SSH
+  position: [[54, 0], [13, 40]]
+  init: $sshconnection
+  sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'

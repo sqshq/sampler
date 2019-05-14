@@ -39,7 +39,7 @@ func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options 
 			select {
 			case sample := <-sampler.triggersChannel:
 				for _, t := range sampler.triggers {
-					t.Execute(sample)
+					go t.Execute(sample)
 				}
 			}
 		}
