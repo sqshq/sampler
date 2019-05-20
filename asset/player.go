@@ -16,7 +16,7 @@ func NewAudioPlayer() *AudioPlayer {
 
 	bytes, err := Asset("quindar-tone.mp3")
 	if err != nil {
-		log.Fatal("Can't find audio file")
+		log.Fatal("Failed to find audio file")
 	}
 
 	player, err := oto.NewPlayer(44100, 2, 2, 8192)

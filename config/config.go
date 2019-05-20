@@ -88,21 +88,21 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 	}
 
 	panic(fmt.Sprintf(
-		"Can't find component type %v with title %v", componentType, componentTitle))
+		"Failed to find component type %v with title %v", componentType, componentTitle))
 }
 
 func readFile(location string) *Config {
 
 	yamlFile, err := ioutil.ReadFile(location)
 	if err != nil {
-		log.Fatalf("Can't read config file: %s", location)
+		log.Fatalf("Failed to read config file: %s", location)
 	}
 
 	cfg := new(Config)
 	err = yaml.Unmarshal(yamlFile, cfg)
 
 	if err != nil {
-		log.Fatalf("Can't read config file: %v", err)
+		log.Fatalf("Failed to read config file: %v", err)
 	}
 
 	return cfg
@@ -111,11 +111,11 @@ func readFile(location string) *Config {
 func saveFile(config *Config, fileName string) {
 	file, err := yaml.Marshal(config)
 	if err != nil {
-		log.Fatalf("Can't marshal config file: %v", err)
+		log.Fatalf("Failed to marshal config file: %v", err)
 	}
 
 	err = ioutil.WriteFile(fileName, file, os.ModePerm)
 	if err != nil {
-		log.Fatalf("Can't save config file: %v", err)
+		log.Fatalf("Failed to save config file: %v", err)
 	}
 }

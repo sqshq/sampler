@@ -25,7 +25,7 @@ func GetLicense() *License {
 		err := yaml.Unmarshal(file, license)
 
 		if err != nil {
-			log.Fatalf("Can't read license file: %v", err)
+			log.Fatalf("Failed to read license file: %v", err)
 		}
 
 		return license
@@ -41,7 +41,7 @@ func InitLicense() {
 
 	file, err := yaml.Marshal(license)
 	if err != nil {
-		log.Fatalf("Can't marshal config file: %v", err)
+		log.Fatalf("Failed to marshal config file: %v", err)
 	}
 
 	initStorage()

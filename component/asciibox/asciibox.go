@@ -33,7 +33,7 @@ func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 
 	fontStr, err := asset.Asset(options.FontName + asciiFontExtension)
 	if err != nil {
-		panic("Can't load the font: " + err.Error())
+		panic("Failed to load the font: " + err.Error())
 	}
 
 	render := fl.NewAsciiRender()
