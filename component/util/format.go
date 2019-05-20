@@ -2,6 +2,8 @@ package util
 
 import (
 	"bytes"
+	ui "github.com/gizak/termui/v3"
+	"image"
 	"math"
 	"strconv"
 	"strings"
@@ -73,4 +75,14 @@ func formatTrailingDigits(value string, scale int) string {
 	}
 
 	return value
+}
+
+func GetMiddlePoint(rectangle image.Rectangle, text string, offset int) image.Point {
+	return image.Pt(rectangle.Min.X+rectangle.Dx()/2-len(text)/2, rectangle.Max.Y-rectangle.Dy()/2+offset)
+}
+
+func PrintString(s string, style ui.Style, p image.Point, buffer *ui.Buffer) {
+	for i, char := range s {
+		buffer.SetCell(ui.Cell{Rune: char, Style: style}, image.Pt(p.X+i, p.Y))
+	}
 }

@@ -4,6 +4,7 @@ import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/runchart"
+	"github.com/sqshq/sampler/component/util"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
@@ -16,6 +17,7 @@ type Layout struct {
 	Components       []*component.Component
 	statusbar        *component.StatusBar
 	menu             *component.Menu
+	intro            *component.Intro
 	ChangeModeEvents chan Mode
 	mode             Mode
 	selection        int
@@ -25,12 +27,13 @@ type Mode rune
 
 const (
 	ModeDefault          Mode = 0
-	ModePause            Mode = 1
-	ModeComponentSelect  Mode = 2
-	ModeMenuOptionSelect Mode = 3
-	ModeComponentMove    Mode = 4
-	ModeComponentResize  Mode = 5
-	ModeChartPinpoint    Mode = 6
+	ModeIntro            Mode = 1
+	ModePause            Mode = 2
+	ModeComponentSelect  Mode = 3
+	ModeMenuOptionSelect Mode = 4
+	ModeComponentMove    Mode = 5
+	ModeComponentResize  Mode = 6
+	ModeChartPinpoint    Mode = 7
 )
 
 const (
@@ -38,10 +41,11 @@ const (
 	statusbarHeight = 1
 )
 
-func NewLayout(width, height int, statusline *component.StatusBar, menu *component.Menu) *Layout {
+func NewLayout(width, height int, statusline *component.StatusBar, menu *component.Menu, intro *component.Intro) *Layout {
 
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
+	intro.SetRect(0, 0, width, height)
 	statusline.SetRect(0, height-statusbarHeight, width, height)
 
 	return &Layout{
@@ -49,6 +53,7 @@ func NewLayout(width, height int, statusline *component.StatusBar, menu *compone
 		Components:       make([]*component.Component, 0),
 		statusbar:        statusline,
 		menu:             menu,
+		intro:            intro,
 		mode:             ModeDefault,
 		selection:        0,
 		ChangeModeEvents: make(chan Mode, 10),
@@ -59,12 +64,19 @@ func (l *Layout) AddComponent(cpt *component.Component) {
 	l.Components = append(l.Components, cpt)
 }
 
+func (l *Layout) RunIntro() {
+	l.mode = ModeIntro
+}
+
 func (l *Layout) changeMode(m Mode) {
 	l.mode = m
 	l.ChangeModeEvents <- m
 }
 
 func (l *Layout) HandleMouseClick(x int, y int) {
+	if l.mode == ModeIntro {
+		return
+	}
 	l.menu.Idle()
 	selected, i := l.findComponentAtPoint(image.Point{X: x, Y: y})
 	if selected == nil {
@@ -118,6 +130,14 @@ func (l *Layout) HandleKeyboardEvent(e string) {
 		case ModeComponentResize:
 			l.menu.Idle()
 			l.changeMode(ModeDefault)
+			break
+		case ModeIntro:
+			page := l.intro.GetSelectedPage()
+			if page == component.IntroPageWelcome {
+				l.intro.NextPage()
+			} else {
+				l.changeMode(ModeDefault)
+			}
 		}
 	case console.KeyEsc:
 		l.resetAlerts()
@@ -180,6 +200,8 @@ func (l *Layout) HandleKeyboardEvent(e string) {
 			selected.Move(0, -1)
 		case ModeComponentResize:
 			selected.Resize(0, -1)
+		case ModeIntro:
+			l.intro.Up()
 		}
 	case console.KeyDown:
 		switch l.mode {
@@ -195,6 +217,8 @@ func (l *Layout) HandleKeyboardEvent(e string) {
 			selected.Move(0, 1)
 		case ModeComponentResize:
 			selected.Resize(0, 1)
+		case ModeIntro:
+			l.intro.Down()
 		}
 	}
 }
@@ -232,21 +256,21 @@ func (l *Layout) moveSelection(direction string) {
 
 		switch direction {
 		case console.KeyLeft:
-			previouslySelectedCornerPoint = component.GetRectLeftSideCenter(previouslySelected.GetRect())
-			newlySelectedCornerPoint = component.GetRectRightSideCenter(l.getComponent(newlySelectedIndex).GetRect())
-			currentCornerPoint = component.GetRectRightSideCenter(current.GetRect())
+			previouslySelectedCornerPoint = util.GetRectLeftSideCenter(previouslySelected.GetRect())
+			newlySelectedCornerPoint = util.GetRectRightSideCenter(l.getComponent(newlySelectedIndex).GetRect())
+			currentCornerPoint = util.GetRectRightSideCenter(current.GetRect())
 		case console.KeyRight:
-			previouslySelectedCornerPoint = component.GetRectRightSideCenter(previouslySelected.GetRect())
-			newlySelectedCornerPoint = component.GetRectLeftSideCenter(l.getComponent(newlySelectedIndex).GetRect())
-			currentCornerPoint = component.GetRectLeftSideCenter(current.GetRect())
+			previouslySelectedCornerPoint = util.GetRectRightSideCenter(previouslySelected.GetRect())
+			newlySelectedCornerPoint = util.GetRectLeftSideCenter(l.getComponent(newlySelectedIndex).GetRect())
+			currentCornerPoint = util.GetRectLeftSideCenter(current.GetRect())
 		case console.KeyUp:
-			previouslySelectedCornerPoint = component.GetRectTopSideCenter(previouslySelected.GetRect())
-			newlySelectedCornerPoint = component.GetRectBottomSideCenter(l.getComponent(newlySelectedIndex).GetRect())
-			currentCornerPoint = component.GetRectBottomSideCenter(current.GetRect())
+			previouslySelectedCornerPoint = util.GetRectTopSideCenter(previouslySelected.GetRect())
+			newlySelectedCornerPoint = util.GetRectBottomSideCenter(l.getComponent(newlySelectedIndex).GetRect())
+			currentCornerPoint = util.GetRectBottomSideCenter(current.GetRect())
 		case console.KeyDown:
-			previouslySelectedCornerPoint = component.GetRectBottomSideCenter(previouslySelected.GetRect())
-			newlySelectedCornerPoint = component.GetRectTopSideCenter(l.getComponent(newlySelectedIndex).GetRect())
-			currentCornerPoint = component.GetRectTopSideCenter(current.GetRect())
+			previouslySelectedCornerPoint = util.GetRectBottomSideCenter(previouslySelected.GetRect())
+			newlySelectedCornerPoint = util.GetRectTopSideCenter(l.getComponent(newlySelectedIndex).GetRect())
+			currentCornerPoint = util.GetRectTopSideCenter(current.GetRect())
 		}
 
 		switch direction {
@@ -278,6 +302,12 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 
 	columnWidth := float64(l.GetRect().Dx()) / float64(console.ColumnsCount)
 	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(console.RowsCount)
+
+	if l.mode == ModeIntro {
+		l.intro.SetRect(l.Min.X, l.Min.Y, l.Max.X, l.Max.Y)
+		l.intro.Draw(buffer)
+		return
+	}
 
 	for _, c := range l.Components {
 		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)

@@ -15,6 +15,7 @@ type TextBox struct {
 	alert  *data.Alert
 	text   string
 	border bool
+	style  ui.Style
 }
 
 func NewTextBox(c config.TextBoxConfig, palette console.Palette) *TextBox {
@@ -22,6 +23,7 @@ func NewTextBox(c config.TextBoxConfig, palette console.Palette) *TextBox {
 	box := TextBox{
 		Block:    component.NewBlock(c.Title, *c.Border, palette),
 		Consumer: data.NewConsumer(),
+		style:    ui.NewStyle(palette.BaseColor),
 	}
 
 	go func() {
@@ -54,6 +56,7 @@ func (t *TextBox) Draw(buffer *ui.Buffer) {
 		row = ui.TrimCells(row, t.Inner.Dx()-2)
 		for _, cx := range ui.BuildCellWithXArray(row) {
 			x, cell := cx.X, cx.Cell
+			cell.Style = t.style
 			buffer.SetCell(cell, image.Pt(x+1, y+1).Add(t.Inner.Min))
 		}
 	}

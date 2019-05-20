@@ -44,7 +44,7 @@ func RenderAlert(alert *data.Alert, area image.Rectangle, buffer *ui.Buffer) {
 	}
 
 	block := *ui.NewBlock()
-	block.SetRect(getRectCoordinates(area, width, len(lines)))
+	block.SetRect(util.GetRectCoordinates(area, width, len(lines)))
 	block.BorderStyle = ui.Style{Fg: color, Bg: ui.ColorClear}
 	block.Draw(buffer)
 
@@ -52,13 +52,6 @@ func RenderAlert(alert *data.Alert, area image.Rectangle, buffer *ui.Buffer) {
 
 	for i := 0; i < len(lines); i++ {
 		buffer.SetString(lines[i],
-			ui.NewStyle(color), getMiddlePoint(block.Inner, lines[i], i-1))
+			ui.NewStyle(color), util.GetMiddlePoint(block.Inner, lines[i], i-1))
 	}
-}
-
-// TODO move to utils
-func getRectCoordinates(area image.Rectangle, width int, height int) (int, int, int, int) {
-	x1 := area.Min.X + area.Dx()/2 - width/2
-	y1 := area.Min.Y + area.Dy()/2 - height
-	return x1, y1, x1 + width, y1 + height + 2
 }

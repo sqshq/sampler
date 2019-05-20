@@ -2,6 +2,7 @@ package component
 
 import (
 	ui "github.com/gizak/termui/v3"
+	"github.com/sqshq/sampler/component/util"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"image"
@@ -130,14 +131,14 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		buffer.SetString(
 			optionsText,
 			ui.NewStyle(console.ColorDarkGrey),
-			getMiddlePoint(m.Block.Rectangle, optionsText, -1),
+			util.GetMiddlePoint(m.Block.Rectangle, optionsText, -1),
 		)
 		return
 	}
 
 	m.printAllDirectionsArrowSign(buffer, -2)
 
-	arrowsTextPoint := getMiddlePoint(m.Block.Rectangle, arrowsText, 2)
+	arrowsTextPoint := util.GetMiddlePoint(m.Block.Rectangle, arrowsText, 2)
 	if arrowsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			arrowsText,
@@ -146,16 +147,16 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		)
 	}
 
-	optionsTextPoint := getMiddlePoint(m.Block.Rectangle, optionsText, 3)
+	optionsTextPoint := util.GetMiddlePoint(m.Block.Rectangle, optionsText, 3)
 	if optionsTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			optionsText,
 			ui.NewStyle(console.ColorDarkGrey),
-			getMiddlePoint(m.Block.Rectangle, optionsText, 3),
+			util.GetMiddlePoint(m.Block.Rectangle, optionsText, 3),
 		)
 	}
 
-	resumeTextPoint := getMiddlePoint(m.Block.Rectangle, resumeText, 4)
+	resumeTextPoint := util.GetMiddlePoint(m.Block.Rectangle, resumeText, 4)
 	if resumeTextPoint.Y+1 < m.Inner.Max.Y {
 		buffer.SetString(
 			resumeText,
@@ -170,12 +171,12 @@ func (m *Menu) renderMoveAndResize(buffer *ui.Buffer) {
 	saveText := "<ENTER> to save changes"
 
 	if m.Dy() <= minimalMenuHeight {
-		buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block.Rectangle, saveText, -1))
+		buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), util.GetMiddlePoint(m.Block.Rectangle, saveText, -1))
 		return
 	}
 
 	m.printAllDirectionsArrowSign(buffer, -1)
-	buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), getMiddlePoint(m.Block.Rectangle, saveText, 3))
+	buffer.SetString(saveText, ui.NewStyle(console.ColorDarkGrey), util.GetMiddlePoint(m.Block.Rectangle, saveText, 3))
 }
 
 func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
@@ -187,10 +188,10 @@ func (m *Menu) printAllDirectionsArrowSign(buffer *ui.Buffer, y int) {
 	}
 
 	for i, a := range arrows {
-		printString(
+		util.PrintString(
 			a,
 			ui.NewStyle(console.ColorOlive),
-			getMiddlePoint(m.Block.Rectangle, a, i+y),
+			util.GetMiddlePoint(m.Block.Rectangle, a, i+y),
 			buffer,
 		)
 	}
@@ -211,7 +212,7 @@ func (m *Menu) renderOptions(buffer *ui.Buffer) {
 
 		if option != MenuOptionPinpoint || m.component.Type == config.TypeRunChart {
 			offset += 2
-			point := getMiddlePoint(m.Block.Rectangle, string(option), offset-6)
+			point := util.GetMiddlePoint(m.Block.Rectangle, string(option), offset-6)
 			buffer.SetString(string(option), style, point)
 		}
 	}
@@ -238,16 +239,4 @@ func (m *Menu) drawInnerBorder(buffer *ui.Buffer) {
 	buffer.SetCell(ui.Cell{ui.TOP_RIGHT, m.BorderStyle}, image.Pt(m.Max.X-3, m.Min.Y+1))
 	buffer.SetCell(ui.Cell{ui.BOTTOM_LEFT, m.BorderStyle}, image.Pt(m.Min.X+2, m.Max.Y-2))
 	buffer.SetCell(ui.Cell{ui.BOTTOM_RIGHT, m.BorderStyle}, image.Pt(m.Max.X-3, m.Max.Y-2))
-}
-
-// TODO move to utils
-func getMiddlePoint(rectangle image.Rectangle, text string, offset int) image.Point {
-	return image.Pt(rectangle.Min.X+rectangle.Dx()/2-len(text)/2, rectangle.Max.Y-rectangle.Dy()/2+offset)
-}
-
-// TODO move to utils
-func printString(s string, style ui.Style, p image.Point, buffer *ui.Buffer) {
-	for i, char := range s {
-		buffer.SetCell(ui.Cell{Rune: char, Style: style}, image.Pt(p.X+i, p.Y))
-	}
 }

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const interactiveShellStartupTimeout = time.Second
+const interactiveShellStartupTimeout = 100 * time.Millisecond
 
 type Item struct {
 	Label            string

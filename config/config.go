@@ -21,7 +21,7 @@ type Config struct {
 	AsciiBoxes []AsciiBoxConfig  `yaml:"asciiboxes,omitempty"`
 }
 
-func Load() (Config, Options) {
+func LoadConfig() (Config, Options) {
 
 	var opt Options
 	_, err := flags.Parse(&opt)
@@ -114,7 +114,7 @@ func saveFile(config *Config, fileName string) {
 		log.Fatalf("Can't marshal config file: %v", err)
 	}
 
-	err = ioutil.WriteFile(fileName, file, 0644)
+	err = ioutil.WriteFile(fileName, file, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Can't save config file: %v", err)
 	}

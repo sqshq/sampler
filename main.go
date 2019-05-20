@@ -15,6 +15,7 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
+	"github.com/sqshq/sampler/storage"
 	"time"
 )
 
@@ -31,12 +32,12 @@ func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, component
 	items := data.NewItems(itemsConfig, *componentConfig.RateMs)
 	data.NewSampler(consumer, items, triggers, s.opt, s.cfg.Variables, *componentConfig.RateMs)
 	s.lout.AddComponent(cpt)
-	time.Sleep(100 * time.Millisecond) // desync coroutines
+	time.Sleep(10 * time.Millisecond) // desync coroutines
 }
 
 func main() {
 
-	cfg, opt := config.Load()
+	cfg, opt := config.LoadConfig()
 
 	console.Init()
 	defer console.Close()
@@ -47,9 +48,10 @@ func main() {
 	palette := console.GetPalette(*cfg.Theme)
 	width, height := ui.TerminalDimensions()
 
-	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette), component.NewMenu(palette))
-
+	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette), component.NewMenu(palette), component.NewIntro(palette))
 	starter := &Starter{lout, player, opt, cfg}
+
+	license := storage.GetLicense()
 
 	for _, c := range cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, palette)
@@ -79,6 +81,15 @@ func main() {
 	for _, c := range cfg.TextBoxes {
 		cpt := textbox.NewTextBox(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+	}
+
+	if license == nil {
+		lout.RunIntro()
+		storage.InitLicense()
+	} else if !license.Purchased /* && random */ {
+		// TODO lout.showNagWindow() with timeout and OK button
+		// TODO verify license
+		// TODO send stats
 	}
 
 	handler := event.NewHandler(lout, opt)
