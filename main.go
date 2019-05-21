@@ -48,10 +48,20 @@ func main() {
 	palette := console.GetPalette(*cfg.Theme)
 	width, height := ui.TerminalDimensions()
 
-	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette), component.NewMenu(palette), component.NewIntro(palette))
+	license := storage.GetLicense()
+	// TODO storage.UpdateStats()
+
+	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
 	starter := &Starter{lout, player, opt, cfg}
 
-	license := storage.GetLicense()
+	if license == nil {
+		lout.RunIntro()
+		storage.InitLicense()
+	} else if !license.Purchased /* && random */ {
+		// TODO lout.showNagWindow() with timeout and OK button
+		// TODO verify license
+		// TODO send stats
+	}
 
 	for _, c := range cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, palette)
@@ -81,15 +91,6 @@ func main() {
 	for _, c := range cfg.TextBoxes {
 		cpt := textbox.NewTextBox(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
-	}
-
-	if license == nil {
-		lout.RunIntro()
-		storage.InitLicense()
-	} else if !license.Purchased /* && random */ {
-		// TODO lout.showNagWindow() with timeout and OK button
-		// TODO verify license
-		// TODO send stats
 	}
 
 	handler := event.NewHandler(lout, opt)

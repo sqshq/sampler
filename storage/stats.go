@@ -4,3 +4,5 @@ package storage
 // version
 // launch count
 // components count by type
+// OS
+// window size

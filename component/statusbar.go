@@ -4,6 +4,7 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/storage"
 	"image"
 )
 
@@ -13,19 +14,30 @@ const (
 
 type StatusBar struct {
 	*ui.Block
-	keyBindings    []string
-	configFileName string
+	keyBindings []string
+	text        string
 }
 
-func NewStatusLine(configFileName string, palette console.Palette) *StatusBar {
+func NewStatusLine(configFileName string, palette console.Palette, license *storage.License) *StatusBar {
 	block := *ui.NewBlock()
 	block.Border = false
+
+	text := fmt.Sprintf(" %s %s | ", console.AppTitle, console.AppVersion)
+
+	if license == nil || !license.Purchased || !license.Valid {
+		text += console.AppLicenseWarning
+	} else if license.Username != nil {
+		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Username)
+	} else {
+		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Company)
+	}
+
 	return &StatusBar{
-		Block:          NewBlock("", false, palette),
-		configFileName: configFileName,
+		Block: NewBlock("", false, palette),
+		text:  text,
 		keyBindings: []string{
-			"(Q) quit",
-			"(P) pause",
+			"(q) quit",
+			"(p) pause",
 			"(<->) selection",
 			"(ESC) reset alerts",
 		},
@@ -33,13 +45,9 @@ func NewStatusLine(configFileName string, palette console.Palette) *StatusBar {
 }
 
 func (s *StatusBar) Draw(buffer *ui.Buffer) {
-	buffer.Fill(ui.NewCell(' ', ui.NewStyle(console.ColorClear, console.MenuColorBackground)), s.GetRect())
 
-	if false { // TODO check license
-		buffer.SetString(fmt.Sprintf(" %s", console.AppLicenseWarning), ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
-	} else {
-		buffer.SetString(fmt.Sprintf(" %s %s @ %s", console.AppTitle, console.AppVersion, s.configFileName), ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
-	}
+	buffer.Fill(ui.NewCell(' ', ui.NewStyle(console.ColorClear, console.MenuColorBackground)), s.GetRect())
+	buffer.SetString(s.text, ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
 
 	indent := bindingsIndent
 	for _, binding := range s.keyBindings {
