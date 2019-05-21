@@ -47,7 +47,3 @@ func InitLicense() {
 	initStorage()
 	saveStorageFile(file, getPlatformStoragePath(licenseFileName))
 }
-
-func SaveLicense() {
-	// TODO
-}

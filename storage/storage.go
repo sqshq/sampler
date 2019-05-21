@@ -49,7 +49,7 @@ func readStorageFile(path string) []byte {
 }
 
 func saveStorageFile(file []byte, fileName string) {
-	err := ioutil.WriteFile(fileName, file, os.ModePerm)
+	err := ioutil.WriteFile(getPlatformStoragePath(fileName), file, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Failed to save the storage file: %v", err)
 	}

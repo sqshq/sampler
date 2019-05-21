@@ -49,7 +49,7 @@ func main() {
 	width, height := ui.TerminalDimensions()
 
 	license := storage.GetLicense()
-	// TODO storage.UpdateStats()
+	_ = storage.UpdateStatistics(cfg, width, height)
 
 	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
 	starter := &Starter{lout, player, opt, cfg}
