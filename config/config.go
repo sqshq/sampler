@@ -21,20 +21,34 @@ type Config struct {
 	AsciiBoxes []AsciiBoxConfig  `yaml:"asciiboxes,omitempty"`
 }
 
-func LoadConfig() (Config, Options) {
+func LoadConfig() (*Config, Options) {
 
 	var opt Options
 	_, err := flags.Parse(&opt)
 
 	if err != nil {
+		panic(err)
+	}
+
+	if opt.Version == true {
+		println(console.AppVersion)
 		os.Exit(0)
+	}
+
+	if opt.ConfigFile == nil && opt.License == nil {
+		println("Please specify config file using --config flag. Example: sampler --config example.yml")
+		os.Exit(0)
+	}
+
+	if opt.License != nil {
+		return nil, opt
 	}
 
 	cfg := readFile(opt.ConfigFile)
 	cfg.validate()
 	cfg.setDefaults()
 
-	return *cfg, opt
+	return cfg, opt
 }
 
 func Update(settings []ComponentSettings, options Options) {
@@ -91,11 +105,11 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 		"Failed to find component type %v with title %v", componentType, componentTitle))
 }
 
-func readFile(location string) *Config {
+func readFile(location *string) *Config {
 
-	yamlFile, err := ioutil.ReadFile(location)
+	yamlFile, err := ioutil.ReadFile(*location)
 	if err != nil {
-		log.Fatalf("Failed to read config file: %s", location)
+		log.Fatalf("Failed to read config file: %s", *location)
 	}
 
 	cfg := new(Config)
@@ -108,13 +122,12 @@ func readFile(location string) *Config {
 	return cfg
 }
 
-func saveFile(config *Config, fileName string) {
+func saveFile(config *Config, fileName *string) {
 	file, err := yaml.Marshal(config)
 	if err != nil {
 		log.Fatalf("Failed to marshal config file: %v", err)
 	}
-
-	err = ioutil.WriteFile(fileName, file, os.ModePerm)
+	err = ioutil.WriteFile(*fileName, file, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Failed to save config file: %v", err)
 	}

@@ -1,4 +1,4 @@
-package storage
+package metadata
 
 import (
 	"io/ioutil"

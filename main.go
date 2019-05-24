@@ -3,6 +3,7 @@ package main
 import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/asset"
+	"github.com/sqshq/sampler/client"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"
@@ -15,7 +16,7 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
-	"github.com/sqshq/sampler/storage"
+	"github.com/sqshq/sampler/metadata"
 	"time"
 )
 
@@ -45,54 +46,58 @@ func main() {
 	player := asset.NewAudioPlayer()
 	defer player.Close()
 
+	license := metadata.GetLicense()
+	statistics := metadata.PersistStatistics(cfg)
+
+	if opt.License != nil {
+		// validate license
+		// save to storage on success
+		// exit with info
+		return
+	}
+
 	palette := console.GetPalette(*cfg.Theme)
-	width, height := ui.TerminalDimensions()
-
-	license := storage.GetLicense()
-	_ = storage.UpdateStatistics(cfg, width, height)
-
-	lout := layout.NewLayout(width, height, component.NewStatusLine(opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
-	starter := &Starter{lout, player, opt, cfg}
+	lout := layout.NewLayout(component.NewStatusLine(*opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
+	bc := client.NewBackendClient()
 
 	if license == nil {
 		lout.RunIntro()
-		storage.InitLicense()
+		metadata.InitLicense()
+		bc.ReportInstallation(statistics)
 	} else if !license.Purchased /* && random */ {
 		// TODO lout.showNagWindow() with timeout and OK button
-		// TODO verify license
-		// TODO send stats
 	}
 
+	starter := &Starter{lout, player, opt, *cfg}
+	startComponents(starter, cfg, palette)
+
+	handler := event.NewHandler(lout, opt)
+	handler.HandleEvents()
+}
+
+func startComponents(starter *Starter, cfg *config.Config, palette console.Palette) {
 	for _, c := range cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
-
 	for _, c := range cfg.SparkLines {
 		cpt := sparkline.NewSparkLine(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
-
 	for _, c := range cfg.BarCharts {
 		cpt := barchart.NewBarChart(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
 	}
-
 	for _, c := range cfg.Gauges {
 		cpt := gauge.NewGauge(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers)
 	}
-
 	for _, c := range cfg.AsciiBoxes {
 		cpt := asciibox.NewAsciiBox(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
-
 	for _, c := range cfg.TextBoxes {
 		cpt := textbox.NewTextBox(c, palette)
 		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
 	}
-
-	handler := event.NewHandler(lout, opt)
-	handler.HandleEvents()
 }

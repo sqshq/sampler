@@ -23,7 +23,7 @@ func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options 
 		items,
 		triggers,
 		make(chan *Sample),
-		mergeVariables(fileVariables, options.Variables),
+		mergeVariables(fileVariables, options.Environment),
 	}
 
 	go func() {

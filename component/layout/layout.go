@@ -41,8 +41,9 @@ const (
 	statusbarHeight = 1
 )
 
-func NewLayout(width, height int, statusline *component.StatusBar, menu *component.Menu, intro *component.Intro) *Layout {
+func NewLayout(statusline *component.StatusBar, menu *component.Menu, intro *component.Intro) *Layout {
 
+	width, height := ui.TerminalDimensions()
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
 	intro.SetRect(0, 0, width, height)

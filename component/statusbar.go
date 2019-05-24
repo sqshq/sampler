@@ -4,7 +4,7 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/console"
-	"github.com/sqshq/sampler/storage"
+	"github.com/sqshq/sampler/metadata"
 	"image"
 )
 
@@ -18,7 +18,7 @@ type StatusBar struct {
 	text        string
 }
 
-func NewStatusLine(configFileName string, palette console.Palette, license *storage.License) *StatusBar {
+func NewStatusLine(configFileName string, palette console.Palette, license *metadata.License) *StatusBar {
 	block := *ui.NewBlock()
 	block.Border = false
 

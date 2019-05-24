@@ -1,4 +1,4 @@
-package storage
+package metadata
 
 import (
 	"gopkg.in/yaml.v2"
