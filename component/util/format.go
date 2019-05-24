@@ -71,7 +71,9 @@ func formatTrailingDigits(value string, scale int) string {
 			formatted = value[:i+scale]
 		}
 
-		return strings.TrimRight(formatted, "0.")
+		formatted = strings.TrimRight(formatted, "0")
+
+		return strings.TrimRight(formatted, ".")
 	}
 
 	return value
