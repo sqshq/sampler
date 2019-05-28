@@ -19,12 +19,12 @@ type StatusBar struct {
 }
 
 func NewStatusLine(configFileName string, palette console.Palette, license *metadata.License) *StatusBar {
+
 	block := *ui.NewBlock()
 	block.Border = false
-
 	text := fmt.Sprintf(" %s %s | ", console.AppTitle, console.AppVersion)
 
-	if license == nil || !license.Purchased || !license.Valid {
+	if license == nil || !license.Valid {
 		text += console.AppLicenseWarning
 	} else if license.Username != nil {
 		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Username)

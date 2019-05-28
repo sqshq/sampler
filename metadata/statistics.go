@@ -9,6 +9,8 @@ import (
 	"runtime"
 )
 
+// Anonymous usage data, which we collect for analyses and improvements
+// User can disable it, along with crash reports, using --telemetry flag
 type Statistics struct {
 	Version         string
 	OS              string
@@ -38,7 +40,7 @@ func PersistStatistics(config *config.Config) *Statistics {
 		}
 
 		statistics.WindowWidth = w
-		statistics.WindowWidth = h
+		statistics.WindowHeight = h
 		statistics.LaunchCount += 1
 
 	} else {
@@ -50,6 +52,7 @@ func PersistStatistics(config *config.Config) *Statistics {
 			WindowHeight:    h,
 			ComponentsCount: countComponentsPerType(config),
 		}
+		initStorage()
 	}
 
 	file, err := yaml.Marshal(statistics)
@@ -60,6 +63,27 @@ func PersistStatistics(config *config.Config) *Statistics {
 	saveStorageFile(file, statisticsFileName)
 
 	return statistics
+}
+
+func GetStatistics(cfg *config.Config) *Statistics {
+	if !fileExists(statisticsFileName) {
+		return &Statistics{
+			Version:         console.AppVersion,
+			OS:              runtime.GOOS,
+			LaunchCount:     0,
+			WindowWidth:     0,
+			WindowHeight:    0,
+			ComponentsCount: countComponentsPerType(cfg),
+		}
+	} else {
+		file := readStorageFile(getPlatformStoragePath(statisticsFileName))
+		license := new(Statistics)
+		err := yaml.Unmarshal(file, license)
+		if err != nil {
+			log.Fatalf("Failed to read statistics file: %v", err)
+		}
+		return license
+	}
 }
 
 func countComponentsPerType(config *config.Config) map[string]int {

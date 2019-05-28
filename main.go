@@ -21,10 +21,38 @@ import (
 )
 
 type Starter struct {
-	lout   *layout.Layout
-	player *asset.AudioPlayer
-	opt    config.Options
-	cfg    config.Config
+	player  *asset.AudioPlayer
+	lout    *layout.Layout
+	palette console.Palette
+	opt     config.Options
+	cfg     config.Config
+}
+
+func (s *Starter) startAll() {
+	for _, c := range s.cfg.RunCharts {
+		cpt := runchart.NewRunChart(c, s.palette)
+		s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
+	}
+	for _, c := range s.cfg.SparkLines {
+		cpt := sparkline.NewSparkLine(c, s.palette)
+		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+	}
+	for _, c := range s.cfg.BarCharts {
+		cpt := barchart.NewBarChart(c, s.palette)
+		s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
+	}
+	for _, c := range s.cfg.Gauges {
+		cpt := gauge.NewGauge(c, s.palette)
+		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers)
+	}
+	for _, c := range s.cfg.AsciiBoxes {
+		cpt := asciibox.NewAsciiBox(c, s.palette)
+		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+	}
+	for _, c := range s.cfg.TextBoxes {
+		cpt := textbox.NewTextBox(c, s.palette)
+		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+	}
 }
 
 func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
@@ -39,6 +67,14 @@ func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, component
 func main() {
 
 	cfg, opt := config.LoadConfig()
+	bc := client.NewBackendClient()
+
+	statistics := metadata.GetStatistics(cfg)
+	license := metadata.GetLicense()
+
+	if opt.LicenseKey != nil {
+		registerLicense(statistics, opt, bc)
+	}
 
 	console.Init()
 	defer console.Close()
@@ -46,58 +82,35 @@ func main() {
 	player := asset.NewAudioPlayer()
 	defer player.Close()
 
-	license := metadata.GetLicense()
-	statistics := metadata.PersistStatistics(cfg)
-
-	if opt.License != nil {
-		// validate license
-		// save to storage on success
-		// exit with info
-		return
-	}
-
 	palette := console.GetPalette(*cfg.Theme)
-	lout := layout.NewLayout(component.NewStatusLine(*opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
-	bc := client.NewBackendClient()
+	lout := layout.NewLayout(
+		component.NewStatusLine(*opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
 
-	if license == nil {
+	if statistics.LaunchCount == 0 {
+		if !opt.DisableTelemetry {
+			go bc.ReportInstallation(statistics)
+		}
 		lout.RunIntro()
-		metadata.InitLicense()
-		bc.ReportInstallation(statistics)
-	} else if !license.Purchased /* && random */ {
-		// TODO lout.showNagWindow() with timeout and OK button
+	} else /* with random */ {
+		// TODO if license == nil lout.showNagWindow() with timeout and OK button
+		// TODO if license != nil, verify license
+		// TODO report statistics
 	}
 
-	starter := &Starter{lout, player, opt, *cfg}
-	startComponents(starter, cfg, palette)
+	metadata.PersistStatistics(cfg)
+	starter := &Starter{player, lout, palette, opt, *cfg}
+	starter.startAll()
 
 	handler := event.NewHandler(lout, opt)
 	handler.HandleEvents()
 }
 
-func startComponents(starter *Starter, cfg *config.Config, palette console.Palette) {
-	for _, c := range cfg.RunCharts {
-		cpt := runchart.NewRunChart(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
-	}
-	for _, c := range cfg.SparkLines {
-		cpt := sparkline.NewSparkLine(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
-	}
-	for _, c := range cfg.BarCharts {
-		cpt := barchart.NewBarChart(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
-	}
-	for _, c := range cfg.Gauges {
-		cpt := gauge.NewGauge(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers)
-	}
-	for _, c := range cfg.AsciiBoxes {
-		cpt := asciibox.NewAsciiBox(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
-	}
-	for _, c := range cfg.TextBoxes {
-		cpt := textbox.NewTextBox(c, palette)
-		starter.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+func registerLicense(statistics *metadata.Statistics, opt config.Options, bc *client.BackendClient) {
+	lc, err := bc.RegisterLicenseKey(*opt.LicenseKey, statistics)
+	if err != nil {
+		console.Exit("License registration failed: " + err.Error())
+	} else {
+		metadata.SaveLicense(*lc)
+		console.Exit("License successfully verified, Sampler can be restarted without --license flag now. Thank you.")
 	}
 }

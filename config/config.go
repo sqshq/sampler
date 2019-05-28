@@ -27,20 +27,18 @@ func LoadConfig() (*Config, Options) {
 	_, err := flags.Parse(&opt)
 
 	if err != nil {
-		panic(err)
+		console.Exit("")
 	}
 
 	if opt.Version == true {
-		println(console.AppVersion)
-		os.Exit(0)
+		console.Exit(console.AppVersion)
 	}
 
-	if opt.ConfigFile == nil && opt.License == nil {
-		println("Please specify config file using --config flag. Example: sampler --config example.yml")
-		os.Exit(0)
+	if opt.ConfigFile == nil && opt.LicenseKey == nil {
+		console.Exit("Please specify config file using --config flag. Example: sampler --config example.yml")
 	}
 
-	if opt.License != nil {
+	if opt.LicenseKey != nil {
 		return nil, opt
 	}
 

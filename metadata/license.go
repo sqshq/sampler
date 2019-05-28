@@ -6,11 +6,10 @@ import (
 )
 
 type License struct {
-	Purchased bool
-	Valid     bool
-	Key       *string
-	Username  *string
-	Company   *string
+	Key      *string `yaml:"k"`
+	Username *string `yaml:"u"`
+	Company  *string `yaml:"c"`
+	Valid    bool    `yaml:"v"`
 }
 
 const licenseFileName = "license.yml"
@@ -32,18 +31,12 @@ func GetLicense() *License {
 	}
 }
 
-func InitLicense() {
-
-	license := License{
-		Purchased: false,
-		Valid:     false,
-	}
+func SaveLicense(license License) {
 
 	file, err := yaml.Marshal(license)
 	if err != nil {
-		log.Fatalf("Failed to marshal config file: %v", err)
+		log.Fatalf("Failed to marshal license file: %v", err)
 	}
 
-	initStorage()
-	saveStorageFile(file, getPlatformStoragePath(licenseFileName))
+	saveStorageFile(file, licenseFileName)
 }

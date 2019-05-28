@@ -4,6 +4,7 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"log"
+	"os"
 	"time"
 )
 
@@ -33,10 +34,17 @@ func Init() {
 	fmt.Printf("\033]0;%s\007", AppTitle)
 
 	if err := ui.Init(); err != nil {
-		log.Fatalf("failed to initialize termui: %v", err)
+		log.Fatalf("Failed to initialize ui: %v", err)
 	}
 }
 
 func Close() {
 	ui.Close()
+}
+
+func Exit(message string) {
+	if len(message) > 0 {
+		println(message)
+	}
+	os.Exit(0)
 }
