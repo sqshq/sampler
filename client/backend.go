@@ -49,7 +49,22 @@ func (c *BackendClient) ReportUsageStatistics(error string, statistics *metadata
 }
 
 func (c *BackendClient) ReportCrash(error string, statistics *metadata.Statistics) {
-	// TODO
+
+	req := struct {
+		Error      string
+		Statistics *metadata.Statistics
+	}{
+		error,
+		statistics,
+	}
+
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return
+	}
+
+	_, _ = http.Post(backendUrl+crashPath, jsonContentType, buf)
 }
 
 func (c *BackendClient) RegisterLicenseKey(licenseKey string, statistics *metadata.Statistics) (*metadata.License, error) {

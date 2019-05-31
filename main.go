@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/client"
@@ -17,6 +18,7 @@ import (
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
 	"github.com/sqshq/sampler/metadata"
+	"runtime/debug"
 	"time"
 )
 
@@ -72,6 +74,8 @@ func main() {
 	statistics := metadata.GetStatistics(cfg)
 	license := metadata.GetLicense()
 
+	defer handleCrash(statistics, opt, bc)
+
 	if opt.LicenseKey != nil {
 		registerLicense(statistics, opt, bc)
 	}
@@ -103,6 +107,16 @@ func main() {
 
 	handler := event.NewHandler(lout, opt)
 	handler.HandleEvents()
+}
+
+func handleCrash(statistics *metadata.Statistics, opt config.Options, bc *client.BackendClient) {
+	if rec := recover(); rec != nil {
+		err := rec.(error)
+		if !opt.DisableTelemetry {
+			bc.ReportCrash(fmt.Sprintf("%s\n%s", err.Error(), string(debug.Stack())), statistics)
+		}
+		panic(err)
+	}
 }
 
 func registerLicense(statistics *metadata.Statistics, opt config.Options, bc *client.BackendClient) {
