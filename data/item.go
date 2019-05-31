@@ -14,16 +14,22 @@ import (
 	"time"
 )
 
-const interactiveShellStartupTimeout = 100 * time.Millisecond
+const (
+	interactiveShellStartupTimeout  = 100 * time.Millisecond
+	interactiveShellMinAwaitTimeout = 100 * time.Millisecond
+	interactiveShellMaxAwaitTimeout = 1 * time.Second
+	interactiveShellErrorThreshold  = 10
+)
 
 type Item struct {
-	Label            string
-	SampleScript     string
-	InitScript       *string
-	TransformScript  *string
-	Color            *ui.Color
-	RateMs           int
-	InteractiveShell *InteractiveShell
+	label            string
+	sampleScript     string
+	initScript       *string
+	transformScript  *string
+	color            *ui.Color
+	rateMs           int
+	errorsCount      int
+	interactiveShell *InteractiveShell
 }
 
 type InteractiveShell struct {
@@ -38,12 +44,12 @@ func NewItems(cfgs []config.Item, rateMs int) []*Item {
 
 	for _, i := range cfgs {
 		item := &Item{
-			Label:           *i.Label,
-			SampleScript:    *i.SampleScript,
-			InitScript:      i.InitScript,
-			TransformScript: i.TransformScript,
-			Color:           i.Color,
-			RateMs:          rateMs,
+			label:           *i.Label,
+			sampleScript:    *i.SampleScript,
+			initScript:      i.InitScript,
+			transformScript: i.TransformScript,
+			color:           i.Color,
+			rateMs:          rateMs,
 		}
 		items = append(items, item)
 	}
@@ -53,17 +59,17 @@ func NewItems(cfgs []config.Item, rateMs int) []*Item {
 
 func (i *Item) nextValue(variables []string) (string, error) {
 
-	if i.InitScript != nil && i.InteractiveShell == nil {
+	if i.initScript != nil && i.interactiveShell == nil {
 		err := i.initInteractiveShell(variables)
 		if err != nil {
 			return "", errors.New(fmt.Sprintf("Failed to init interactive shell: %s", err))
 		}
 	}
 
-	if i.InitScript != nil {
+	if i.initScript != nil {
 		return i.executeInteractiveShellCmd(variables)
 	} else {
-		return i.executeCmd(variables, i.SampleScript)
+		return i.executeCmd(variables, i.sampleScript)
 	}
 }
 
@@ -83,7 +89,7 @@ func (i *Item) executeCmd(variables []string, script string) (string, error) {
 
 func (i *Item) initInteractiveShell(variables []string) error {
 
-	cmd := exec.Command("sh", "-c", *i.InitScript)
+	cmd := exec.Command("sh", "-c", *i.initScript)
 	enrichEnvVariables(cmd, variables)
 
 	file, err := pty.Start(cmd)
@@ -100,7 +106,7 @@ func (i *Item) initInteractiveShell(variables []string) error {
 		}
 	}()
 
-	i.InteractiveShell = &InteractiveShell{
+	i.interactiveShell = &InteractiveShell{
 		Channel: channel,
 		File:    file,
 		Cmd:     cmd,
@@ -118,41 +124,77 @@ func (i *Item) initInteractiveShell(variables []string) error {
 
 func (i *Item) executeInteractiveShellCmd(variables []string) (string, error) {
 
-	_, err := io.WriteString(i.InteractiveShell.File, fmt.Sprintf(" %s\n", i.SampleScript))
+	_, err := io.WriteString(i.interactiveShell.File, fmt.Sprintf(" %s\n", i.sampleScript))
 	if err != nil {
+		i.errorsCount++
+		if i.errorsCount > interactiveShellErrorThreshold {
+			i.interactiveShell = nil // restart session
+			i.errorsCount = 0
+		}
 		return "", errors.New(fmt.Sprintf("Failed to execute interactive shell cmd: %s", err))
 	}
 
-	timeout := make(chan bool, 1)
+	softTimeout := make(chan bool, 1)
+	hardTimeout := make(chan bool, 1)
 
 	go func() {
-		time.Sleep(time.Duration(i.RateMs))
-		timeout <- true
+		time.Sleep(i.getAwaitTimeout() / 4)
+		softTimeout <- true
+		time.Sleep(i.getAwaitTimeout() * 100)
+		hardTimeout <- true
 	}()
 
-	var outputText strings.Builder
+	var builder strings.Builder
+	softTimeoutElapsed := false
 
+await:
 	for {
 		select {
-		case output := <-i.InteractiveShell.Channel:
-			if !strings.Contains(output, i.SampleScript) && len(output) > 0 {
-				outputText.WriteString(output)
-				outputText.WriteString("\n")
+		case output := <-i.interactiveShell.Channel:
+			o := cleanupOutput(output)
+			if len(o) > 0 && !strings.Contains(o, i.sampleScript) {
+				builder.WriteString(o)
+				builder.WriteString("\n")
+				if softTimeoutElapsed {
+					break await
+				}
 			}
-		case <-timeout:
-			sample := cleanupOutput(outputText.String())
-			return i.transformInteractiveShellCmd(sample)
+		case <-softTimeout:
+			if builder.Len() > 0 {
+				break await
+			} else {
+				softTimeoutElapsed = true
+			}
+		case <-hardTimeout:
+			break await
 		}
 	}
+
+	sample := strings.TrimSpace(builder.String())
+
+	return i.transformInteractiveShellCmd(sample)
 }
 
 func (i *Item) transformInteractiveShellCmd(sample string) (string, error) {
 
-	if i.TransformScript != nil && len(sample) > 0 {
-		return i.executeCmd([]string{"sample=" + sample}, *i.TransformScript)
+	if i.transformScript != nil && len(sample) > 0 {
+		return i.executeCmd([]string{"sample=" + sample}, *i.transformScript)
 	}
 
 	return sample, nil
+}
+
+func (i *Item) getAwaitTimeout() time.Duration {
+
+	timeout := time.Duration(i.rateMs) * time.Millisecond
+
+	if timeout > interactiveShellMaxAwaitTimeout {
+		return interactiveShellMaxAwaitTimeout
+	} else if timeout < interactiveShellMinAwaitTimeout {
+		return interactiveShellMinAwaitTimeout
+	}
+
+	return timeout
 }
 
 func enrichEnvVariables(cmd *exec.Cmd, variables []string) {

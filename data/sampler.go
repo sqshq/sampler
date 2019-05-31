@@ -53,14 +53,14 @@ func (s *Sampler) sample(item *Item, options config.Options) {
 	val, err := item.nextValue(s.variables)
 
 	if len(val) > 0 {
-		sample := &Sample{Label: item.Label, Value: val, Color: item.Color}
+		sample := &Sample{Label: item.label, Value: val, Color: item.color}
 		s.consumer.SampleChannel <- sample
 		s.triggersChannel <- sample
 	} else if err != nil {
 		s.consumer.AlertChannel <- &Alert{
 			Title: "SAMPLING FAILURE",
 			Text:  getErrorMessage(err),
-			Color: item.Color,
+			Color: item.color,
 		}
 	}
 }
