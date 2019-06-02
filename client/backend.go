@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	backendUrl       = "http://localhost/api/v1"
+	backendUrl       = "https://sampler.dev/api/v1"
 	installationPath = "/telemetry/installation"
 	statisticsPath   = "/telemetry/statistics"
 	crashPath        = "/telemetry/crash"
