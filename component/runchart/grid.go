@@ -30,11 +30,36 @@ func (c *RunChart) newChartGrid() ChartGrid {
 		valueExtrema: getLocalExtrema(c.lines, timeRange),
 		linesCount:   linesCount,
 		maxTimeWidth: c.Inner.Max.X,
-		minTimeWidth: c.getMaxValueLength(),
+		minTimeWidth: 0,
 	}
 }
 
 func (c *RunChart) renderAxes(buffer *ui.Buffer) {
+
+	// draw y axis labels
+	if c.grid.valueExtrema.max != c.grid.valueExtrema.min {
+		labelsCount := (c.Inner.Dy() - xAxisLabelsHeight - 1) / (yAxisLabelsIndent + yAxisLabelsHeight)
+		valuePerY := (c.grid.valueExtrema.max - c.grid.valueExtrema.min) / float64(c.Inner.Dy()-xAxisLabelsHeight-3)
+		for i := 0; i < int(labelsCount); i++ {
+			val := c.grid.valueExtrema.max - (valuePerY * float64(i) * (yAxisLabelsIndent + yAxisLabelsHeight))
+			fmt := util.FormatValue(val, c.scale)
+			if len(fmt) > c.grid.minTimeWidth {
+				c.grid.minTimeWidth = len(fmt)
+			}
+			buffer.SetString(
+				fmt,
+				ui.NewStyle(c.palette.BaseColor),
+				image.Pt(c.Inner.Min.X, 1+c.Inner.Min.Y+i*(yAxisLabelsIndent+yAxisLabelsHeight)))
+		}
+	} else {
+		fmt := util.FormatValue(c.grid.valueExtrema.max, c.scale)
+		c.grid.minTimeWidth = len(fmt)
+		buffer.SetString(
+			fmt,
+			ui.NewStyle(c.palette.BaseColor),
+			image.Pt(c.Inner.Min.X, c.Inner.Min.Y+c.Inner.Dy()/2))
+	}
+
 	// draw origin cell
 	buffer.SetCell(
 		ui.NewCell(ui.BOTTOM_LEFT, ui.NewStyle(c.palette.BaseColor)),
@@ -70,24 +95,6 @@ func (c *RunChart) renderAxes(buffer *ui.Buffer) {
 			labelTime.Format("15:04:05"),
 			ui.NewStyle(c.palette.BaseColor),
 			image.Pt(c.grid.maxTimeWidth-xAxisLabelsWidth/2-i*(xAxisGridWidth), c.Inner.Max.Y-1))
-	}
-
-	// draw y axis labels
-	if c.grid.valueExtrema.max != c.grid.valueExtrema.min {
-		labelsCount := (c.Inner.Dy() - xAxisLabelsHeight - 1) / (yAxisLabelsIndent + yAxisLabelsHeight)
-		valuePerY := (c.grid.valueExtrema.max - c.grid.valueExtrema.min) / float64(c.Inner.Dy()-xAxisLabelsHeight-3)
-		for i := 0; i < int(labelsCount); i++ {
-			value := c.grid.valueExtrema.max - (valuePerY * float64(i) * (yAxisLabelsIndent + yAxisLabelsHeight))
-			buffer.SetString(
-				util.FormatValue(value, c.scale),
-				ui.NewStyle(c.palette.BaseColor),
-				image.Pt(c.Inner.Min.X, 1+c.Inner.Min.Y+i*(yAxisLabelsIndent+yAxisLabelsHeight)))
-		}
-	} else {
-		buffer.SetString(
-			util.FormatValue(c.grid.valueExtrema.max, c.scale),
-			ui.NewStyle(c.palette.BaseColor),
-			image.Pt(c.Inner.Min.X, c.Inner.Min.Y+c.Inner.Dy()/2))
 	}
 }
 
@@ -139,23 +146,22 @@ func (r *TimeRange) isInRange(time time.Time) bool {
 	return time.After(r.min) && time.Before(r.max)
 }
 
-// TODO add boundaries for values in range
-func (c *RunChart) getMaxValueLength() int {
-
-	maxValueLength := -1
-
-	for _, line := range c.lines {
-		for _, point := range line.points {
-			l := len(util.FormatValue(point.value, c.scale))
-			if l > maxValueLength {
-				maxValueLength = l
-			}
-		}
-	}
-
-	if maxValueLength < 0 {
-		return DefaultValueLength
-	}
-
-	return maxValueLength
-}
+//func (c *RunChart) getMaxValueLength() int {
+//
+//	maxValueLength := -1
+//
+//	for _, line := range c.lines {
+//		for _, point := range line.points {
+//			l := len(util.FormatValue(point.value, c.scale))
+//			if l > maxValueLength {
+//				maxValueLength = l
+//			}
+//		}
+//	}
+//
+//	if maxValueLength < 0 {
+//		return DefaultValueLength
+//	}
+//
+//	return maxValueLength
+//}
