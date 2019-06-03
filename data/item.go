@@ -6,6 +6,7 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/kr/pty"
+	"github.com/lunixbochs/vtclean"
 	"github.com/sqshq/sampler/config"
 	"io"
 	"os"
@@ -84,7 +85,9 @@ func (i *Item) executeCmd(variables []string, script string) (string, error) {
 		return "", err
 	}
 
-	return string(output), nil
+	result := vtclean.Clean(string(output), false)
+
+	return result, nil
 }
 
 func (i *Item) initInteractiveShell(variables []string) error {
@@ -151,7 +154,7 @@ await:
 	for {
 		select {
 		case output := <-i.interactiveShell.Channel:
-			o := cleanupOutput(output)
+			o := vtclean.Clean(output, false)
 			if len(o) > 0 && !strings.Contains(o, i.sampleScript) {
 				builder.WriteString(o)
 				builder.WriteString("\n")

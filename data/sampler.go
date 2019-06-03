@@ -29,7 +29,7 @@ func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options 
 	go func() {
 		for ; true; <-ticker.C {
 			for _, item := range sampler.items {
-				sampler.sample(item, options)
+				go sampler.sample(item, options)
 			}
 		}
 	}()

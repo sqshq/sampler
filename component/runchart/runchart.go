@@ -137,9 +137,9 @@ func (c *RunChart) Draw(buffer *ui.Buffer) {
 		c.Inner.Max.X, c.Inner.Max.Y-xAxisLabelsHeight-1,
 	)
 
-	c.renderAxes(buffer)
 	c.renderLines(buffer, drawArea)
 	c.renderLegend(buffer, drawArea)
+	c.renderAxes(buffer)
 	component.RenderAlert(c.alert, c.Rectangle, buffer)
 	c.mutex.Unlock()
 }
