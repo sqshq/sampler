@@ -48,7 +48,9 @@ func (h *Handler) HandleEvents() {
 				payload := e.Payload.(ui.Mouse)
 				h.layout.HandleMouseClick(payload.X, payload.Y)
 			case console.KeyQuit, console.KeyExit:
-				h.handleExit()
+				if h.layout.WerePositionsChanged() {
+					h.updateConfigFile()
+				}
 				return
 			case console.SignalResize:
 				payload := e.Payload.(ui.Resize)
@@ -76,7 +78,7 @@ func (h *Handler) handleModeChange(m layout.Mode) {
 	}
 }
 
-func (h *Handler) handleExit() {
+func (h *Handler) updateConfigFile() {
 	var settings []config.ComponentSettings
 	for _, c := range h.layout.Components {
 		settings = append(settings,

@@ -21,6 +21,7 @@ type Layout struct {
 	ChangeModeEvents chan Mode
 	mode             Mode
 	selection        int
+	positionsChanged bool
 }
 
 type Mode rune
@@ -70,6 +71,9 @@ func (l *Layout) RunIntro() {
 }
 
 func (l *Layout) changeMode(m Mode) {
+	if m == ModeComponentResize || m == ModeComponentMove {
+		l.positionsChanged = true
+	}
 	l.mode = m
 	l.ChangeModeEvents <- m
 }
@@ -366,4 +370,8 @@ func (l *Layout) resetAlerts() {
 	for _, c := range l.Components {
 		c.AlertChannel <- nil
 	}
+}
+
+func (l *Layout) WerePositionsChanged() bool {
+	return l.positionsChanged
 }
