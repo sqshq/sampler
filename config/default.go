@@ -12,7 +12,7 @@ const (
 
 func (c *Config) setDefaults() {
 	c.setDefaultValues()
-	c.setDefaultColors()
+	c.setDefaultItemSettings()
 	c.setDefaultArrangement()
 }
 
@@ -173,17 +173,21 @@ func setDefaultTriggersValues(triggers []TriggerConfig) {
 	}
 }
 
-func (c *Config) setDefaultColors() {
+func (c *Config) setDefaultItemSettings() {
 
 	palette := console.GetPalette(*c.Theme)
 	colorsCount := len(palette.ContentColors)
+	defaultPty := false
 
 	for _, ch := range c.RunCharts {
 		for j, item := range ch.Items {
 			if item.Color == nil {
 				item.Color = &palette.ContentColors[j%colorsCount]
-				ch.Items[j] = item
 			}
+			if item.Pty == nil {
+				item.Pty = &defaultPty
+			}
+			ch.Items[j] = item
 		}
 	}
 
@@ -191,20 +195,49 @@ func (c *Config) setDefaultColors() {
 		for j, item := range b.Items {
 			if item.Color == nil {
 				item.Color = &palette.ContentColors[j%colorsCount]
-				b.Items[j] = item
 			}
+			if item.Pty == nil {
+				item.Pty = &defaultPty
+			}
+			b.Items[j] = item
 		}
 	}
 
 	for i, s := range c.SparkLines {
 		s.Gradient = &palette.GradientColors[i%(len(palette.GradientColors))]
+		if s.Item.Pty == nil {
+			s.Item.Pty = &defaultPty
+		}
 		c.SparkLines[i] = s
 	}
 
 	for i, g := range c.Gauges {
+		if g.Min.Pty == nil {
+			g.Min.Pty = &defaultPty
+		}
+		if g.Max.Pty == nil {
+			g.Max.Pty = &defaultPty
+		}
+		if g.Cur.Pty == nil {
+			g.Cur.Pty = &defaultPty
+		}
 		if g.Color == nil {
 			g.Color = &palette.ContentColors[i%colorsCount]
-			c.Gauges[i] = g
 		}
+		c.Gauges[i] = g
+	}
+
+	for i, a := range c.AsciiBoxes {
+		if a.Item.Pty == nil {
+			a.Item.Pty = &defaultPty
+		}
+		c.AsciiBoxes[i] = a
+	}
+
+	for i, t := range c.TextBoxes {
+		if t.Item.Pty == nil {
+			t.Item.Pty = &defaultPty
+		}
+		c.TextBoxes[i] = t
 	}
 }

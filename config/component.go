@@ -104,6 +104,7 @@ type LegendConfig struct {
 type Item struct {
 	Label           *string   `yaml:"label,omitempty"`
 	Color           *ui.Color `yaml:"color,omitempty"`
+	Pty             *bool     `yaml:"pty,omitempty"`
 	InitScript      *string   `yaml:"init,omitempty"`
 	SampleScript    *string   `yaml:"sample"`
 	TransformScript *string   `yaml:"transform,omitempty"`

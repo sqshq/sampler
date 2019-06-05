@@ -133,13 +133,13 @@ func (c *RunChart) Draw(buffer *ui.Buffer) {
 	c.grid = c.newChartGrid()
 
 	drawArea := image.Rect(
-		c.Inner.Min.X+c.grid.minTimeWidth+1, c.Inner.Min.Y,
+		c.Inner.Min.X+c.grid.minTimeWidth+2, c.Inner.Min.Y,
 		c.Inner.Max.X, c.Inner.Max.Y-xAxisLabelsHeight-1,
 	)
 
+	c.renderAxes(buffer)
 	c.renderLines(buffer, drawArea)
 	c.renderLegend(buffer, drawArea)
-	c.renderAxes(buffer)
 	component.RenderAlert(c.alert, c.Rectangle, buffer)
 	c.mutex.Unlock()
 }

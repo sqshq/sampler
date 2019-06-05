@@ -8,6 +8,7 @@ variables:
 textboxes:
 - title: Neo4j
   position: [[0, 0], [10, 40]]
+  pty: true
   init: $neo4jconnection
   sample: RETURN rand();
   transform: echo "$sample" | tail -n 1
@@ -17,6 +18,7 @@ textboxes:
   sample: select random();
 - title: MySQL
   position: [[19, 0], [10, 40]]
+  pty: true
   init: $mysqlconnection
   sample: select rand();
 - title: MongoDB
@@ -26,5 +28,6 @@ textboxes:
   sample: sleep(3000);Date.now();
 - title: SSH
   position: [[39, 0], [41, 40]]
+  pty: true
   init: $sshconnection
   sample: top
