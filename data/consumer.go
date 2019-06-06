@@ -1,11 +1,30 @@
 package data
 
-import ui "github.com/gizak/termui/v3"
+import (
+	ui "github.com/gizak/termui/v3"
+	"strings"
+)
 
 type Consumer struct {
 	SampleChannel  chan *Sample
 	AlertChannel   chan *Alert
 	CommandChannel chan *Command
+	Alert          *Alert
+}
+
+func (c *Consumer) HandleConsumeSuccess() {
+	if c.Alert != nil && c.Alert.Recoverable {
+		c.Alert = nil
+	}
+}
+
+func (c *Consumer) HandleConsumeFailure(title string, err error, sample *Sample) {
+	c.AlertChannel <- &Alert{
+		Title:       strings.ToUpper(title),
+		Text:        err.Error(),
+		Color:       sample.Color,
+		Recoverable: true,
+	}
 }
 
 type Sample struct {
@@ -15,9 +34,10 @@ type Sample struct {
 }
 
 type Alert struct {
-	Title string
-	Text  string
-	Color *ui.Color
+	Title       string
+	Text        string
+	Color       *ui.Color
+	Recoverable bool
 }
 
 type Command struct {

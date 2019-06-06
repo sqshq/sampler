@@ -41,7 +41,6 @@ const (
 type RunChart struct {
 	*ui.Block
 	*data.Consumer
-	alert     *data.Alert
 	lines     []TimeLine
 	grid      ChartGrid
 	timescale time.Duration
@@ -102,7 +101,7 @@ func NewRunChart(c config.RunChartConfig, palette console.Palette) *RunChart {
 			case sample := <-chart.SampleChannel:
 				chart.consumeSample(sample)
 			case alert := <-chart.AlertChannel:
-				chart.alert = alert
+				chart.Alert = alert
 			case command := <-chart.CommandChannel:
 				switch command.Type {
 				case CommandDisableSelection:
@@ -140,7 +139,7 @@ func (c *RunChart) Draw(buffer *ui.Buffer) {
 	c.renderAxes(buffer)
 	c.renderLines(buffer, drawArea)
 	c.renderLegend(buffer, drawArea)
-	component.RenderAlert(c.alert, c.Rectangle, buffer)
+	component.RenderAlert(c.Alert, c.Rectangle, buffer)
 	c.mutex.Unlock()
 }
 
@@ -158,12 +157,10 @@ func (c *RunChart) consumeSample(sample *data.Sample) {
 
 	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
-		c.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE A NUMBER",
-			Text:  err.Error(),
-			Color: sample.Color,
-		}
+		c.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
+	} else {
+		c.HandleConsumeSuccess()
 	}
 
 	c.mutex.Lock()

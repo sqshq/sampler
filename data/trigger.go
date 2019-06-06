@@ -80,9 +80,10 @@ func (t *Trigger) Execute(sample *Sample) {
 
 		if t.actions.visual {
 			t.consumer.AlertChannel <- &Alert{
-				Title: t.title,
-				Text:  fmt.Sprintf("%s: %v", sample.Label, sample.Value),
-				Color: sample.Color,
+				Title:       t.title,
+				Text:        fmt.Sprintf("%s: %v", sample.Label, sample.Value),
+				Color:       sample.Color,
+				Recoverable: false,
 			}
 		}
 
@@ -106,9 +107,10 @@ func (t *Trigger) evaluate(sample *Sample) bool {
 
 	if err != nil {
 		t.consumer.AlertChannel <- &Alert{
-			Title: "TRIGGER CONDITION FAILURE",
-			Text:  getErrorMessage(err),
-			Color: sample.Color,
+			Title:       "Trigger condition failure",
+			Text:        getErrorMessage(err),
+			Color:       sample.Color,
+			Recoverable: true,
 		}
 	}
 

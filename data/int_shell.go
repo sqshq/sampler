@@ -72,7 +72,7 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 	if err != nil {
 		s.errCount++
 		if s.errCount > errorThreshold {
-			s.item.ptyShell = nil // restart session
+			s.item.basicShell = nil // restart session
 		}
 		return "", errors.New(fmt.Sprintf("Failed to execute command: %s", err))
 	}

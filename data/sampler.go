@@ -58,9 +58,10 @@ func (s *Sampler) sample(item *Item, options config.Options) {
 		s.triggersChannel <- sample
 	} else if err != nil {
 		s.consumer.AlertChannel <- &Alert{
-			Title: "SAMPLING FAILURE",
-			Text:  getErrorMessage(err),
-			Color: item.color,
+			Title:       "Sampling failure",
+			Text:        getErrorMessage(err),
+			Color:       item.color,
+			Recoverable: true,
 		}
 	}
 }

@@ -14,7 +14,6 @@ import (
 type SparkLine struct {
 	*ui.Block
 	*data.Consumer
-	alert    *data.Alert
 	values   []float64
 	maxValue float64
 	minValue float64
@@ -42,7 +41,7 @@ func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine 
 			case sample := <-line.SampleChannel:
 				line.consumeSample(sample)
 			case alert := <-line.AlertChannel:
-				line.alert = alert
+				line.Alert = alert
 			}
 		}
 	}()
@@ -54,12 +53,10 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 
 	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
-		s.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE A NUMBER",
-			Text:  err.Error(),
-			Color: sample.Color,
-		}
+		s.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
+	} else {
+		s.HandleConsumeSuccess()
 	}
 
 	s.values = append(s.values, float)
@@ -141,5 +138,5 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 	s.mutex.Unlock()
 
 	s.Block.Draw(buffer)
-	component.RenderAlert(s.alert, s.Rectangle, buffer)
+	component.RenderAlert(s.Alert, s.Rectangle, buffer)
 }

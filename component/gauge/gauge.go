@@ -20,7 +20,6 @@ const (
 type Gauge struct {
 	*ui.Block
 	*data.Consumer
-	alert    *data.Alert
 	minValue float64
 	maxValue float64
 	curValue float64
@@ -31,7 +30,7 @@ type Gauge struct {
 
 func NewGauge(c config.GaugeConfig, palette console.Palette) *Gauge {
 
-	gauge := Gauge{
+	g := Gauge{
 		Block:    component.NewBlock(c.Title, true, palette),
 		Consumer: data.NewConsumer(),
 		scale:    *c.Scale,
@@ -42,27 +41,25 @@ func NewGauge(c config.GaugeConfig, palette console.Palette) *Gauge {
 	go func() {
 		for {
 			select {
-			case sample := <-gauge.SampleChannel:
-				gauge.ConsumeSample(sample)
-			case alert := <-gauge.AlertChannel:
-				gauge.alert = alert
+			case sample := <-g.SampleChannel:
+				g.ConsumeSample(sample)
+			case alert := <-g.AlertChannel:
+				g.Alert = alert
 			}
 		}
 	}()
 
-	return &gauge
+	return &g
 }
 
 func (g *Gauge) ConsumeSample(sample *data.Sample) {
 
 	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
-		g.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE A NUMBER",
-			Text:  err.Error(),
-			Color: sample.Color,
-		}
+		g.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
+	} else {
+		g.HandleConsumeSuccess()
 	}
 
 	switch sample.Label {
@@ -114,5 +111,5 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 		}
 	}
 
-	component.RenderAlert(g.alert, g.Rectangle, buffer)
+	component.RenderAlert(g.Alert, g.Rectangle, buffer)
 }

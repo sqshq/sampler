@@ -45,7 +45,8 @@ barcharts:
     init: $mongoconnection
     sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
   - label: IN_PROCESS
-    sample: echo 0
+    init: $mongoconnection
+    sample: db.getCollection('posts').find({status:'UNKNOWN'}).itcount()
   - label: FAILED
     init: $mongoconnection
     sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()

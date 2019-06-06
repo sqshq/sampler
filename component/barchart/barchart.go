@@ -20,7 +20,6 @@ const (
 type BarChart struct {
 	*ui.Block
 	*data.Consumer
-	alert    *data.Alert
 	bars     []Bar
 	scale    int
 	maxValue float64
@@ -56,7 +55,7 @@ func NewBarChart(c config.BarChartConfig, palette console.Palette) *BarChart {
 			case sample := <-chart.SampleChannel:
 				chart.consumeSample(sample)
 			case alert := <-chart.AlertChannel:
-				chart.alert = alert
+				chart.Alert = alert
 			}
 		}
 	}()
@@ -70,12 +69,10 @@ func (b *BarChart) consumeSample(sample *data.Sample) {
 
 	float, err := util.ParseFloat(sample.Value)
 	if err != nil {
-		b.AlertChannel <- &data.Alert{
-			Title: "FAILED TO PARSE A NUMBER",
-			Text:  err.Error(),
-			Color: sample.Color,
-		}
+		b.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
+	} else {
+		b.HandleConsumeSuccess()
 	}
 
 	index := -1
@@ -163,5 +160,5 @@ func (b *BarChart) Draw(buffer *ui.Buffer) {
 		barXCoordinate += barWidth + barIndent
 	}
 
-	component.RenderAlert(b.alert, b.Rectangle, buffer)
+	component.RenderAlert(b.Alert, b.Rectangle, buffer)
 }
