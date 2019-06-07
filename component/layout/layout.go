@@ -98,15 +98,17 @@ func (l *Layout) HandleKeyboardEvent(e string) {
 	selected := l.getSelection()
 
 	switch e {
-	case console.KeyPause:
+	case console.KeyPause1, console.KeyPause2:
 		if l.mode == ModePause {
 			l.changeMode(ModeDefault)
+			l.statusbar.TogglePause()
 		} else {
 			if selected.Type == config.TypeRunChart {
 				selected.CommandChannel <- &data.Command{Type: runchart.CommandDisableSelection}
 			}
 			l.menu.Idle()
 			l.changeMode(ModePause)
+			l.statusbar.TogglePause()
 		}
 	case console.KeyEnter:
 		switch l.mode {

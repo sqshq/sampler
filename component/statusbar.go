@@ -9,13 +9,15 @@ import (
 )
 
 const (
-	bindingsIndent = 4
+	bindingsIndent = 3
+	pauseText      = "  P A U S E D  "
 )
 
 type StatusBar struct {
 	*ui.Block
 	keyBindings []string
 	text        string
+	pause       bool
 }
 
 func NewStatusLine(configFileName string, palette console.Palette, license *metadata.License) *StatusBar {
@@ -28,6 +30,9 @@ func NewStatusLine(configFileName string, palette console.Palette, license *meta
 		text += console.AppLicenseWarning
 	} else if license.Username != nil {
 		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Username)
+		if license.Company != nil {
+			text += fmt.Sprintf(", %s", *license.Company)
+		}
 	} else {
 		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Company)
 	}
@@ -55,5 +60,13 @@ func (s *StatusBar) Draw(buffer *ui.Buffer) {
 		indent += bindingsIndent + len(binding)
 	}
 
+	if s.pause {
+		buffer.SetString(pauseText, ui.NewStyle(console.MenuColorBackground, console.MenuColorText), image.Pt(s.Max.X-s.Dx()/2-len(pauseText)/2, s.Min.Y))
+	}
+
 	s.Block.Draw(buffer)
+}
+
+func (s *StatusBar) TogglePause() {
+	s.pause = !s.pause
 }

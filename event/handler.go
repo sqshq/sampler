@@ -47,7 +47,7 @@ func (h *Handler) HandleEvents() {
 			case console.SignalClick:
 				payload := e.Payload.(ui.Mouse)
 				h.layout.HandleMouseClick(payload.X, payload.Y)
-			case console.KeyQuit, console.KeyExit:
+			case console.KeyQuit1, console.KeyQuit2, console.KeyQuit3:
 				if h.layout.WerePositionsChanged() {
 					h.updateConfigFile()
 				}
