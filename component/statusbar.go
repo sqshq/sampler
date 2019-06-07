@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	bindingsIndent = 3
 	pauseText      = "  P A U S E D  "
+	bindingsIndent = 3
 )
 
 type StatusBar struct {

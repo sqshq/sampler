@@ -30,40 +30,42 @@ type Starter struct {
 	cfg     config.Config
 }
 
-func (s *Starter) startAll() {
+func (s *Starter) startAll() []*data.Sampler {
+	samplers := make([]*data.Sampler, 0)
 	for _, c := range s.cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, s.palette)
-		s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
+		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers))
 	}
 	for _, c := range s.cfg.SparkLines {
 		cpt := sparkline.NewSparkLine(c, s.palette)
-		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
 	}
 	for _, c := range s.cfg.BarCharts {
 		cpt := barchart.NewBarChart(c, s.palette)
-		s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers)
+		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers))
 	}
 	for _, c := range s.cfg.Gauges {
 		cpt := gauge.NewGauge(c, s.palette)
-		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers)
+		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers))
 	}
 	for _, c := range s.cfg.AsciiBoxes {
 		cpt := asciibox.NewAsciiBox(c, s.palette)
-		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
 	}
 	for _, c := range s.cfg.TextBoxes {
 		cpt := textbox.NewTextBox(c, s.palette)
-		s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers)
+		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
 	}
+	return samplers
 }
 
-func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) {
+func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) *data.Sampler {
 	cpt := component.NewComponent(drawable, consumer, componentConfig)
 	triggers := data.NewTriggers(triggersConfig, consumer, s.opt, s.player)
 	items := data.NewItems(itemsConfig, *componentConfig.RateMs)
-	data.NewSampler(consumer, items, triggers, s.opt, s.cfg.Variables, *componentConfig.RateMs)
 	s.lout.AddComponent(cpt)
 	time.Sleep(10 * time.Millisecond) // desync coroutines
+	return data.NewSampler(consumer, items, triggers, s.opt, s.cfg.Variables, *componentConfig.RateMs)
 }
 
 func main() {
@@ -103,9 +105,9 @@ func main() {
 
 	metadata.PersistStatistics(cfg)
 	starter := &Starter{player, lout, palette, opt, *cfg}
-	starter.startAll()
+	samplers := starter.startAll()
 
-	handler := event.NewHandler(lout, opt)
+	handler := event.NewHandler(samplers, opt, lout)
 	handler.HandleEvents()
 }
 

@@ -5,6 +5,7 @@ import (
 	"github.com/sqshq/sampler/component/layout"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
+	"github.com/sqshq/sampler/data"
 	"time"
 )
 
@@ -13,21 +14,23 @@ const (
 )
 
 type Handler struct {
+	samplers      []*data.Sampler
+	options       config.Options
 	layout        *layout.Layout
 	renderTicker  *time.Ticker
 	consoleEvents <-chan ui.Event
 	renderRate    time.Duration
-	options       config.Options
 }
 
-func NewHandler(layout *layout.Layout, options config.Options) *Handler {
+func NewHandler(samplers []*data.Sampler, options config.Options, layout *layout.Layout) *Handler {
 	renderRate := calcMinRenderRate(layout)
 	return &Handler{
+		samplers:      samplers,
+		options:       options,
 		layout:        layout,
 		consoleEvents: ui.PollEvents(),
 		renderTicker:  time.NewTicker(renderRate),
 		renderRate:    renderRate,
-		options:       options,
 	}
 }
 
@@ -71,10 +74,19 @@ func (h *Handler) handleModeChange(m layout.Mode) {
 	switch m {
 	case layout.ModeDefault:
 		h.renderTicker = time.NewTicker(h.renderRate)
+		h.pause(false)
 	case layout.ModePause:
+		h.pause(true)
 		// proceed with stopped timer
 	default:
 		h.renderTicker = time.NewTicker(console.MinRenderInterval)
+		h.pause(false)
+	}
+}
+
+func (h *Handler) pause(pause bool) {
+	for _, s := range h.samplers {
+		s.Pause(pause)
 	}
 }
 

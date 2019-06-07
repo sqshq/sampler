@@ -12,24 +12,28 @@ type Sampler struct {
 	triggers        []*Trigger
 	triggersChannel chan *Sample
 	variables       []string
+	pause           bool
 }
 
-func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options config.Options, fileVariables map[string]string, rateMs int) Sampler {
+func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options config.Options, fileVariables map[string]string, rateMs int) *Sampler {
 
 	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
 
-	sampler := Sampler{
+	sampler := &Sampler{
 		consumer,
 		items,
 		triggers,
 		make(chan *Sample),
 		mergeVariables(fileVariables, options.Environment),
+		false,
 	}
 
 	go func() {
 		for ; true; <-ticker.C {
 			for _, item := range sampler.items {
-				go sampler.sample(item, options)
+				if !sampler.pause {
+					go sampler.sample(item, options)
+				}
 			}
 		}
 	}()
@@ -39,7 +43,9 @@ func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options 
 			select {
 			case sample := <-sampler.triggersChannel:
 				for _, t := range sampler.triggers {
-					t.Execute(sample)
+					if !sampler.pause {
+						t.Execute(sample)
+					}
 				}
 			}
 		}
@@ -76,4 +82,8 @@ func mergeVariables(fileVariables map[string]string, optionsVariables []string) 
 	}
 
 	return result
+}
+
+func (s *Sampler) Pause(pause bool) {
+	s.pause = pause
 }
