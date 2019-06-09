@@ -24,6 +24,7 @@ func (s *BasicInteractiveShell) init() error {
 
 	cmd := exec.Command("sh", "-c", *s.item.initScript)
 	enrichEnvVariables(cmd, s.variables)
+	cmd.Wait()
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -72,6 +73,7 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 	if err != nil {
 		s.errCount++
 		if s.errCount > errorThreshold {
+			_ = s.cmd.Wait()
 			s.item.basicShell = nil // restart session
 		}
 		return "", errors.New(fmt.Sprintf("Failed to execute command: %s", err))

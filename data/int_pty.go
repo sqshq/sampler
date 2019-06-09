@@ -25,7 +25,7 @@ type PtyInteractiveShell struct {
 	item      *Item
 	variables []string
 	cmd       *exec.Cmd
-	File      io.WriteCloser
+	file      io.WriteCloser
 	ch        chan string
 	errCount  int
 }
@@ -50,7 +50,7 @@ func (s *PtyInteractiveShell) init() error {
 	}()
 
 	s.cmd = cmd
-	s.File = file
+	s.file = file
 	s.ch = channel
 
 	_, err = file.Read(make([]byte, 4096))
@@ -65,10 +65,12 @@ func (s *PtyInteractiveShell) init() error {
 
 func (s *PtyInteractiveShell) execute() (string, error) {
 
-	_, err := io.WriteString(s.File, fmt.Sprintf(" %s\n", s.item.sampleScript))
+	_, err := io.WriteString(s.file, fmt.Sprintf(" %s\n", s.item.sampleScript))
 	if err != nil {
 		s.errCount++
 		if s.errCount > errorThreshold {
+			_ = s.cmd.Wait()
+			_ = s.file.Close()
 			s.item.ptyShell = nil // restart session
 		}
 		return "", errors.New(fmt.Sprintf("Failed to execute command: %s", err))
