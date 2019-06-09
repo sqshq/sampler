@@ -63,30 +63,21 @@ func NewIntro(palette console.Palette) *Intro {
 
 func (intro *Intro) Draw(buffer *ui.Buffer) {
 
-	logo := []string{
-		"                               __         ",
-		"   _________  ____ ___  ____  / /__  _____",
-		"  / ___/ __ `/ __ `__ \\/ __ \\/ / _ \\/ ___/",
-		" (__  ) /_/ / / / / / / /_/ / /  __/ /    ",
-		"/____/\\__,_/_/ /_/ /_/ .___/_/\\___/_/     ",
-		"                    /_/                   ",
-	}
-
-	introText := append(logo, []string{
+	introText := append(util.AsciiLogo, []string{
 		"", "", "",
 		"Welcome.",
 		"Sampler is free of charge for personal use, but license must be purchased to use it for business purposes.",
-		"Clicking below indicates you agree to the terms of the license agreement and privacy policy: www.sampler.dev/license",
+		"By proceeding, you agree to the terms of the license agreement and privacy policy: www.sampler.dev/license",
 		"", "", "",
 		"How do you plan to use Sampler?",
 	}...)
 
-	commericalText := append(logo, []string{
+	commericalText := append(util.AsciiLogo, []string{
 		"", "", "", "",
 		"Please visit www.sampler.dev to purchase a license and then start Sampler with --license flag",
 	}...)
 
-	personalText := append(logo, []string{
+	personalText := append(util.AsciiLogo, []string{
 		"", "", "", "",
 		"Sampler is always free for non-commercial use, but you can support the project and buy a personal license:",
 		"www.sampler.dev",

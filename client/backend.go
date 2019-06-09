@@ -15,6 +15,7 @@ const (
 	statisticsPath   = "/telemetry/statistics"
 	crashPath        = "/telemetry/crash"
 	registrationPath = "/license/registration"
+	verificationPath = "/license/verification"
 	jsonContentType  = "application/json"
 )
 
@@ -44,8 +45,18 @@ func (c *BackendClient) ReportInstallation(statistics *metadata.Statistics) {
 	}
 }
 
-func (c *BackendClient) ReportUsageStatistics(error string, statistics *metadata.Statistics) {
-	// TODO
+func (c *BackendClient) ReportStatistics(statistics *metadata.Statistics) {
+
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(statistics)
+	if err != nil {
+		c.ReportCrash(err.Error(), statistics)
+	}
+
+	_, err = http.Post(backendUrl+statisticsPath, jsonContentType, buf)
+	if err != nil {
+		c.ReportCrash(err.Error(), statistics)
+	}
 }
 
 func (c *BackendClient) ReportCrash(error string, statistics *metadata.Statistics) {
@@ -85,6 +96,38 @@ func (c *BackendClient) RegisterLicenseKey(licenseKey string, statistics *metada
 
 	response, err := http.Post(
 		backendUrl+registrationPath, jsonContentType, buf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(response.Body)
+		return nil, errors.New(string(body))
+	}
+
+	var license metadata.License
+	json.NewDecoder(response.Body).Decode(&license)
+
+	return &license, nil
+}
+
+func (c *BackendClient) VerifyLicenseKey(licenseKey string) (*metadata.License, error) {
+
+	req := struct {
+		LicenseKey string
+	}{
+		licenseKey,
+	}
+
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		c.ReportCrash(err.Error(), nil)
+	}
+
+	response, err := http.Post(
+		backendUrl+verificationPath, jsonContentType, buf)
 
 	if err != nil {
 		return nil, err

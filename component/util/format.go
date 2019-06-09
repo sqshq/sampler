@@ -9,6 +9,15 @@ import (
 	"strings"
 )
 
+var AsciiLogo = []string{
+	"                               __         ",
+	"   _________  ____ ___  ____  / /__  _____",
+	"  / ___/ __ `/ __ `__ \\/ __ \\/ / _ \\/ ___/",
+	" (__  ) /_/ / / / / / / /_/ / /  __/ /    ",
+	"/____/\\__,_/_/ /_/ /_/ .___/_/\\___/_/     ",
+	"                    /_/                   ",
+}
+
 func FormatValue(value float64, scale int) string {
 	if math.Abs(value) == math.MaxFloat64 {
 		return "Inf"

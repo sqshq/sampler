@@ -89,18 +89,23 @@ func main() {
 	defer player.Close()
 
 	palette := console.GetPalette(*cfg.Theme)
-	lout := layout.NewLayout(
-		component.NewStatusLine(*opt.ConfigFile, palette, license), component.NewMenu(palette), component.NewIntro(palette))
+	lout := layout.NewLayout(component.NewStatusLine(*opt.ConfigFile, palette, license),
+		component.NewMenu(palette), component.NewIntro(palette), component.NewNagWindow(palette))
 
 	if statistics.LaunchCount == 0 {
 		if !opt.DisableTelemetry {
 			go bc.ReportInstallation(statistics)
 		}
-		lout.RunIntro()
-	} else /* with random */ {
-		// TODO if license == nil lout.showNagWindow() with timeout and OK button
-		// TODO if license != nil, verify license
-		// TODO report statistics
+		lout.StartWithIntro()
+	} else if statistics.LaunchCount%20 == 0 { // once in a while
+		if license == nil || !license.Valid {
+			lout.StartWithNagWindow()
+		} else {
+			go verifyLicense(license, bc)
+		}
+		if !opt.DisableTelemetry {
+			go bc.ReportStatistics(statistics)
+		}
 	}
 
 	metadata.PersistStatistics(cfg)
@@ -128,5 +133,12 @@ func registerLicense(statistics *metadata.Statistics, opt config.Options, bc *cl
 	} else {
 		metadata.SaveLicense(*lc)
 		console.Exit("License successfully verified, Sampler can be restarted without --license flag now. Thank you.")
+	}
+}
+
+func verifyLicense(license *metadata.License, bc *client.BackendClient) {
+	verifiedLicense, _ := bc.VerifyLicenseKey(*license.Key)
+	if verifiedLicense != nil {
+		metadata.SaveLicense(*verifiedLicense)
 	}
 }

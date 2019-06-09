@@ -10,6 +10,7 @@ import (
 	"github.com/sqshq/sampler/data"
 	"image"
 	"math"
+	"time"
 )
 
 type Layout struct {
@@ -18,10 +19,12 @@ type Layout struct {
 	statusbar        *component.StatusBar
 	menu             *component.Menu
 	intro            *component.Intro
+	nag              *component.NagWindow
 	ChangeModeEvents chan Mode
 	mode             Mode
 	selection        int
 	positionsChanged bool
+	startupTime      time.Time
 }
 
 type Mode rune
@@ -29,25 +32,28 @@ type Mode rune
 const (
 	ModeDefault          Mode = 0
 	ModeIntro            Mode = 1
-	ModePause            Mode = 2
-	ModeComponentSelect  Mode = 3
-	ModeMenuOptionSelect Mode = 4
-	ModeComponentMove    Mode = 5
-	ModeComponentResize  Mode = 6
-	ModeChartPinpoint    Mode = 7
+	ModeNag              Mode = 2
+	ModePause            Mode = 3
+	ModeComponentSelect  Mode = 4
+	ModeMenuOptionSelect Mode = 5
+	ModeComponentMove    Mode = 6
+	ModeComponentResize  Mode = 7
+	ModeChartPinpoint    Mode = 8
 )
 
 const (
-	minDimension    = 3
-	statusbarHeight = 1
+	minDimension         = 3
+	statusbarHeight      = 1
+	nagWindowDurationSec = 5
 )
 
-func NewLayout(statusline *component.StatusBar, menu *component.Menu, intro *component.Intro) *Layout {
+func NewLayout(statusline *component.StatusBar, menu *component.Menu, intro *component.Intro, nag *component.NagWindow) *Layout {
 
 	width, height := ui.TerminalDimensions()
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
 	intro.SetRect(0, 0, width, height)
+	nag.SetRect(0, 0, width, height)
 	statusline.SetRect(0, height-statusbarHeight, width, height)
 
 	return &Layout{
@@ -56,9 +62,11 @@ func NewLayout(statusline *component.StatusBar, menu *component.Menu, intro *com
 		statusbar:        statusline,
 		menu:             menu,
 		intro:            intro,
+		nag:              nag,
 		mode:             ModeDefault,
 		selection:        0,
 		ChangeModeEvents: make(chan Mode, 10),
+		startupTime:      time.Now(),
 	}
 }
 
@@ -66,8 +74,12 @@ func (l *Layout) AddComponent(cpt *component.Component) {
 	l.Components = append(l.Components, cpt)
 }
 
-func (l *Layout) RunIntro() {
+func (l *Layout) StartWithIntro() {
 	l.mode = ModeIntro
+}
+
+func (l *Layout) StartWithNagWindow() {
+	l.mode = ModeNag
 }
 
 func (l *Layout) changeMode(m Mode) {
@@ -79,7 +91,7 @@ func (l *Layout) changeMode(m Mode) {
 }
 
 func (l *Layout) HandleMouseClick(x int, y int) {
-	if l.mode == ModeIntro {
+	if l.mode == ModeIntro || l.mode == ModeNag {
 		return
 	}
 	l.menu.Idle()
@@ -145,6 +157,8 @@ func (l *Layout) HandleKeyboardEvent(e string) {
 			} else {
 				l.changeMode(ModeDefault)
 			}
+		case ModeNag:
+			l.nag.Accept()
 		}
 	case console.KeyEsc:
 		l.resetAlerts()
@@ -310,15 +324,28 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	columnWidth := float64(l.GetRect().Dx()) / float64(console.ColumnsCount)
 	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(console.RowsCount)
 
+	for _, c := range l.Components {
+		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)
+		c.SetRect(rectangle.Min.X, rectangle.Min.Y, rectangle.Max.X, rectangle.Max.Y)
+	}
+
 	if l.mode == ModeIntro {
 		l.intro.SetRect(l.Min.X, l.Min.Y, l.Max.X, l.Max.Y)
 		l.intro.Draw(buffer)
 		return
 	}
 
+	if l.mode == ModeNag {
+		if l.nag.IsAccepted() && time.Since(l.startupTime).Seconds() > nagWindowDurationSec {
+			l.mode = ModeDefault
+		} else {
+			l.nag.SetRect(l.Min.X, l.Min.Y, l.Max.X, l.Max.Y)
+			l.nag.Draw(buffer)
+			return
+		}
+	}
+
 	for _, c := range l.Components {
-		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)
-		c.SetRect(rectangle.Min.X, rectangle.Min.Y, rectangle.Max.X, rectangle.Max.Y)
 		c.Draw(buffer)
 	}
 
