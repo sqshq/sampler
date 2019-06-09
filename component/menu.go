@@ -123,7 +123,6 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 
 func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 
-	arrowsText := "Use mouse or keyboard for selection"
 	optionsText := "<ENTER> to view options"
 	resumeText := "<ESC> to resume"
 
@@ -136,16 +135,7 @@ func (m *Menu) renderHighlight(buffer *ui.Buffer) {
 		return
 	}
 
-	m.printAllDirectionsArrowSign(buffer, -2)
-
-	arrowsTextPoint := util.GetMiddlePoint(m.Block.Rectangle, arrowsText, 2)
-	if arrowsTextPoint.Y+1 < m.Inner.Max.Y {
-		buffer.SetString(
-			arrowsText,
-			ui.NewStyle(console.ColorDarkGrey),
-			arrowsTextPoint,
-		)
-	}
+	m.printAllDirectionsArrowSign(buffer, -1)
 
 	optionsTextPoint := util.GetMiddlePoint(m.Block.Rectangle, optionsText, 3)
 	if optionsTextPoint.Y+1 < m.Inner.Max.Y {
