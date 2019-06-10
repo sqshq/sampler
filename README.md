@@ -125,12 +125,13 @@ textboxes:
     sample: docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.PIDs}}"
 ```
 #### Asciibox
-![asciibox](https://user-images.githubusercontent.com/6069066/59169126-e7691900-8b06-11e9-9e6a-12e0fe5cd425.png)
+![asciibox](https://user-images.githubusercontent.com/6069066/59169283-aa515680-8b07-11e9-8beb-716a387aed1b.png)
 ```yml
 asciiboxes:
   - title: UTC time
     rate-ms: 500        # sampling rate, default = 1000
     font: 3d            # font type, default = 2d
+    border: false       # border around the item, default = true    
     color: 43           # 8-bit color number, default is white
     sample: env TZ=UTC date +%r
 ```
