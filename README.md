@@ -112,7 +112,7 @@ gauges:
       sample: echo 0
 ```
 #### Textbox
-![textbox](https://user-images.githubusercontent.com/6069066/59167747-de754900-8b00-11e9-887b-a9fce57d9a72.png)
+![textbox](https://user-images.githubusercontent.com/6069066/59168949-192db000-8b06-11e9-900b-0e92ff494f62.png)
 ```yml
 textboxes:
   - title: Local weather
@@ -125,13 +125,13 @@ textboxes:
     sample: docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.PIDs}}"
 ```
 #### Asciibox
-![asciibox](https://user-images.githubusercontent.com/6069066/59167749-de754900-8b00-11e9-9157-cc9809fbc622.png)
+![asciibox](https://user-images.githubusercontent.com/6069066/59169126-e7691900-8b06-11e9-9e6a-12e0fe5cd425.png)
 ```yml
 asciiboxes:
   - title: UTC time
     rate-ms: 500        # sampling rate, default = 1000
     font: 3d            # font type, default = 2d
-    color: 178          # 8-bit color number, default is white
+    color: 43           # 8-bit color number, default is white
     sample: env TZ=UTC date +%r
 ```
 
