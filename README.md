@@ -23,7 +23,7 @@ Using Sampler is basically a 3-step process:
 - Run `sampler -c config.yml`
 - Adjust components size and location on UI
 
-## Configuration
+## Contents
 
 - [Components](#components)
   - [Runchart](#runchart)
@@ -39,8 +39,8 @@ Using Sampler is basically a 3-step process:
   - [Color theme](#color-theme)
 - [Real-world examples (contributions welcome)](#real-world-examples)  
 
-### Components
-#### Runchart
+## Components
+### Runchart
 ![runchart](https://user-images.githubusercontent.com/6069066/59168666-aff96d00-8b04-11e9-99b6-34d8bae37bd2.png)
 ```yml
 runcharts:
@@ -59,7 +59,7 @@ runcharts:
       - label: BING
         sample: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
 ```
-#### Sparkline
+### Sparkline
 ![sparkline](https://user-images.githubusercontent.com/6069066/59167746-de754900-8b00-11e9-9305-c9a4176634d2.png)
 ```yml
 sparklines:
@@ -72,7 +72,7 @@ sparklines:
     scale: 0
     sample: memory_pressure | grep 'Pages free' | awk '{print $3}'
 ```
-#### Barchart
+### Barchart
 ![barchart](https://user-images.githubusercontent.com/6069066/59167751-de754900-8b00-11e9-8d01-efd04ae1eec6.png)
 ```yml
 barcharts:
@@ -89,7 +89,7 @@ barcharts:
       - label: TCP bytes out
         sample: nettop -J bytes_out -l 1 -m tcp | awk '{sum += $4} END {print sum}'
 ```
-#### Gauge
+### Gauge
 ![gauge](https://user-images.githubusercontent.com/6069066/59168667-b0920380-8b04-11e9-852b-5e7810fab640.png)
 ```yml
 gauges:
@@ -111,7 +111,7 @@ gauges:
     min:
       sample: echo 0
 ```
-#### Textbox
+### Textbox
 ![textbox](https://user-images.githubusercontent.com/6069066/59168949-192db000-8b06-11e9-900b-0e92ff494f62.png)
 ```yml
 textboxes:
@@ -124,7 +124,7 @@ textboxes:
     rate-ms: 500
     sample: docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.PIDs}}"
 ```
-#### Asciibox
+### Asciibox
 ![asciibox](https://user-images.githubusercontent.com/6069066/59169283-aa515680-8b07-11e9-8beb-716a387aed1b.png)
 ```yml
 asciiboxes:
@@ -136,20 +136,20 @@ asciiboxes:
     sample: env TZ=UTC date +%r
 ```
 
-### Bells and whistles
+## Bells and whistles
 
-#### Triggers
+### Triggers
 Triggers allow to perform conditional actions, like visual/sound alerts or an arbitrary shell command.
 
-#### Interactive shell support
+### Interactive shell support
 In addition to the `sample` command, one can specify `init` command (executed only once before sampling) and `transform` command (to post-process `sample` command output). That covers interactive shell use case, e.g. to establish connection to a database only once, and then perform polling within interactive shell session. MongoDB example: ...
 
-#### Variables
+### Variables
 If the configuration file contains repeated patterns, they can be extracted into the `variables` section.
 Also variables can be specified using `-v`/`--variable` flag on startup, and any system environment variables will also be available in the scripts.
 
-#### Color theme
+### Color theme
 ...
 
-### Real-world examples
+## Real-world examples
 ...
