@@ -34,12 +34,14 @@ Using Sampler is basically a 3-step process:
   - [Asciibox](#asciibox)
 - [Bells and whistles](#bells-and-whistles)
   - [Triggers (conditional actions)](#triggers)
-  - [Interactive shell (for database interaction, remote server access, etc)](#interactive-shell-support)
+  - [Interactive shell (database interaction, remote server access, etc)](#interactive-shell-support)
   - [Variables](#variables)
   - [Color theme](#color-theme)
 - [Real-world examples (contributions welcome)](#real-world-examples)  
 
 ## Components
+The following is a list of configuration examples for each component type, with macOS compatible sample scripts. 
+
 ### Runchart
 ![runchart](https://user-images.githubusercontent.com/6069066/59168666-aff96d00-8b04-11e9-99b6-34d8bae37bd2.png)
 ```yml
