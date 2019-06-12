@@ -92,7 +92,7 @@ barcharts:
         sample: nettop -J bytes_out -l 1 -m tcp | awk '{sum += $4} END {print sum}'
 ```
 ### Gauge
-![gauge](https://user-images.githubusercontent.com/6069066/59168667-b0920380-8b04-11e9-852b-5e7810fab640.png)
+![gauge](https://user-images.githubusercontent.com/6069066/59318799-4c06ae00-8c96-11e9-868a-7fef803f3739.png)
 ```yml
 gauges:
   - title: Minute progress
