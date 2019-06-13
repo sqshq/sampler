@@ -52,13 +52,14 @@ func NewStatusLine(configFileName string, palette console.Palette, license *meta
 func (s *StatusBar) Draw(buffer *ui.Buffer) {
 
 	buffer.Fill(ui.NewCell(' ', ui.NewStyle(console.ColorClear, console.MenuColorBackground)), s.GetRect())
-	buffer.SetString(s.text, ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
 
 	indent := bindingsIndent
 	for _, binding := range s.keyBindings {
 		buffer.SetString(binding, ui.NewStyle(console.MenuColorText, console.MenuColorBackground), image.Pt(s.Max.X-len(binding)-indent, s.Min.Y))
 		indent += bindingsIndent + len(binding)
 	}
+
+	buffer.SetString(s.text, ui.NewStyle(console.MenuColorText, console.MenuColorBackground), s.Min)
 
 	if s.pause {
 		buffer.SetString(pauseText, ui.NewStyle(console.MenuColorBackground, console.MenuColorText), image.Pt(s.Max.X-s.Dx()/2-len(pauseText)/2, s.Min.Y))

@@ -72,7 +72,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 
 			details := [4]string{
 				fmt.Sprintf("cur  %s", util.FormatValue(getCurrentValue(line), c.scale)),
-				fmt.Sprintf("dlt %s", util.FormatValueWithSign(getDiffWithPreviousValue(line), c.scale)),
+				fmt.Sprintf("dlt %s", util.FormatDelta(getDiffWithPreviousValue(line), c.scale)),
 				fmt.Sprintf("max  %s", util.FormatValue(line.extrema.max, c.scale)),
 				fmt.Sprintf("min  %s", util.FormatValue(line.extrema.min, c.scale)),
 			}

@@ -147,7 +147,7 @@ func (b *BarChart) Draw(buffer *ui.Buffer) {
 		// draw value & delta
 		value := util.FormatValue(bar.value, b.scale)
 		if bar.delta != 0 {
-			value = fmt.Sprintf("%s / %s", value, util.FormatValueWithSign(bar.delta, b.scale))
+			value = fmt.Sprintf("%s/%s", value, util.FormatDelta(bar.delta, b.scale))
 		}
 		valueXCoordinate := barXCoordinate +
 			int(float64(barWidth)/2) -

@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"image"
 	"math"
@@ -26,13 +27,35 @@ func FormatValue(value float64, scale int) string {
 	}
 }
 
-func FormatValueWithSign(value float64, scale int) string {
-	if value == 0 {
+func FormatDelta(value float64, scale int) string {
+
+	abs := math.Abs(value)
+	val := value
+	scl := scale
+
+	postfix := ""
+
+	if abs > 1000 && abs < 1000000 {
+		val = float64(value) / 1000
+		postfix = "k"
+	} else if abs > 1000000 && abs < 1000000000 {
+		val = float64(value) / 1000000
+		postfix = "M"
+	} else if abs > 1000000000 {
+		val = float64(value) / 1000000000
+		postfix = "B"
+	}
+
+	if abs > 1000 {
+		scl = 1
+	}
+
+	if val == 0 {
 		return " 0"
-	} else if value > 0 {
-		return "+" + FormatValue(value, scale)
+	} else if val > 0 {
+		return fmt.Sprintf("+%s%s", FormatValue(val, scl), postfix)
 	} else {
-		return FormatValue(value, scale)
+		return fmt.Sprintf("%s%s", FormatValue(val, scl), postfix)
 	}
 }
 
