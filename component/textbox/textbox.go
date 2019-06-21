@@ -20,10 +20,15 @@ type TextBox struct {
 
 func NewTextBox(c config.TextBoxConfig, palette console.Palette) *TextBox {
 
+	color := c.Color
+	if color == nil {
+		color = &palette.BaseColor
+	}
+
 	box := TextBox{
 		Block:    component.NewBlock(c.Title, *c.Border, palette),
 		Consumer: data.NewConsumer(),
-		style:    ui.NewStyle(palette.BaseColor),
+		style:    ui.NewStyle(*color),
 	}
 
 	go func() {
