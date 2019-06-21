@@ -4,7 +4,7 @@ import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"log"
 	"runtime"
 )

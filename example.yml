@@ -1,5 +1,5 @@
 variables:
-  mongoconnection: mongo --quiet --host=localhost blog
+    mongoconnection: mongo --quiet --host=localhost blog
 runcharts:
   - title: SEARCH ENGINE RESPONSE TIME (sec)
     position: [[0, 0], [52, 16]]
@@ -7,10 +7,10 @@ runcharts:
       - title: Latency threshold exceeded
         condition: echo "$prev < 0.8 && $cur > 0.8" |bc -l
         actions:
-          terminal-bell: true
-          sound: true
-          visual: true
-          script: 'say alert: ${label} latency exceeded ${cur} second'
+            terminal-bell: true
+            sound: true
+            visual: true
+            script: 'say alert: ${label} latency exceeded ${cur} second'
     scale: 3
     items:
       - label: GOOGLE
@@ -22,8 +22,8 @@ runcharts:
   - title: MONGO COLLECTIONS COUNT
     position: [[53, 0], [27, 8]]
     legend:
-      enabled: true
-      details: false
+        enabled: true
+        details: false
     scale: 0
     items:
       - label: ACTIVE
@@ -57,41 +57,41 @@ gauges:
   - title: YEAR PROGRESS
     position: [[53, 8], [27, 2]]
     cur:
-      sample: date +%j
+        sample: date +%j
     max:
-      sample: echo 365
+        sample: echo 365
     min:
-      sample: echo 0
+        sample: echo 0
   - title: DAY PROGRESS
     position: [[53, 10], [27, 2]]
     cur:
-      sample: date +%H
+        sample: date +%H
     max:
-      sample: echo 24
+        sample: echo 24
     min:
-      sample: echo 0
+        sample: echo 0
   - title: HOUR PROGRESS
     position: [[53, 12], [27, 2]]
     cur:
-      sample: date +%M
+        sample: date +%M
     max:
-      sample: echo 60
+        sample: echo 60
     min:
-      sample: echo 0
+        sample: echo 0
   - title: MINUTE PROGRESS
     position: [[53, 14], [27, 2]]
     triggers:
       - title: CLOCK BELL EVERY MINUTE
         condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1 || echo 0'
         actions:
-          sound: true
-          script: say -v samantha `date +%I:%M%p`
+            sound: true
+            script: say -v samantha `date +%I:%M%p`
     cur:
-      sample: date +%S
+        sample: date +%S
     max:
-      sample: echo 60
+        sample: echo 60
     min:
-      sample: echo 0
+        sample: echo 0
 sparklines:
   - title: CPU usage
     position: [[28, 22], [24, 7]]
@@ -111,8 +111,8 @@ textboxes:
     position: [[8, 30], [13, 7]]
     rate-ms: 10000
     sample: curl wttr.in/newyork?0ATQF
-    border: false
     transform: echo 1
+    border: false
   - title: San Francisco weather
     position: [[17, 30], [13, 7]]
     rate-ms: 10000

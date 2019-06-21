@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/sqshq/sampler/console"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
