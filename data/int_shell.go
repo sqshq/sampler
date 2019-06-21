@@ -18,6 +18,7 @@ type BasicInteractiveShell struct {
 	stdin     io.WriteCloser
 	cmd       *exec.Cmd
 	errCount  int
+	timeout   time.Duration
 }
 
 func (s *BasicInteractiveShell) init() error {
@@ -82,7 +83,7 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 	timeout := make(chan bool, 1)
 
 	go func() {
-		time.Sleep(time.Duration(s.item.rateMs / 2))
+		time.Sleep(s.timeout)
 		timeout <- true
 	}()
 

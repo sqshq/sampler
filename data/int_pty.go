@@ -28,6 +28,7 @@ type PtyInteractiveShell struct {
 	file      io.WriteCloser
 	ch        chan string
 	errCount  int
+	timeout   time.Duration
 }
 
 func (s *PtyInteractiveShell) init() error {
@@ -119,13 +120,11 @@ await:
 
 func (s *PtyInteractiveShell) getAwaitTimeout() time.Duration {
 
-	timeout := time.Duration(s.item.rateMs) * time.Millisecond
-
-	if timeout > maxAwaitTimeout {
+	if s.timeout > maxAwaitTimeout {
 		return maxAwaitTimeout
-	} else if timeout < minAwaitTimeout {
+	} else if s.timeout < minAwaitTimeout {
 		return minAwaitTimeout
 	}
 
-	return timeout
+	return s.timeout
 }

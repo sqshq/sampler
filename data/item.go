@@ -5,6 +5,7 @@ import (
 	"github.com/sqshq/sampler/config"
 	"os"
 	"os/exec"
+	"time"
 )
 
 const errorThreshold = 10
@@ -73,11 +74,12 @@ func (i *Item) execute(variables []string, script string) (string, error) {
 }
 
 func (i *Item) initInteractiveShell(v []string) error {
+	timeout := time.Duration(i.rateMs) * time.Millisecond * 3 / 4
 	if i.pty {
-		i.ptyShell = &PtyInteractiveShell{item: i, variables: v}
+		i.ptyShell = &PtyInteractiveShell{item: i, variables: v, timeout: timeout}
 		return i.ptyShell.init()
 	} else {
-		i.basicShell = &BasicInteractiveShell{item: i, variables: v}
+		i.basicShell = &BasicInteractiveShell{item: i, variables: v, timeout: timeout}
 		return i.basicShell.init()
 	}
 }
