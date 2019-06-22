@@ -178,6 +178,7 @@ func (c *Config) setDefaultItemSettings() {
 	palette := console.GetPalette(*c.Theme)
 	colorsCount := len(palette.ContentColors)
 	defaultPty := false
+	defaultPercentOnly := false
 
 	for _, ch := range c.RunCharts {
 		for j, item := range ch.Items {
@@ -223,6 +224,9 @@ func (c *Config) setDefaultItemSettings() {
 		}
 		if g.Color == nil {
 			g.Color = &palette.ContentColors[i%colorsCount]
+		}
+		if g.PercentOnly == nil {
+			g.PercentOnly = &defaultPercentOnly
 		}
 		c.Gauges[i] = g
 	}

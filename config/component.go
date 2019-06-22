@@ -58,6 +58,7 @@ type GaugeConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Scale           *int      `yaml:"scale,omitempty"`
 	Color           *ui.Color `yaml:"color,omitempty"`
+	PercentOnly     *bool     `yaml:"percent-only,omitempty"`
 	Cur             Item      `yaml:"cur"`
 	Max             Item      `yaml:"max"`
 	Min             Item      `yaml:"min"`

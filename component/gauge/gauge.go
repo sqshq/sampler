@@ -20,22 +20,24 @@ const (
 type Gauge struct {
 	*ui.Block
 	*data.Consumer
-	minValue float64
-	maxValue float64
-	curValue float64
-	color    ui.Color
-	scale    int
-	palette  console.Palette
+	minValue    float64
+	maxValue    float64
+	curValue    float64
+	color       ui.Color
+	scale       int
+	percentOnly bool
+	palette     console.Palette
 }
 
 func NewGauge(c config.GaugeConfig, palette console.Palette) *Gauge {
 
 	g := Gauge{
-		Block:    component.NewBlock(c.Title, true, palette),
-		Consumer: data.NewConsumer(),
-		scale:    *c.Scale,
-		color:    *c.Color,
-		palette:  palette,
+		Block:       component.NewBlock(c.Title, true, palette),
+		Consumer:    data.NewConsumer(),
+		color:       *c.Color,
+		scale:       *c.Scale,
+		percentOnly: *c.PercentOnly,
+		palette:     palette,
 	}
 
 	go func() {
@@ -84,7 +86,12 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 		percent = (100 * g.curValue) / (g.maxValue - g.minValue)
 	}
 
-	label := fmt.Sprintf("%v%% (%v)", util.FormatValue(percent, g.scale), g.curValue)
+	var label string
+	if g.percentOnly {
+		label = fmt.Sprintf(" %v%% ", util.FormatValue(percent, g.scale))
+	} else {
+		label = fmt.Sprintf(" %v%% (%v) ", util.FormatValue(percent, g.scale), util.FormatValue(g.curValue, g.scale))
+	}
 
 	// draw bar
 	barWidth := int((percent / 100) * float64(g.Inner.Dx()))

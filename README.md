@@ -105,6 +105,7 @@ gauges:
   - title: Minute progress
     rate-ms: 500        # sampling rate, default = 1000
     scale: 2            # number of digits after sample decimal point, default = 1
+    percent-only: false # toggle display of the current value, default = false
     color: 178          # 8-bit color number, default one is chosen from a pre-defined palette
     cur:
       sample: date +%S  # sample script for current value
