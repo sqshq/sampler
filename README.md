@@ -23,7 +23,7 @@ sudo chmod +x /usr/local/bin/sampler
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.
 
-One can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages, trigger deployment process and get notification when it's done. 
+One can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger deployment process and get notification when it's done. 
 
 Using Sampler is basically a 3-step process:
 - Define your configuration in a YAML file
@@ -47,7 +47,7 @@ Using Sampler is basically a 3-step process:
 - [Real-world examples (contributions welcome)](#real-world-examples)  
 
 ## Components
-The following is a list of configuration examples for each component type, with macOS compatible sample scripts. 
+The following is a list of configuration examples for each component type, with macOS compatible sampling scripts. 
 
 ### Runchart
 ![runchart](https://user-images.githubusercontent.com/6069066/59168666-aff96d00-8b04-11e9-99b6-34d8bae37bd2.png)
@@ -150,16 +150,103 @@ asciiboxes:
 
 ### Triggers
 Triggers allow to perform conditional actions, like visual/sound alerts or an arbitrary shell command.
+The following examples illustrate the concept.
+
+#### Clock gauge, which shows minute progress and announce current time at the beginning of each minute
+
+```yml
+gauges:
+  - title: MINUTE PROGRESS
+    cur:
+      sample: date +%S
+    max:
+      sample: echo 60
+    min:
+      sample: echo 0
+    triggers:
+      - title: CLOCK BELL EVERY MINUTE
+        condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1 || echo 0'  # expects "1" as TRUE indicator
+        actions:
+          terminal-bell: true  # standard terminal bell, default = false
+          sound: true    # NASA quindar tone, default = false
+          visual: false  # notification with current value on top of the component area, default = false
+          script: say -v samantha `date +%I:%M%p`  # an arbitrary script, which can use $cur, $prev and $label variables
+```
+
+#### Search engine latency chart, which alerts user when latency exceeds a threshold
+
+```yml
+runcharts:
+  - title: SEARCH ENGINE RESPONSE TIME (sec)
+    items:
+      - label: GOOGLE
+        sample: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+    triggers:
+      - title: Latency threshold exceeded
+        condition: echo "$prev < 0.8 && $cur > 0.8" |bc -l  # expects "1" as TRUE indicator
+        actions:
+          terminal-bell: true  # standard terminal bell, default = false
+          sound: true   # NASA quindar tone, default = false
+          visual: true  # visual notification on top of the component area, default = false
+          script: 'say alert: ${label} latency exceeded ${cur} second' # an arbitrary script, which can use $cur, $prev and $label variables
+```
 
 ### Interactive shell support
-In addition to the `sample` command, one can specify `init` command (executed only once before sampling) and `transform` command (to post-process `sample` command output). That covers interactive shell use case, e.g. to establish connection to a database only once, and then perform polling within interactive shell session. MongoDB example: ...
+In addition to the `sample` command, one can specify `init` command (executed only once before sampling) and `transform` command (to post-process `sample` command output). That covers interactive shell use case, e.g. to establish connection to a database only once, and then perform polling within interactive shell session.
+
+#### Default mode
+```yml
+textboxes:
+  - title: MongoDB polling
+    rate-ms: 500
+    init: mongo --quiet --host=localhost test # executes only once to start the interactive session
+    sample: Date.now();                       # executes with a required rate, in scope of the interactive session
+    transform: echo result = $sample          # executes in scope of local session, $sample variable is available for transformation
+```
+
+#### PTY mode
+In some cases intractive shell won't work, because its stdin is not a terminal. We can fool it, using PTY mode:
+```yml
+textboxes:
+  - title: Neo4j polling
+    pty: true  # enables pseudo-terminal mode, default = false
+    init: cypher-shell -u neo4j -p pwd --format plain
+    sample: RETURN rand();
+    transform: echo "$sample" | tail -n 1
+  - title: Top on a remote server
+    pty: true  # enables pseudo-terminal mode, default = false
+    init: ssh -i ~/user.pem ec2-user@1.2.3.4
+    sample: top    
+```
 
 ### Variables
 If the configuration file contains repeated patterns, they can be extracted into the `variables` section.
 Also variables can be specified using `-v`/`--variable` flag on startup, and any system environment variables will also be available in the scripts.
 
+```yml
+variables:
+    mongoconnection: mongo --quiet --host=localhost test
+barcharts:
+  - title: MongoDB documents by status
+    items:
+      - label: IN_PROGRESS
+        init: $mongoconnection
+        sample: db.getCollection('events').find({status:'IN_PROGRESS'}).itcount()
+      - label: SUCCESS
+        init: $mongoconnection
+        sample: db.getCollection('events').find({status:'SUCCESS'}).itcount()
+      - label: FAIL
+        init: $mongoconnection
+        sample: db.getCollection('events').find({status:'FAIL'}).itcount()
+```
+
 ### Color theme
-...
+```yml
+theme: light # default = dark
+sparklines:
+  - title: CPU usage
+    sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+```
 
 ## Real-world examples
 ...
