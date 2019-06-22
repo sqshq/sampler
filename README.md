@@ -14,7 +14,7 @@ sudo chmod +x /usr/local/bin/sampler
 ```
 ### Linux
 ```bash
-sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v0.9.1-beta/sampler-0.9.1-linux-amd64
+sudo wget https://github.com/sqshq/sampler/releases/download/v0.9.1-beta/sampler-0.9.1-linux-amd64 -O /usr/local/bin/sampler
 sudo chmod +x /usr/local/bin/sampler
 ```
 ### Windows
@@ -194,7 +194,7 @@ runcharts:
 ### Interactive shell support
 In addition to the `sample` command, one can specify `init` command (executed only once before sampling) and `transform` command (to post-process `sample` command output). That covers interactive shell use case, e.g. to establish connection to a database only once, and then perform polling within interactive shell session.
 
-#### Default mode
+#### Basic mode
 ```yml
 textboxes:
   - title: MongoDB polling
@@ -231,13 +231,13 @@ barcharts:
     items:
       - label: IN_PROGRESS
         init: $mongoconnection
-        sample: db.getCollection('events').find({status:'IN_PROGRESS'}).itcount()
+        sample: db.getCollection('events').find({status:'IN_PROGRESS'}).count()
       - label: SUCCESS
         init: $mongoconnection
-        sample: db.getCollection('events').find({status:'SUCCESS'}).itcount()
+        sample: db.getCollection('events').find({status:'SUCCESS'}).count()
       - label: FAIL
         init: $mongoconnection
-        sample: db.getCollection('events').find({status:'FAIL'}).itcount()
+        sample: db.getCollection('events').find({status:'FAIL'}).count()
 ```
 
 ### Color theme
