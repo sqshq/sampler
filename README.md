@@ -44,7 +44,11 @@ Using Sampler is basically a 3-step process:
   - [Interactive shell (database interaction, remote server access, etc)](#interactive-shell-support)
   - [Variables](#variables)
   - [Color theme](#color-theme)
-- [Real-world examples (contributions welcome)](#real-world-examples)  
+- [Real-world recipes (contributions welcome!)](#real-world-recipes)
+  - [Databases (MySQL, PostgreSQL, MongoDB, Neo4j)](#databases)
+  - [Kafka](#kafka)
+  - [SSH](#ssh)
+  - [JMX](#jmx)
 
 ## Components
 The following is a list of configuration examples for each component type, with macOS compatible sampling scripts. 
@@ -249,5 +253,99 @@ sparklines:
     sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
 ```
 
-## Real-world examples
+## Real-world recipes
+### Databases
+The following are different databases connection examples. Interactive shell (init script) usage is recommended to establish connection only once and then reuse it during sampling.
+
+<details><summary>MySQL</summary>
+
+```yml
+# prerequisite: installed mysql shell
+
+variables:
+  mysql_connection: mysql -u root -s --database mysql --skip-column-names
+sparklines:  
+  - title: MySQL (random number example)
+    pty: true
+    init: $mysql_connection
+    sample: select rand();
+```
+
+</details>
+
+<details><summary>PostgreSQL</summary>
+
+```yml
+# prerequisite: installed psql shell
+
+variables:
+  PGPASSWORD: pwd
+  postgres_connection: psql -h localhost -U postgres --no-align --tuples-only
+sparklines:
+  - title: PostgreSQL (random number example)
+    init: $postgres_connection
+    sample: select random();
+```
+
+</details>
+
+<details><summary>MongoDB</summary>
+
+```yml
+# prerequisite: installed mongo shell
+
+variables:
+  mongo_connection: mongo --quiet --host=localhost test
+sparklines:
+  - title: MongoDB (random number example)
+    init: $mongo_connection
+    sample: Math.random();
+```
+
+</details>
+
+<details><summary>Neo4j</summary>
+
+```yml
+# prerequisite: installed cypher shell
+
+variables:
+  neo4j_connection: cypher-shell -u neo4j -p pwd --format plain
+sparklines:
+  - title: Neo4j (random number example)
+    pty: true
+    init: $neo4j_connection
+    sample: RETURN rand();
+    transform: echo "$sample" | tail -n 1
+```
+
+</details>
+
+### Kafka
+
+<details><summary>Kafka lag per consumer group</summary>
+
+```yml
+
+variables:
+  kafka_connection: $KAFKA_HOME/bin/kafka-consumer-groups --bootstrap-server localhost:9092
+runcharts:
+  - title: Kafka lag per consumer group
+    scale: 0
+    items:
+      - label: A->B
+        sample: $kafka_connection --group group_a --describe | awk 'NR>1 {sum += $5} END {print sum}'
+      - label: B->C
+        sample: $kafka_connection --group group_b --describe | awk 'NR>1 {sum += $5} END {print sum}'
+      - label: C->D
+        sample: $kafka_connection --group group_c --describe | awk 'NR>1 {sum += $5} END {print sum}'
+```
+
+</details>
+
+### SSH
+...
+### JMX
+...
+### Spring Boot
 ...
