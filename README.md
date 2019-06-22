@@ -241,6 +241,7 @@ barcharts:
 ```
 
 ### Color theme
+![light-theme](https://user-images.githubusercontent.com/6069066/59959405-994c0200-9484-11e9-856b-c4d18716e1de.png)
 ```yml
 theme: light # default = dark
 sparklines:
