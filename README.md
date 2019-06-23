@@ -47,6 +47,7 @@ Using Sampler is basically a 3-step process:
 - [Real-world recipes (contributions welcome!)](#real-world-recipes)
   - [Databases (MySQL, PostgreSQL, MongoDB, Neo4j)](#databases)
   - [Kafka](#kafka)
+  - [Docker](#docker)
   - [SSH](#ssh)
   - [JMX](#jmx)
 
@@ -227,6 +228,18 @@ textboxes:
     sample: top    
 ```
 
+#### Multistep init
+It is also possible to execute multiple init commands one after another, before you start sampling.
+```yml
+textboxes:
+  - title: Java application uptime
+    multistep-init:
+      - java -jar jmxterm-1.0.0-uber.jar
+      - open host:port # or local PID
+      - bean java.lang:type=Runtime
+    sample: get Uptime
+```    
+
 ### Variables
 If the configuration file contains repeated patterns, they can be extracted into the `variables` section.
 Also variables can be specified using `-v`/`--variable` flag on startup, and any system environment variables will also be available in the scripts.
@@ -330,7 +343,6 @@ sparklines:
 <details><summary>Kafka lag per consumer group</summary>
 
 ```yml
-
 variables:
   kafka_connection: $KAFKA_HOME/bin/kafka-consumer-groups --bootstrap-server localhost:9092
 runcharts:
@@ -347,12 +359,23 @@ runcharts:
 
 </details>
 
+### Docker
+
+<details><summary>Docker containers stats (CPU, MEM, O/I)</summary>
+
+```yml
+textboxes:
+  - title: Docker containers stats
+    sample: docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}\t{{.PIDs}}"
+```
+
+</details>
+
 ### SSH
 
 <details><summary>TOP command on a remote server</summary>
 
 ```yml
-
 variables:
   sshconnection: ssh -i ~/my-key-pair.pem ec2-user@1.2.3.4
 textboxes:
@@ -365,6 +388,14 @@ textboxes:
 </details>
 
 ### JMX
-...
-### Spring Boot
-...
+Prerequisite: download [jmxterm jar file](https://docs.cyclopsgroup.org/jmxterm)
+```yml
+textboxes:
+  - title: Java application uptime
+    multistep-init:
+      - java -jar jmxterm-1.0.0-uber.jar
+      - open host:port # or local PID
+      - bean java.lang:type=Runtime
+    sample: get Uptime
+    transform: echo $sample | tr -dc '0-9' | awk '{printf "%.1f min", $1/1000/60}'
+```
