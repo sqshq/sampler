@@ -106,7 +106,7 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 			if errorText.Len() > 0 {
 				return "", errors.New(errorText.String())
 			} else {
-				return resultText.String(), nil
+				return s.item.transform(resultText.String())
 			}
 		}
 	}

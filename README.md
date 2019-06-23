@@ -259,7 +259,7 @@ sparklines:
 
 ## Real-world recipes
 ### Databases
-The following are different databases connection examples. Interactive shell (init script) usage is recommended to establish connection only once and then reuse it during sampling.
+The following are different database connection examples. Interactive shell (init script) usage is recommended to establish connection only once and then reuse it during sampling.
 
 <details><summary>MySQL</summary>
 
