@@ -156,11 +156,12 @@ asciiboxes:
 Triggers allow to perform conditional actions, like visual/sound alerts or an arbitrary shell command.
 The following examples illustrate the concept.
 
-#### Clock gauge, which shows minute progress and announce current time at the beginning of each minute
+#### Clock gauge, which shows minute progress and announces current time at the beginning of each minute
 
 ```yml
 gauges:
   - title: MINUTE PROGRESS
+    position: [[0, 18], [80, 0]]  
     cur:
       sample: date +%S
     max:
@@ -182,12 +183,15 @@ gauges:
 ```yml
 runcharts:
   - title: SEARCH ENGINE RESPONSE TIME (sec)
+    rate-ms: 200
     items:
       - label: GOOGLE
         sample: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
+      - label: YAHOO
+        sample: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com     
     triggers:
       - title: Latency threshold exceeded
-        condition: echo "$prev < 0.8 && $cur > 0.8" |bc -l  # expects "1" as TRUE indicator
+        condition: echo "$prev < 0.3 && $cur > 0.3" |bc -l  # expects "1" as TRUE indicator
         actions:
           terminal-bell: true  # standard terminal bell, default = false
           sound: true   # NASA quindar tone, default = false
@@ -344,7 +348,22 @@ runcharts:
 </details>
 
 ### SSH
-...
+
+<details><summary>TOP command on a remote server</summary>
+
+```yml
+
+variables:
+  sshconnection: ssh -i ~/my-key-pair.pem ec2-user@1.2.3.4
+textboxes:
+  - title: SSH
+    pty: true
+    init: $sshconnection
+    sample: top
+```
+
+</details>
+
 ### JMX
 ...
 ### Spring Boot
