@@ -388,7 +388,11 @@ textboxes:
 </details>
 
 ### JMX
+
+<details><summary>Java application uptime</summary>
+
 Prerequisite: download [jmxterm jar file](https://docs.cyclopsgroup.org/jmxterm)
+
 ```yml
 textboxes:
   - title: Java application uptime
@@ -399,3 +403,5 @@ textboxes:
     sample: get Uptime
     transform: echo $sample | tr -dc '0-9' | awk '{printf "%.1f min", $1/1000/60}'
 ```
+
+</details>

@@ -23,7 +23,7 @@ type BasicInteractiveShell struct {
 
 func (s *BasicInteractiveShell) init() error {
 
-	cmd := exec.Command("sh", "-c", *s.item.initScript)
+	cmd := exec.Command("sh", "-c", s.item.initScripts[0])
 	enrichEnvVariables(cmd, s.variables)
 	cmd.Wait()
 
@@ -65,12 +65,20 @@ func (s *BasicInteractiveShell) init() error {
 		return err
 	}
 
+	for i := 1; i < len(s.item.initScripts); i++ {
+		_, err := io.WriteString(s.stdin, fmt.Sprintf(" %s\n", s.item.initScripts[i]))
+		if err != nil {
+			return err
+		}
+		time.Sleep(startupTimeout) // TODO wait until cmd complete
+	}
+
 	return nil
 }
 
 func (s *BasicInteractiveShell) execute() (string, error) {
 
-	_, err := io.WriteString(s.stdin, s.item.sampleScript+"\n")
+	_, err := io.WriteString(s.stdin, fmt.Sprintf(" %s\n", s.item.sampleScript))
 	if err != nil {
 		s.errCount++
 		if s.errCount > errorThreshold {

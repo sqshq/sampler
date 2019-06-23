@@ -103,12 +103,13 @@ type LegendConfig struct {
 }
 
 type Item struct {
-	Label           *string   `yaml:"label,omitempty"`
-	Color           *ui.Color `yaml:"color,omitempty"`
-	Pty             *bool     `yaml:"pty,omitempty"`
-	InitScript      *string   `yaml:"init,omitempty"`
-	SampleScript    *string   `yaml:"sample"`
-	TransformScript *string   `yaml:"transform,omitempty"`
+	Label               *string   `yaml:"label,omitempty"`
+	Color               *ui.Color `yaml:"color,omitempty"`
+	Pty                 *bool     `yaml:"pty,omitempty"`
+	InitScript          *string   `yaml:"init,omitempty"`
+	MultiStepInitScript *[]string `yaml:"multistep-init,omitempty"`
+	SampleScript        *string   `yaml:"sample"`
+	TransformScript     *string   `yaml:"transform,omitempty"`
 }
 
 type Location struct {

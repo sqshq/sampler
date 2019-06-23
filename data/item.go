@@ -12,8 +12,8 @@ const errorThreshold = 10
 
 type Item struct {
 	label           string
+	initScripts     []string
 	sampleScript    string
-	initScript      *string
 	transformScript *string
 	color           *ui.Color
 	rateMs          int
@@ -30,7 +30,7 @@ func NewItems(cfgs []config.Item, rateMs int) []*Item {
 		item := &Item{
 			label:           *i.Label,
 			sampleScript:    *i.SampleScript,
-			initScript:      i.InitScript,
+			initScripts:     getInitScripts(i),
 			transformScript: i.TransformScript,
 			color:           i.Color,
 			rateMs:          rateMs,
@@ -43,7 +43,7 @@ func NewItems(cfgs []config.Item, rateMs int) []*Item {
 
 func (i *Item) nextValue(variables []string) (string, error) {
 
-	if i.initScript != nil && i.basicShell == nil && i.ptyShell == nil {
+	if len(i.initScripts) > 0 && i.basicShell == nil && i.ptyShell == nil {
 		err := i.initInteractiveShell(variables)
 		if err != nil {
 			return "", err
@@ -97,5 +97,15 @@ func enrichEnvVariables(cmd *exec.Cmd, variables []string) {
 	cmd.Env = os.Environ()
 	for _, variable := range variables {
 		cmd.Env = append(cmd.Env, variable)
+	}
+}
+
+func getInitScripts(item config.Item) []string {
+	if item.MultiStepInitScript != nil {
+		return *item.MultiStepInitScript
+	} else if item.InitScript != nil {
+		return []string{*item.InitScript}
+	} else {
+		return []string{}
 	}
 }

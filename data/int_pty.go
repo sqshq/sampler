@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	startupTimeout  = 100 * time.Millisecond
+	startupTimeout  = 200 * time.Millisecond
 	minAwaitTimeout = 100 * time.Millisecond
 	maxAwaitTimeout = 1 * time.Second
 )
@@ -33,7 +33,7 @@ type PtyInteractiveShell struct {
 
 func (s *PtyInteractiveShell) init() error {
 
-	cmd := exec.Command("sh", "-c", *s.item.initScript)
+	cmd := exec.Command("sh", "-c", s.item.initScripts[0])
 	enrichEnvVariables(cmd, s.variables)
 
 	file, err := pty.Start(cmd)
@@ -60,6 +60,14 @@ func (s *PtyInteractiveShell) init() error {
 	}
 
 	time.Sleep(startupTimeout)
+
+	for i := 1; i < len(s.item.initScripts); i++ {
+		_, err = io.WriteString(s.file, fmt.Sprintf(" %s\n", s.item.initScripts[i]))
+		if err != nil {
+			return err
+		}
+		time.Sleep(startupTimeout) // TODO wait until cmd complete
+	}
 
 	return nil
 }
