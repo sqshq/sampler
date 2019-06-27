@@ -389,9 +389,9 @@ textboxes:
 
 ### JMX
 
-<details><summary>Java application uptime</summary>
+<details><summary>Java application uptime example</summary>
 
-Prerequisite: download [jmxterm jar file](https://docs.cyclopsgroup.org/jmxterm)
+- Prerequisite: download [jmxterm jar file](https://docs.cyclopsgroup.org/jmxterm)
 
 ```yml
 textboxes:
