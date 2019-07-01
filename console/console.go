@@ -15,7 +15,7 @@ const (
 	RowsCount         = 40
 	AppTitle          = "sampler"
 	AppVersion        = "0.9.1"
-	AppLicenseWarning = "UNLICENSED. FOR PERSONAL USE ONLY. VISIT WWW.SAMPLER.DEV"
+	AppLicenseWarning = "UNLICENSED. FOR NON-COMMERCIAL USE ONLY. VISIT WWW.SAMPLER.DEV"
 )
 
 const (

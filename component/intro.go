@@ -67,7 +67,7 @@ func (intro *Intro) Draw(buffer *ui.Buffer) {
 		"", "", "",
 		"Welcome.",
 		"Sampler is free of charge for personal use, but license must be purchased to use it for business purposes.",
-		"By proceeding, you agree to the terms of the license agreement and privacy policy: www.sampler.dev/license",
+		"By proceeding, you agree to the terms of the License Agreement and Privacy Policy: www.sampler.dev/license",
 		"", "", "",
 		"How do you plan to use Sampler?",
 	}...)
@@ -79,7 +79,7 @@ func (intro *Intro) Draw(buffer *ui.Buffer) {
 
 	personalText := append(util.AsciiLogo, []string{
 		"", "", "", "",
-		"Sampler is always free for non-commercial use, but you can support the project and buy a personal license:",
+		"Sampler is always free for non-commercial use, but you can support the project and donate any amount to get a personal license:",
 		"www.sampler.dev",
 	}...)
 
