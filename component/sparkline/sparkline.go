@@ -117,20 +117,21 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 			break
 		}
 
-		top := int((s.values[i] / s.maxValue) * float64(height))
+		top := 0
 
-		if top == 0 {
-			top = 1
+		if s.maxValue != s.minValue {
+			top = int((s.values[i] - s.minValue) * float64(height) / (s.maxValue - s.minValue))
 		}
 
-		for j := 1; j <= top; j++ {
-			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(console.GetGradientColor(s.gradient, j-1, height))), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j))
-			if i == len(s.values)-1 && j == top {
-				buffer.SetString(curValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Max.Y-j))
-				if s.maxValue != s.minValue {
-					buffer.SetString(minValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Max.Y-2))
-					buffer.SetString(maxValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Min.Y+1))
-				}
+		for j := 0; j <= top; j++ {
+			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(console.GetGradientColor(s.gradient, j, height))), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j-1))
+		}
+
+		if i == len(s.values)-1 {
+			buffer.SetString(curValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Max.Y-top-1))
+			if s.maxValue != s.minValue {
+				buffer.SetString(minValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Max.Y-2))
+				buffer.SetString(maxValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Min.Y+1))
 			}
 		}
 	}
