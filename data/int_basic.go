@@ -25,7 +25,11 @@ func (s *BasicInteractiveShell) init() error {
 
 	cmd := exec.Command("sh", "-c", s.item.initScripts[0])
 	enrichEnvVariables(cmd, s.variables)
-	cmd.Wait()
+
+	err := cmd.Wait()
+	if err != nil {
+		return err
+	}
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -77,6 +81,10 @@ func (s *BasicInteractiveShell) init() error {
 }
 
 func (s *BasicInteractiveShell) execute() (string, error) {
+
+	if s.stdin == nil {
+		return "", nil
+	}
 
 	_, err := io.WriteString(s.stdin, fmt.Sprintf(" %s\n", s.item.sampleScript))
 	if err != nil {

@@ -18,8 +18,8 @@ type Item struct {
 	color           *ui.Color
 	rateMs          int
 	pty             bool
-	basicShell      *BasicInteractiveShell
-	ptyShell        *PtyInteractiveShell
+	basicShell      InteractiveShell
+	ptyShell        InteractiveShell
 }
 
 func NewItems(cfgs []config.Item, rateMs int) []*Item {

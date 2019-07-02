@@ -12,15 +12,6 @@ import (
 	"time"
 )
 
-const (
-	startupTimeout  = 200 * time.Millisecond
-	minAwaitTimeout = 100 * time.Millisecond
-	maxAwaitTimeout = 1 * time.Second
-)
-
-/**
- * Experimental
- */
 type PtyInteractiveShell struct {
 	item      *Item
 	variables []string
