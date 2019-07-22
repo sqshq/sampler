@@ -26,8 +26,10 @@ func NewStatusLine(configFileName string, palette console.Palette, license *meta
 	block.Border = false
 	text := fmt.Sprintf(" %s %s | ", console.AppTitle, console.AppVersion)
 
-	if license == nil || !license.Valid {
+	if license == nil || !license.Valid || license.Type == nil {
 		text += console.AppLicenseWarning
+	} else if *license.Type == metadata.TypePersonal {
+		text += fmt.Sprintf("%s | personal license: %s", configFileName, *license.Username)
 	} else if license.Username != nil {
 		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Username)
 		if license.Company != nil {

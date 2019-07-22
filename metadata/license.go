@@ -6,11 +6,19 @@ import (
 )
 
 type License struct {
-	Key      *string `yaml:"k"`
-	Username *string `yaml:"u"`
-	Company  *string `yaml:"c"`
-	Valid    bool    `yaml:"v"`
+	Key      *string      `yaml:"k"`
+	Username *string      `yaml:"u"`
+	Company  *string      `yaml:"c"`
+	Type     *LicenseType `yaml:"t"`
+	Valid    bool         `yaml:"v"`
 }
+
+type LicenseType rune
+
+const (
+	TypePersonal   LicenseType = 0
+	TypeCommercial LicenseType = 1
+)
 
 const licenseFileName = "license.yml"
 
