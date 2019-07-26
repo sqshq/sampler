@@ -10,5 +10,5 @@ require (
 	github.com/mattn/go-runewidth v0.0.4
 	github.com/mbndr/figlet4go v0.0.0-20190224160619-d6cef5b186ea
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20190502103701-55513cacd4ae
+	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22
 )
