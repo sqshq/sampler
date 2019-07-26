@@ -1,8 +1,7 @@
-variables:
-    mongoconnection: mongo --quiet --host=localhost blog
 runcharts:
-  - title: SEARCH ENGINE RESPONSE TIME (sec)
-    position: [[0, 0], [52, 16]]
+  - title: Search engine response time
+    position: [[0, 0], [45, 19]]
+    rate-ms: 500
     triggers:
       - title: Latency threshold exceeded
         condition: echo "$prev < 0.8 && $cur > 0.8" |bc -l
@@ -11,51 +10,35 @@ runcharts:
             sound: true
             visual: true
             script: 'say alert: ${label} latency exceeded ${cur} second'
-    scale: 3
+    legend:
+        enabled: true
+        details: false
+    scale: 2
     items:
       - label: GOOGLE
+        color: 178
         sample: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
       - label: YAHOO
         sample: curl -o /dev/null -s -w '%{time_total}'  https://search.yahoo.com
       - label: BING
         sample: curl -o /dev/null -s -w '%{time_total}'  https://www.bing.com
-  - title: MONGO COLLECTIONS COUNT
-    position: [[53, 0], [27, 8]]
-    legend:
-        enabled: true
-        details: false
-    scale: 0
-    items:
-      - label: ACTIVE
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
-      - label: INACTIVE
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
 barcharts:
-  - title: EVENTS BY STATUS
-    position: [[0, 17], [28, 12]]
-    rate-ms: 300
+  - title: Local network activity
+    position: [[45, 20], [35, 8]]
+    rate-ms: 500
     scale: 0
     items:
-      - label: NEW
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
-      - label: TRIGGERED
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
-      - label: IN_PROCESS
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'UNKNOWN'}).itcount()
-      - label: FAILED
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'ACTIVE'}).itcount()
-      - label: FINISHED
-        init: $mongoconnection
-        sample: db.getCollection('posts').find({status:'INACTIVE'}).itcount()
+      - label: UDP bytes in
+        sample: nettop -J bytes_in -l 1 -m udp | awk '{sum += $4} END {print sum}'
+      - label: UDP bytes out
+        sample: nettop -J bytes_out -l 1 -m udp | awk '{sum += $4} END {print sum}'
+      - label: TCP bytes in
+        sample: nettop -J bytes_in -l 1 -m tcp | awk '{sum += $4} END {print sum}'
+      - label: TCP bytes out
+        sample: nettop -J bytes_out -l 1 -m tcp | awk '{sum += $4} END {print sum}'
 gauges:
   - title: YEAR PROGRESS
-    position: [[53, 8], [27, 2]]
+    position: [[45, 0], [35, 2]]
     cur:
         sample: date +%j
     max:
@@ -63,7 +46,7 @@ gauges:
     min:
         sample: echo 0
   - title: DAY PROGRESS
-    position: [[53, 10], [27, 2]]
+    position: [[45, 3], [35, 2]]
     cur:
         sample: date +%H
     max:
@@ -71,7 +54,7 @@ gauges:
     min:
         sample: echo 0
   - title: HOUR PROGRESS
-    position: [[53, 12], [27, 2]]
+    position: [[45, 6], [35, 2]]
     cur:
         sample: date +%M
     max:
@@ -79,7 +62,7 @@ gauges:
     min:
         sample: echo 0
   - title: MINUTE PROGRESS
-    position: [[53, 14], [27, 2]]
+    position: [[45, 9], [35, 2]]
     triggers:
       - title: CLOCK BELL EVERY MINUTE
         condition: '[ $label == "cur" ] && [ $cur -eq 0 ] && echo 1 || echo 0'
@@ -94,35 +77,40 @@ gauges:
         sample: echo 0
 sparklines:
   - title: CPU usage
-    position: [[28, 22], [24, 7]]
+    position: [[0, 20], [22, 8]]
+    rate-ms: 200
     scale: 0
     sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
-  - title: Memory pages free
-    position: [[28, 17], [24, 5]]
+  - title: Free memory pages
+    position: [[22, 20], [23, 8]]
+    rate-ms: 200
     scale: 0
     sample: memory_pressure | grep 'Pages free' | awk '{print $3}'
 textboxes:
+  - title: Docker containers stats
+    position: [[0, 29], [45, 10]]
+    rate-ms: 500
+    sample: docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.PIDs}}"
   - title: Local weather
-    position: [[0, 30], [13, 7]]
+    position: [[69, 31], [13, 7]]
     rate-ms: 10000
     sample: curl wttr.in?0ATQF
     border: false
   - title: New York weather
-    position: [[8, 30], [13, 7]]
+    position: [[45, 31], [13, 7]]
     rate-ms: 10000
     sample: curl wttr.in/newyork?0ATQF
     transform: echo 1
     border: false
   - title: San Francisco weather
-    position: [[17, 30], [13, 7]]
+    position: [[56, 31], [13, 7]]
     rate-ms: 10000
     sample: curl wttr.in/sanfrancisco?0ATQF
     border: false
 asciiboxes:
-  - title: LOCAL TIME
-    position: [[53, 17], [27, 5]]
-    sample: date +%r
-  - title: UTC TIME
-    position: [[53, 22], [27, 7]]
+  - title: UTC time
+    position: [[45, 12], [35, 7]]
+    rate-ms: 500
     sample: env TZ=UTC date +%r
+    border: false
     font: 3d
