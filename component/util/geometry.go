@@ -2,7 +2,6 @@ package util
 
 import (
 	"image"
-	"math"
 )
 
 func GetRectLeftSideCenter(rect image.Rectangle) image.Point {
@@ -31,12 +30,6 @@ func GetRectBottomSideCenter(rect image.Rectangle) image.Point {
 		X: rect.Min.X + rect.Dx()/2,
 		Y: rect.Max.Y,
 	}
-}
-
-func GetDistance(p1 image.Point, p2 image.Point) float64 {
-	x := math.Abs(float64(p1.X - p2.X))
-	y := math.Abs(float64(p1.Y - p2.Y))
-	return math.Sqrt(x*x + y*y)
 }
 
 func GetRectCoordinates(area image.Rectangle, width int, height int) (int, int, int, int) {

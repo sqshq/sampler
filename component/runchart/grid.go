@@ -10,7 +10,7 @@ import (
 
 const defaultValueLength = 4
 
-type ChartGrid struct {
+type chartGrid struct {
 	timeRange    TimeRange
 	timePerPoint time.Duration
 	valueExtrema ValueExtrema
@@ -19,12 +19,12 @@ type ChartGrid struct {
 	minTimeWidth int
 }
 
-func (c *RunChart) newChartGrid() ChartGrid {
+func (c *RunChart) newChartGrid() chartGrid {
 
 	linesCount := (c.Inner.Max.X - c.Inner.Min.X - c.grid.minTimeWidth) / xAxisGridWidth
 	timeRange := c.getTimeRange(linesCount)
 
-	return ChartGrid{
+	return chartGrid{
 		timeRange:    timeRange,
 		timePerPoint: c.timescale / time.Duration(xAxisGridWidth),
 		valueExtrema: getLocalExtrema(c.lines, timeRange),

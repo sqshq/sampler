@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// AsciiBox represents a component with ascii-style text
 type AsciiBox struct {
 	*ui.Block
 	*data.Consumer

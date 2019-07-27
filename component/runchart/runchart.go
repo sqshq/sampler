@@ -38,17 +38,18 @@ const (
 	CommandMoveSelection    = "MOVE_SELECTION"
 )
 
+// RunChart displays observed data in a time sequence
 type RunChart struct {
 	*ui.Block
 	*data.Consumer
 	lines     []TimeLine
-	grid      ChartGrid
+	grid      chartGrid
 	timescale time.Duration
 	mutex     *sync.Mutex
 	mode      Mode
 	selection time.Time
 	scale     int
-	legend    Legend
+	legend    legend
 	palette   console.Palette
 }
 
@@ -87,7 +88,7 @@ func NewRunChart(c config.RunChartConfig, palette console.Palette) *RunChart {
 		mutex:     &sync.Mutex{},
 		scale:     *c.Scale,
 		mode:      ModeDefault,
-		legend:    Legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details},
+		legend:    legend{Enabled: c.Legend.Enabled, Details: c.Legend.Details},
 		palette:   palette,
 	}
 
@@ -159,9 +160,9 @@ func (c *RunChart) consumeSample(sample *data.Sample) {
 	if err != nil {
 		c.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
-	} else {
-		c.HandleConsumeSuccess()
 	}
+
+	c.HandleConsumeSuccess()
 
 	c.mutex.Lock()
 
@@ -318,13 +319,13 @@ func (c *RunChart) moveSelection(shift int) {
 		c.mode = ModePinpoint
 		c.selection = getMidRangeTime(c.grid.timeRange)
 		return
-	} else {
-		c.selection = c.selection.Add(c.grid.timePerPoint * time.Duration(shift))
-		if c.selection.After(c.grid.timeRange.max) {
-			c.selection = c.grid.timeRange.max
-		} else if c.selection.Before(c.grid.timeRange.min) {
-			c.selection = c.grid.timeRange.min
-		}
+	}
+
+	c.selection = c.selection.Add(c.grid.timePerPoint * time.Duration(shift))
+	if c.selection.After(c.grid.timeRange.max) {
+		c.selection = c.grid.timeRange.max
+	} else if c.selection.Before(c.grid.timeRange.min) {
+		c.selection = c.grid.timeRange.min
 	}
 
 	for i := range c.lines {
@@ -352,9 +353,9 @@ func calculateTimescale(rateMs int) time.Duration {
 
 	if timescale.Seconds() == 0 {
 		return time.Second
-	} else {
-		return timescale
 	}
+
+	return timescale
 }
 
 func braillePoint(point image.Point) image.Point {

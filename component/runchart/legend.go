@@ -18,7 +18,7 @@ const (
 	timeFormat = "15:04:05.000"
 )
 
-type Legend struct {
+type legend struct {
 	Enabled bool
 	Details bool
 }
@@ -102,15 +102,13 @@ func getColumnWidth(mode Mode, lines []TimeLine, scale int) int {
 func getDiffWithPreviousValue(line TimeLine) float64 {
 	if len(line.points) < 2 {
 		return 0
-	} else {
-		return line.points[len(line.points)-1].value - line.points[len(line.points)-2].value
 	}
+	return line.points[len(line.points)-1].value - line.points[len(line.points)-2].value
 }
 
 func getCurrentValue(line TimeLine) float64 {
 	if len(line.points) == 0 {
 		return 0
-	} else {
-		return line.points[len(line.points)-1].value
 	}
+	return line.points[len(line.points)-1].value
 }

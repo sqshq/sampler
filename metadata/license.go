@@ -23,20 +23,21 @@ const (
 const licenseFileName = "license.yml"
 
 func GetLicense() *License {
+
 	if !fileExists(licenseFileName) {
 		return nil
-	} else {
-		file := readStorageFile(getPlatformStoragePath(licenseFileName))
-
-		license := new(License)
-		err := yaml.Unmarshal(file, license)
-
-		if err != nil {
-			log.Fatalf("Failed to read license file: %v", err)
-		}
-
-		return license
 	}
+
+	file := readStorageFile(getPlatformStoragePath(licenseFileName))
+
+	license := new(License)
+	err := yaml.Unmarshal(file, license)
+
+	if err != nil {
+		log.Fatalf("Failed to read license file: %v", err)
+	}
+
+	return license
 }
 
 func SaveLicense(license License) {

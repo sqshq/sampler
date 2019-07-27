@@ -1,8 +1,9 @@
+//+build !windows
+
 package data
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"github.com/kr/pty"
 	"github.com/lunixbochs/vtclean"
@@ -12,6 +13,7 @@ import (
 	"time"
 )
 
+// PtyInteractiveShell represents PTY interactive shell sampling metadata
 type PtyInteractiveShell struct {
 	item      *Item
 	variables []string
@@ -73,7 +75,7 @@ func (s *PtyInteractiveShell) execute() (string, error) {
 			_ = s.file.Close()
 			s.item.ptyShell = nil // restart session
 		}
-		return "", errors.New(fmt.Sprintf("Failed to execute command: %s", err))
+		return "", fmt.Errorf("failed to execute command: %s", err)
 	}
 
 	softTimeout := make(chan bool, 1)

@@ -17,17 +17,18 @@ const (
 	barIndent int = 1
 )
 
+// BarChart presents categorical data with rectangular bars
 type BarChart struct {
 	*ui.Block
 	*data.Consumer
-	bars     []Bar
+	bars     []bar
 	scale    int
 	maxValue float64
 	count    int64
 	palette  console.Palette
 }
 
-type Bar struct {
+type bar struct {
 	label string
 	color ui.Color
 	value float64
@@ -39,14 +40,14 @@ func NewBarChart(c config.BarChartConfig, palette console.Palette) *BarChart {
 	chart := BarChart{
 		Block:    component.NewBlock(c.Title, true, palette),
 		Consumer: data.NewConsumer(),
-		bars:     []Bar{},
+		bars:     []bar{},
 		scale:    *c.Scale,
 		maxValue: -math.MaxFloat64,
 		palette:  palette,
 	}
 
 	for _, i := range c.Items {
-		chart.AddBar(*i.Label, *i.Color)
+		chart.addBar(*i.Label, *i.Color)
 	}
 
 	go func() {
@@ -68,12 +69,13 @@ func (b *BarChart) consumeSample(sample *data.Sample) {
 	b.count++
 
 	float, err := util.ParseFloat(sample.Value)
+
 	if err != nil {
 		b.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
-	} else {
-		b.HandleConsumeSuccess()
 	}
+
+	b.HandleConsumeSuccess()
 
 	index := -1
 	for i, bar := range b.bars {
@@ -97,8 +99,8 @@ func (b *BarChart) consumeSample(sample *data.Sample) {
 	}
 }
 
-func (b *BarChart) AddBar(label string, color ui.Color) {
-	b.bars = append(b.bars, Bar{label: label, color: color, value: 0})
+func (b *BarChart) addBar(label string, color ui.Color) {
+	b.bars = append(b.bars, bar{label: label, color: color, value: 0})
 }
 
 func (b *BarChart) reselectMaxValue() {
@@ -111,6 +113,7 @@ func (b *BarChart) reselectMaxValue() {
 	b.maxValue = maxValue
 }
 
+// Draw renders the barchart
 func (b *BarChart) Draw(buffer *ui.Buffer) {
 	b.Block.Draw(buffer)
 

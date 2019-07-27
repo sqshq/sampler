@@ -9,7 +9,7 @@ import (
 	"runtime"
 )
 
-// Anonymous usage data, which we collect for analyses and improvements
+// Statistics represents anonymous usage data, which we collect for analyses and improvements
 // User can disable it, along with crash reports, using --telemetry flag
 type Statistics struct {
 	Version         string
@@ -22,6 +22,7 @@ type Statistics struct {
 
 const statisticsFileName = "statistics.yml"
 
+// PersistStatistics in file
 func PersistStatistics(config *config.Config) *Statistics {
 
 	statistics := new(Statistics)
@@ -65,7 +66,9 @@ func PersistStatistics(config *config.Config) *Statistics {
 	return statistics
 }
 
+// GetStatistics from file
 func GetStatistics(cfg *config.Config) *Statistics {
+
 	if !fileExists(statisticsFileName) {
 		return &Statistics{
 			Version:         console.AppVersion,
@@ -75,15 +78,17 @@ func GetStatistics(cfg *config.Config) *Statistics {
 			WindowHeight:    0,
 			ComponentsCount: countComponentsPerType(cfg),
 		}
-	} else {
-		file := readStorageFile(getPlatformStoragePath(statisticsFileName))
-		license := new(Statistics)
-		err := yaml.Unmarshal(file, license)
-		if err != nil {
-			log.Fatalf("Failed to read statistics file: %v", err)
-		}
-		return license
 	}
+
+	file := readStorageFile(getPlatformStoragePath(statisticsFileName))
+	license := new(Statistics)
+
+	err := yaml.Unmarshal(file, license)
+	if err != nil {
+		log.Fatalf("Failed to read statistics file: %v", err)
+	}
+
+	return license
 }
 
 func countComponentsPerType(config *config.Config) map[string]int {

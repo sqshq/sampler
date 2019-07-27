@@ -11,6 +11,7 @@ import (
 	"sync"
 )
 
+// SparkLine displays general shape of a measurement variation over time
 type SparkLine struct {
 	*ui.Block
 	*data.Consumer

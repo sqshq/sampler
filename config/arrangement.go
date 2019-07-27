@@ -189,9 +189,8 @@ func countEmptyCellsBelow(grid [console.RowsCount][console.ColumnsCount]int, row
 	for r := row; r < console.RowsCount; r++ {
 		if grid[r][column] == 1 {
 			return count
-		} else {
-			count++
 		}
+		count++
 	}
 	return count
 }

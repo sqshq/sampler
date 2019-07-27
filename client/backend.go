@@ -19,7 +19,7 @@ const (
 	jsonContentType  = "application/json"
 )
 
-// Backend client is used to verify license and to send telemetry reports
+// BackendClient is used to verify license and to send telemetry reports
 // for analyses (anonymous usage data statistics and crash reports)
 type BackendClient struct {
 	client http.Client

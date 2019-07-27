@@ -17,6 +17,7 @@ const (
 	CurValueLabel = "cur"
 )
 
+// Gauge displays cur value between specified min and max values
 type Gauge struct {
 	*ui.Block
 	*data.Consumer

@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// Layout represents component arrangement on the screen
 type Layout struct {
 	ui.Block
 	Components       []*component.Component

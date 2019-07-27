@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// BasicInteractiveShell represents non-PTY interactive shell sampling metadata
 type BasicInteractiveShell struct {
 	item      *Item
 	variables []string
@@ -93,7 +94,7 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 			_ = s.cmd.Wait()
 			s.item.basicShell = nil // restart session
 		}
-		return "", errors.New(fmt.Sprintf("Failed to execute command: %s", err))
+		return "", fmt.Errorf("failed to execute command: %s", err)
 	}
 
 	timeout := make(chan bool, 1)
@@ -121,9 +122,8 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 		case <-timeout:
 			if errorText.Len() > 0 {
 				return "", errors.New(errorText.String())
-			} else {
-				return s.item.transform(resultText.String())
 			}
+			return s.item.transform(resultText.String())
 		}
 	}
 }

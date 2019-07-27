@@ -9,6 +9,7 @@ import (
 	"image"
 )
 
+// TextBox represents a component with regular text
 type TextBox struct {
 	*ui.Block
 	*data.Consumer

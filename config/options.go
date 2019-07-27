@@ -1,5 +1,6 @@
 package config
 
+// Options with cli flags
 type Options struct {
 	ConfigFile       *string  `short:"c" long:"config" description:"Path to YAML config file"`
 	LicenseKey       *string  `short:"l" long:"license" description:"License key. Visit www.sampler.dev for details"`
