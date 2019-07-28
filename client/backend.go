@@ -16,10 +16,9 @@ const (
 	crashPath        = "/telemetry/crash"
 	registrationPath = "/license/registration"
 	verificationPath = "/license/verification"
-	jsonContentType  = "application/json"
 )
 
-// BackendClient is used to verify license and to send telemetry reports
+// BackendClient is used to verify license and to send telemetry
 // for analyses (anonymous usage data statistics and crash reports)
 type BackendClient struct {
 	client http.Client
@@ -39,7 +38,8 @@ func (c *BackendClient) ReportInstallation(statistics *metadata.Statistics) {
 		c.ReportCrash(err.Error(), statistics)
 	}
 
-	_, err = http.Post(backendUrl+installationPath, jsonContentType, buf)
+	_, err = sendRequest(backendUrl+installationPath, buf)
+
 	if err != nil {
 		c.ReportCrash(err.Error(), statistics)
 	}
@@ -53,7 +53,7 @@ func (c *BackendClient) ReportStatistics(statistics *metadata.Statistics) {
 		c.ReportCrash(err.Error(), statistics)
 	}
 
-	_, err = http.Post(backendUrl+statisticsPath, jsonContentType, buf)
+	_, err = sendRequest(backendUrl+statisticsPath, buf)
 	if err != nil {
 		c.ReportCrash(err.Error(), statistics)
 	}
@@ -75,7 +75,7 @@ func (c *BackendClient) ReportCrash(error string, statistics *metadata.Statistic
 		return
 	}
 
-	_, _ = http.Post(backendUrl+crashPath, jsonContentType, buf)
+	_, _ = sendRequest(backendUrl+crashPath, buf)
 }
 
 func (c *BackendClient) RegisterLicenseKey(licenseKey string, statistics *metadata.Statistics) (*metadata.License, error) {
@@ -94,8 +94,7 @@ func (c *BackendClient) RegisterLicenseKey(licenseKey string, statistics *metada
 		c.ReportCrash(err.Error(), statistics)
 	}
 
-	response, err := http.Post(
-		backendUrl+registrationPath, jsonContentType, buf)
+	response, err := sendRequest(backendUrl+registrationPath, buf)
 
 	if err != nil {
 		return nil, err
@@ -126,8 +125,7 @@ func (c *BackendClient) VerifyLicenseKey(licenseKey string) (*metadata.License, 
 		c.ReportCrash(err.Error(), nil)
 	}
 
-	response, err := http.Post(
-		backendUrl+verificationPath, jsonContentType, buf)
+	response, err := sendRequest(backendUrl+verificationPath, buf)
 
 	if err != nil {
 		return nil, err
@@ -142,4 +140,14 @@ func (c *BackendClient) VerifyLicenseKey(licenseKey string) (*metadata.License, 
 	json.NewDecoder(response.Body).Decode(&license)
 
 	return &license, nil
+}
+
+func sendRequest(url string, body *bytes.Buffer) (resp *http.Response, err error) {
+	c := http.DefaultClient
+	req, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return c.Do(req)
 }

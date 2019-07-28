@@ -22,9 +22,8 @@ var AsciiLogo = []string{
 func FormatValue(value float64, scale int) string {
 	if math.Abs(value) == math.MaxFloat64 {
 		return "Inf"
-	} else {
-		return formatTrailingDigits(addRadixChars(value), scale)
 	}
+	return formatTrailingDigits(addRadixChars(value), scale)
 }
 
 func FormatDelta(value float64, scale int) string {

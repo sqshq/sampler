@@ -61,9 +61,9 @@ func (g *Gauge) ConsumeSample(sample *data.Sample) {
 	if err != nil {
 		g.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
-	} else {
-		g.HandleConsumeSuccess()
 	}
+
+	g.HandleConsumeSuccess()
 
 	switch sample.Label {
 	case MinValueLabel:

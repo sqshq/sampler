@@ -391,9 +391,9 @@ textboxes:
 
 <details><summary>Java application uptime example</summary>
 
-- Prerequisite: download [jmxterm jar file](https://docs.cyclopsgroup.org/jmxterm)
-
 ```yml
+# prerequisite: download [jmxterm jar file](https://docs.cyclopsgroup.org/jmxterm)
+
 textboxes:
   - title: Java application uptime
     multistep-init:
