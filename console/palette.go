@@ -3,6 +3,7 @@ package console
 import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
+	"runtime"
 )
 
 type Theme string
@@ -31,8 +32,10 @@ const (
 )
 
 const (
-	MenuColorBackground ui.Color = 235
-	MenuColorText       ui.Color = 255
+	menuColorNix            ui.Color = 255
+	menuColorReverseNix     ui.Color = 235
+	menuColorWindows        ui.Color = 255
+	menuColorReverseWindows ui.Color = 0
 )
 
 type Palette struct {
@@ -63,6 +66,24 @@ func GetPalette(theme Theme) Palette {
 		}
 	default:
 		panic(fmt.Sprintf("Following theme is not supported: %v", theme))
+	}
+}
+
+func GetMenuColor() ui.Color {
+	switch runtime.GOOS {
+	case "windows":
+		return menuColorWindows
+	default:
+		return menuColorNix
+	}
+}
+
+func GetMenuColorReverse() ui.Color {
+	switch runtime.GOOS {
+	case "windows":
+		return menuColorReverseWindows
+	default:
+		return menuColorReverseNix
 	}
 }
 
