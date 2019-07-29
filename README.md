@@ -9,16 +9,18 @@ Sampler is a tool for shell commands execution, visualization and alerting. Conf
 
 ### macOS
 ```bash
-sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v0.9.1-beta/sampler-0.9.1-darwin-amd64
+sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v1.0.0/sampler-1.0.0-darwin-amd64
 sudo chmod +x /usr/local/bin/sampler
 ```
 ### Linux
 ```bash
-sudo wget https://github.com/sqshq/sampler/releases/download/v0.9.1-beta/sampler-0.9.1-linux-amd64 -O /usr/local/bin/sampler
+sudo wget https://github.com/sqshq/sampler/releases/download/v1.0.0/sampler-1.0.0-linux-amd64 -O /usr/local/bin/sampler
 sudo chmod +x /usr/local/bin/sampler
 ```
 ### Windows
-[download .exe](https://github.com/sqshq/sampler/releases/download/v0.9.1-beta/sampler-0.9.1-windows)
+Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
+
+[Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.0/sampler-1.0.0-windows-amd64.exe)
 
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.

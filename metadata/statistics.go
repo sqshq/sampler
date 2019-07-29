@@ -41,6 +41,7 @@ func PersistStatistics(config *config.Config, uptime time.Duration) *Statistics 
 			statistics.ComponentsCount = countComponentsPerType(config)
 		}
 
+		statistics.Version = console.AppVersion
 		statistics.WindowWidth = w
 		statistics.WindowHeight = h
 		statistics.LaunchCount += 1

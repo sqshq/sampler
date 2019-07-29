@@ -76,9 +76,6 @@ func main() {
 	statistics := metadata.GetStatistics(cfg)
 	license := metadata.GetLicense()
 
-	defer handleCrash(statistics, opt, bc)
-	defer updateStatistics(cfg, time.Now())
-
 	if opt.LicenseKey != nil {
 		registerLicense(statistics, opt, bc)
 	}
@@ -88,6 +85,9 @@ func main() {
 
 	player := asset.NewAudioPlayer()
 	defer player.Close()
+
+	defer handleCrash(statistics, opt, bc)
+	defer updateStatistics(cfg, time.Now())
 
 	palette := console.GetPalette(*cfg.Theme)
 	lout := layout.NewLayout(component.NewStatusLine(*opt.ConfigFile, palette, license),

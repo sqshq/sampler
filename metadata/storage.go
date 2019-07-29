@@ -11,7 +11,7 @@ import (
 const (
 	macOSDir   = "/Library/Application Support/Sampler"
 	linuxDir   = "/.config/Sampler"
-	windowsDir = "%LOCALAPPDATA%\\Sampler"
+	windowsDir = "Sampler"
 )
 
 func fileExists(filename string) bool {
@@ -20,12 +20,13 @@ func fileExists(filename string) bool {
 }
 
 func getPlatformStoragePath(filename string) string {
-	home, _ := os.UserHomeDir()
 	switch runtime.GOOS {
 	case "darwin":
+		home, _ := os.UserHomeDir()
 		return filepath.Join(home, macOSDir, filename)
 	case "windows":
-		return filepath.Join(home, windowsDir, filename)
+		cache, _ := os.UserCacheDir()
+		return filepath.Join(cache, windowsDir, filename)
 	default:
 		return filepath.Join(linuxDir, filename)
 	}
