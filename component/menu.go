@@ -10,29 +10,29 @@ import (
 
 type Menu struct {
 	*ui.Block
-	options   []MenuOption
+	options   []menuOption
 	component Component
-	mode      MenuMode
-	option    MenuOption
+	mode      menuMode
+	option    menuOption
 	palette   console.Palette
 }
 
-type MenuMode rune
+type menuMode rune
 
 const (
-	MenuModeIdle          MenuMode = 0
-	MenuModeHighlight     MenuMode = 1
-	MenuModeOptionSelect  MenuMode = 2
-	MenuModeMoveAndResize MenuMode = 3
+	menuModeIdle          menuMode = 0
+	menuModeHighlight     menuMode = 1
+	menuModeOptionSelect  menuMode = 2
+	menuModeMoveAndResize menuMode = 3
 )
 
-type MenuOption string
+type menuOption string
 
 const (
-	MenuOptionMove     MenuOption = "MOVE"
-	MenuOptionResize   MenuOption = "RESIZE"
-	MenuOptionPinpoint MenuOption = "PINPOINT"
-	MenuOptionResume   MenuOption = "RESUME"
+	MenuOptionMove     menuOption = "MOVE"
+	MenuOptionResize   menuOption = "RESIZE"
+	MenuOptionPinpoint menuOption = "PINPOINT"
+	MenuOptionResume   menuOption = "RESUME"
 )
 
 const (
@@ -42,30 +42,30 @@ const (
 func NewMenu(palette console.Palette) *Menu {
 	return &Menu{
 		Block:   NewBlock("", true, palette),
-		options: []MenuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionResume},
-		mode:    MenuModeIdle,
+		options: []menuOption{MenuOptionMove, MenuOptionResize, MenuOptionPinpoint, MenuOptionResume},
+		mode:    menuModeIdle,
 		option:  MenuOptionMove,
 		palette: palette,
 	}
 }
 
-func (m *Menu) GetSelectedOption() MenuOption {
+func (m *Menu) GetSelectedOption() menuOption {
 	return m.option
 }
 
 func (m *Menu) Highlight(component *Component) {
 	m.component = *component
 	m.updateDimensions()
-	m.mode = MenuModeHighlight
+	m.mode = menuModeHighlight
 	m.Title = component.Title
 }
 
 func (m *Menu) Choose() {
-	m.mode = MenuModeOptionSelect
+	m.mode = menuModeOptionSelect
 }
 
 func (m *Menu) Idle() {
-	m.mode = MenuModeIdle
+	m.mode = menuModeIdle
 }
 
 func (m *Menu) Up() {
@@ -93,12 +93,12 @@ func (m *Menu) Down() {
 }
 
 func (m *Menu) MoveOrResize() {
-	m.mode = MenuModeMoveAndResize
+	m.mode = menuModeMoveAndResize
 }
 
 func (m *Menu) Draw(buffer *ui.Buffer) {
 
-	if m.mode == MenuModeIdle {
+	if m.mode == menuModeIdle {
 		return
 	}
 
@@ -112,11 +112,11 @@ func (m *Menu) Draw(buffer *ui.Buffer) {
 	m.Block.Draw(buffer)
 
 	switch m.mode {
-	case MenuModeHighlight:
+	case menuModeHighlight:
 		m.renderHighlight(buffer)
-	case MenuModeMoveAndResize:
+	case menuModeMoveAndResize:
 		m.renderMoveAndResize(buffer)
-	case MenuModeOptionSelect:
+	case menuModeOptionSelect:
 		m.renderOptions(buffer)
 	}
 }

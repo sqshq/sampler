@@ -56,9 +56,9 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 	if err != nil {
 		s.HandleConsumeFailure("Failed to parse a number", err, sample)
 		return
-	} else {
-		s.HandleConsumeSuccess()
 	}
+
+	s.HandleConsumeSuccess()
 
 	s.values = append(s.values, float)
 	max, min := s.values[0], s.values[0]

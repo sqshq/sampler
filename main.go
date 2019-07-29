@@ -77,6 +77,7 @@ func main() {
 	license := metadata.GetLicense()
 
 	defer handleCrash(statistics, opt, bc)
+	defer updateStatistics(cfg, time.Now())
 
 	if opt.LicenseKey != nil {
 		registerLicense(statistics, opt, bc)
@@ -108,7 +109,6 @@ func main() {
 		}
 	}
 
-	metadata.PersistStatistics(cfg)
 	starter := &Starter{player, lout, palette, opt, *cfg}
 	samplers := starter.startAll()
 
@@ -124,6 +124,10 @@ func handleCrash(statistics *metadata.Statistics, opt config.Options, bc *client
 		}
 		panic(err)
 	}
+}
+
+func updateStatistics(cfg *config.Config, startTime time.Time) {
+	metadata.PersistStatistics(cfg, time.Since(startTime))
 }
 
 func registerLicense(statistics *metadata.Statistics, opt config.Options, bc *client.BackendClient) {

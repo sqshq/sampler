@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"runtime"
+	"time"
 )
 
 // Statistics represents anonymous usage data, which we collect for analyses and improvements
@@ -17,13 +18,13 @@ type Statistics struct {
 	WindowWidth     int            `yaml:"ww"`
 	WindowHeight    int            `yaml:"wh"`
 	LaunchCount     int            `yaml:"lc"`
+	UsageTime       int            `yaml:"ut"`
 	ComponentsCount map[string]int `yaml:"cc"`
 }
 
 const statisticsFileName = "statistics.yml"
 
-// PersistStatistics in file
-func PersistStatistics(config *config.Config) *Statistics {
+func PersistStatistics(config *config.Config, uptime time.Duration) *Statistics {
 
 	statistics := new(Statistics)
 	w, h := ui.TerminalDimensions()
@@ -43,14 +44,16 @@ func PersistStatistics(config *config.Config) *Statistics {
 		statistics.WindowWidth = w
 		statistics.WindowHeight = h
 		statistics.LaunchCount += 1
+		statistics.UsageTime += int(uptime.Seconds())
 
 	} else {
 		statistics = &Statistics{
 			Version:         console.AppVersion,
 			OS:              runtime.GOOS,
-			LaunchCount:     1,
 			WindowWidth:     w,
 			WindowHeight:    h,
+			LaunchCount:     1,
+			UsageTime:       0,
 			ComponentsCount: countComponentsPerType(config),
 		}
 		initStorage()
@@ -66,7 +69,6 @@ func PersistStatistics(config *config.Config) *Statistics {
 	return statistics
 }
 
-// GetStatistics from file
 func GetStatistics(cfg *config.Config) *Statistics {
 
 	if !fileExists(statisticsFileName) {
