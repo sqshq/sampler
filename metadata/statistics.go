@@ -11,7 +11,7 @@ import (
 )
 
 // Statistics represents anonymous usage data, which we collect for analyses and improvements
-// User can disable it, along with crash reports, using --telemetry flag
+// User can disable it, along with crash reports, using --disable-telemetry flag
 type Statistics struct {
 	Version         string
 	OS              string

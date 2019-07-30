@@ -90,7 +90,7 @@ func main() {
 	defer updateStatistics(cfg, time.Now())
 
 	palette := console.GetPalette(*cfg.Theme)
-	lout := layout.NewLayout(component.NewStatusLine(*opt.ConfigFile, palette, license),
+	lout := layout.NewLayout(component.NewStatusBar(*opt.ConfigFile, palette, license),
 		component.NewMenu(palette), component.NewIntro(palette), component.NewNagWindow(palette))
 
 	if statistics.LaunchCount == 0 {

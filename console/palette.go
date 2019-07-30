@@ -65,7 +65,7 @@ func GetPalette(theme Theme) Palette {
 			ReverseColor:   ColorWhite,
 		}
 	default:
-		panic(fmt.Sprintf("Following theme is not supported: %v", theme))
+		panic(fmt.Sprintf("Specified theme is not supported: %v", theme))
 	}
 }
 

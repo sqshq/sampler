@@ -20,7 +20,7 @@ type StatusBar struct {
 	pause       bool
 }
 
-func NewStatusLine(configFileName string, palette console.Palette, license *metadata.License) *StatusBar {
+func NewStatusBar(configFileName string, palette console.Palette, license *metadata.License) *StatusBar {
 
 	block := *ui.NewBlock()
 	block.Border = false
