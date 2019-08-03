@@ -84,7 +84,9 @@ func main() {
 	defer console.Close()
 
 	player := asset.NewAudioPlayer()
-	defer player.Close()
+	if player != nil {
+		defer player.Close()
+	}
 
 	defer handleCrash(statistics, opt, bc)
 	defer updateStatistics(cfg, time.Now())
