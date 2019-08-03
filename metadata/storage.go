@@ -28,7 +28,8 @@ func getPlatformStoragePath(filename string) string {
 		cache, _ := os.UserCacheDir()
 		return filepath.Join(cache, windowsDir, filename)
 	default:
-		return filepath.Join(linuxDir, filename)
+		home, _ := os.UserHomeDir()
+		return filepath.Join(home, linuxDir, filename)
 	}
 }
 
