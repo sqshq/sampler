@@ -43,15 +43,16 @@ func (c *Config) validate() {
 
 func validateItemsScripts(title string, items []Item) {
 	for _, i := range items {
-		if i.InitScript != nil && i.MultiStepInitScript != nil {
-			validateItemScripts(title, i)
-		}
+		validateItemScripts(title, i)
 	}
 }
 
 func validateItemScripts(title string, i Item) {
 	if i.InitScript != nil && i.MultiStepInitScript != nil {
-		console.Exit(fmt.Sprintf("Config validation error: both init and multistep-init scripts are not allowed in '%s'", title))
+		console.Exit(fmt.Sprintf("Config validation error: both init and multistep-init scripts are not allowed for '%s'", title))
+	}
+	if i.SampleScript == nil {
+		console.Exit(fmt.Sprintf("Config validation error: sample script should be specified for '%s'", title))
 	}
 }
 
@@ -60,7 +61,7 @@ func validateLabelsUniqueness(title string, items []Item) {
 	for _, i := range items {
 		label := *i.Label
 		if _, contains := labels[label]; contains {
-			console.Exit(fmt.Sprintf("Config validation error: item labels should be unique. Please rename '%s' in '%s'", label, title))
+			console.Exit(fmt.Sprintf("Config validation error: item labels should be unique. Please rename '%s' for '%s'", label, title))
 		}
 		labels[label] = true
 	}
