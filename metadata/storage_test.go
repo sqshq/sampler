@@ -14,7 +14,10 @@ type f struct {
 
 func Test_fileExists(t *testing.T) {
 
-	_, _ = os.Create(getPlatformStoragePath("exists"))
+	_, err := os.Create(getPlatformStoragePath("exists"))
+	if err != nil {
+		panic(err)
+	}
 	defer os.Remove(getPlatformStoragePath("exists"))
 
 	type args struct {
@@ -56,7 +59,10 @@ func Test_readStorageFile(t *testing.T) {
 	file, _ := yaml.Marshal(f{a: 1})
 	name := "test"
 
-	_ = ioutil.WriteFile(getPlatformStoragePath(name), file, os.ModePerm)
+	err := ioutil.WriteFile(getPlatformStoragePath(name), file, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 	read := readStorageFile(getPlatformStoragePath(name))
 
 	if !bytes.Equal(file, read) {
