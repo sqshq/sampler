@@ -9,6 +9,10 @@ Sampler is a tool for shell commands execution, visualization and alerting. Conf
 
 ### macOS
 ```bash
+brew cask install sampler
+```
+or
+```bash
 sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v1.0.0/sampler-1.0.0-darwin-amd64
 sudo chmod +x /usr/local/bin/sampler
 ```
