@@ -74,7 +74,7 @@ func (t *Trigger) Execute(sample *Sample) {
 			fmt.Print(console.BellCharacter)
 		}
 
-		if t.actions.sound {
+		if t.actions.sound && t.player != nil {
 			t.player.Beep()
 		}
 

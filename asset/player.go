@@ -21,7 +21,11 @@ func NewAudioPlayer() *AudioPlayer {
 
 	player, err := oto.NewPlayer(44100, 2, 2, 8192)
 	if err != nil {
-		panic(err)
+		// it is expected to fail when some of the system
+		// libraries are not available (e.g. libasound2)
+		// it is not the main functionality of the application,
+		// so we allow startup in no-sound mode
+		return nil
 	}
 
 	return &AudioPlayer{
