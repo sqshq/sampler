@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"github.com/mitchellh/go-homedir"
 	"io/ioutil"
 	"log"
 	"os"
@@ -28,7 +29,7 @@ func getPlatformStoragePath(filename string) string {
 		cache, _ := os.UserCacheDir()
 		return filepath.Join(cache, windowsDir, filename)
 	default:
-		home, _ := os.UserHomeDir()
+		home, _ := homedir.Dir()
 		return filepath.Join(home, linuxDir, filename)
 	}
 }
