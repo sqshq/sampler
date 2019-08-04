@@ -21,7 +21,7 @@ sudo chmod +x /usr/local/bin/sampler
 sudo wget https://github.com/sqshq/sampler/releases/download/v1.0.0/sampler-1.0.0-linux-amd64 -O /usr/local/bin/sampler
 sudo chmod +x /usr/local/bin/sampler
 ```
-### Windows
+### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
 [Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.0/sampler-1.0.0-windows-amd64.exe)

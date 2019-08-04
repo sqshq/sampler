@@ -27,11 +27,6 @@ func (s *BasicInteractiveShell) init() error {
 	cmd := exec.Command("sh", "-c", s.item.initScripts[0])
 	enrichEnvVariables(cmd, s.variables)
 
-	err := cmd.Wait()
-	if err != nil {
-		return err
-	}
-
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err

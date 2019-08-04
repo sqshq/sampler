@@ -14,7 +14,7 @@ const (
 	ColumnsCount      = 80
 	RowsCount         = 40
 	AppTitle          = "sampler"
-	AppVersion        = "1.0.0"
+	AppVersion        = "1.0.1"
 	AppLicenseWarning = "UNLICENSED. FOR NON-COMMERCIAL USE ONLY. VISIT WWW.SAMPLER.DEV"
 )
 
