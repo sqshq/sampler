@@ -23,7 +23,7 @@ func fileExists(filename string) bool {
 func getPlatformStoragePath(filename string) string {
 	switch runtime.GOOS {
 	case "darwin":
-		home, _ := os.UserHomeDir()
+		home, _ := homedir.Dir()
 		return filepath.Join(home, macOSDir, filename)
 	case "windows":
 		cache, _ := os.UserCacheDir()
