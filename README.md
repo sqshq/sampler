@@ -21,6 +21,7 @@ sudo chmod +x /usr/local/bin/sampler
 sudo wget https://github.com/sqshq/sampler/releases/download/v1.0.1/sampler-1.0.1-linux-amd64 -O /usr/local/bin/sampler
 sudo chmod +x /usr/local/bin/sampler
 ```
+Note: `libasound2` library is required for Sampler to start (used for [triggers](https://github.com/sqshq/sampler#triggers) sound tone). Usually it is in place, but if not - the recommendation for now is to install it, e.g `apt-get install libasound2`
 ### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
