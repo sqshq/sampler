@@ -2,12 +2,16 @@ package config
 
 import (
 	"fmt"
-	"github.com/jessevdk/go-flags"
-	"github.com/sqshq/sampler/console"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
+
+	"github.com/jessevdk/go-flags"
+	"github.com/mitchellh/go-homedir"
+	"github.com/sqshq/sampler/console"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -19,6 +23,29 @@ type Config struct {
 	SparkLines []SparkLineConfig `yaml:"sparklines,omitempty"`
 	TextBoxes  []TextBoxConfig   `yaml:"textboxes,omitempty"`
 	AsciiBoxes []AsciiBoxConfig  `yaml:"asciiboxes,omitempty"`
+}
+
+/** It's same to metadata/storage
+	We should refact it
+ **/
+const (
+	macOSDir   = "/Library/Application Support/Sampler"
+	linuxDir   = "/.config/Sampler"
+	windowsDir = "Sampler"
+)
+
+func getPlatformStoragePath(filename string) string {
+	switch runtime.GOOS {
+	case "darwin":
+		home, _ := homedir.Dir()
+		return filepath.Join(home, macOSDir, filename)
+	case "windows":
+		cache, _ := os.UserCacheDir()
+		return filepath.Join(cache, windowsDir, filename)
+	default:
+		home, _ := homedir.Dir()
+		return filepath.Join(home, linuxDir, filename)
+	}
 }
 
 func LoadConfig() (*Config, Options) {
@@ -35,7 +62,13 @@ func LoadConfig() (*Config, Options) {
 	}
 
 	if opt.ConfigFile == nil && opt.LicenseKey == nil {
-		console.Exit("Please specify config file using --config flag. Example: sampler --config example.yml")
+		defaultConfigFile := getPlatformStoragePath("config.yml")
+
+		if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
+			console.Exit("Default config file is not existing! Please specify config file using --config flag. Example: sampler --config example.yml")
+		} else {
+			opt.ConfigFile = &defaultConfigFile
+		}
 	}
 
 	if opt.LicenseKey != nil {
