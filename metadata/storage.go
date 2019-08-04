@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"github.com/mitchellh/go-homedir"
 	"io/ioutil"
 	"log"
 	"os"
@@ -22,13 +23,13 @@ func fileExists(filename string) bool {
 func getPlatformStoragePath(filename string) string {
 	switch runtime.GOOS {
 	case "darwin":
-		home, _ := os.UserHomeDir()
+		home, _ := homedir.Dir()
 		return filepath.Join(home, macOSDir, filename)
 	case "windows":
 		cache, _ := os.UserCacheDir()
 		return filepath.Join(cache, windowsDir, filename)
 	default:
-		home, _ := os.UserHomeDir()
+		home, _ := homedir.Dir()
 		return filepath.Join(home, linuxDir, filename)
 	}
 }
