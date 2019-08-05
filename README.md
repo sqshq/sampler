@@ -21,7 +21,7 @@ chmod +x /usr/local/bin/sampler
 wget https://github.com/sqshq/sampler/releases/download/v1.0.1/sampler-1.0.1-linux-amd64 -O /usr/local/bin/sampler
 chmod +x /usr/local/bin/sampler
 ```
-Note: `libasound2-dev` library is required for Sampler (used to play [triggers](https://github.com/sqshq/sampler#triggers)) sound tone. Usually it is in place, but if not - the recommendation for now is to install it, e.g `apt install libasound2-dev`
+Note: `libasound2-dev` system library is required to be installed for Sampler to play a [trigger](https://github.com/sqshq/sampler#triggers) sound tone. Usually the library is in place, but if not - you can do it with your favorite package manager, e.g `apt install libasound2-dev`
 ### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
