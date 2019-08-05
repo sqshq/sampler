@@ -354,6 +354,7 @@ variables:
   kafka_connection: $KAFKA_HOME/bin/kafka-consumer-groups --bootstrap-server localhost:9092
 runcharts:
   - title: Kafka lag per consumer group
+    rate-ms: 5000
     scale: 0
     items:
       - label: A->B
