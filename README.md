@@ -221,7 +221,7 @@ textboxes:
 ```
 
 #### PTY mode
-In some cases intractive shell won't work, because its stdin is not a terminal. We can fool it, using PTY mode:
+In some cases interactive shell won't work, because its stdin is not a terminal. We can fool it, using PTY mode:
 ```yml
 textboxes:
   - title: Neo4j polling
