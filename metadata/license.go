@@ -42,6 +42,8 @@ func GetLicense() *License {
 
 func SaveLicense(license License) {
 
+	initStorage()
+
 	file, err := yaml.Marshal(license)
 	if err != nil {
 		log.Fatalf("Failed to marshal license file: %v", err)
