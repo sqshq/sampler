@@ -66,21 +66,33 @@ func (intro *Intro) Draw(buffer *ui.Buffer) {
 	introText := append(util.AsciiLogo, []string{
 		"", "", "",
 		"Welcome.",
-		"Sampler is free of charge for personal use, but license must be purchased to use it for business purposes.",
-		"By proceeding, you agree to the terms of the License Agreement and Privacy Policy: www.sampler.dev/license",
+		"",
+		"Sampler is an OSS project, and it needs funding to be alive and keep developing",
+		"Before the first start, please explore our licensing options below. For more details, visit WWW.SAMPLER.DEV",
 		"", "", "",
 		"How do you plan to use Sampler?",
 	}...)
 
 	commericalText := append(util.AsciiLogo, []string{
 		"", "", "", "",
-		"Please visit www.sampler.dev to purchase a license and then start Sampler with --license flag",
+		"With Sampler, you can easily save time and solve some of your business problems.",
+		"That's why support of the project is in the interest of your organization.",
+		"",
+		"",
+		"We are offering commercial licenses which provide priority support and technical assistance.",
+		"After entering the licence key, your company name will appear in the status bar.",
+		"",
+		"",
+		"To make a purchase, please visit WWW.SAMPLER.DEV",
 	}...)
 
 	personalText := append(util.AsciiLogo, []string{
 		"", "", "", "",
-		"Sampler is always free for non-commercial use, but you can support the project and donate any amount to get a personal license:",
-		"www.sampler.dev",
+		"Sampler is always free to use, but you can support the project and donate any amount to get a personal license.",
+		"Once it is activated, your name will appear in the status bar.",
+		"",
+		"",
+		"To become a sponsor, please visit WWW.SAMPLER.DEV",
 	}...)
 
 	text := introText
@@ -117,13 +129,13 @@ func (intro *Intro) Draw(buffer *ui.Buffer) {
 			personalButtonStyle = regularStyle
 		}
 
-		buffer.SetString(string(buttonCommercial), commercialButtonStyle,
-			util.GetMiddlePoint(intro.Block.Rectangle, string(buttonCommercial), 6))
-		buffer.SetString(string(buttonPersonal), personalButtonStyle,
-			util.GetMiddlePoint(intro.Block.Rectangle, string(buttonPersonal), 8))
+		buffer.SetString(buttonCommercial, commercialButtonStyle,
+			util.GetMiddlePoint(intro.Block.Rectangle, buttonCommercial, 5))
+		buffer.SetString(buttonPersonal, personalButtonStyle,
+			util.GetMiddlePoint(intro.Block.Rectangle, buttonPersonal, 7))
 	} else {
-		buffer.SetString(string(buttonOk), highlightedStyle,
-			util.GetMiddlePoint(intro.Block.Rectangle, string(buttonOk), 4))
+		buffer.SetString(buttonOk, highlightedStyle,
+			util.GetMiddlePoint(intro.Block.Rectangle, buttonOk, 7))
 	}
 
 	intro.Block.Draw(buffer)
