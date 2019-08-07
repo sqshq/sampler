@@ -33,7 +33,8 @@ func (n *NagWindow) Draw(buffer *ui.Buffer) {
 	text := append(util.AsciiLogo, []string{
 		"", "", "",
 		"Thank you for using Sampler.",
-		"It is always free for non-commercial use, but you can support the project and buy a personal license.",
+		"It is always free, but you can sponsor the project and buy the personal or commercial license",
+		"for priority support and technical assistance.",
 		"",
 		"Please visit www.sampler.dev",
 	}...)
