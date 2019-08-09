@@ -1,13 +1,17 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/jessevdk/go-flags"
-	"github.com/sqshq/sampler/console"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"text/template"
+
+	"github.com/jessevdk/go-flags"
+	"github.com/sqshq/sampler/console"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -104,15 +108,19 @@ func (c *Config) findComponent(componentType ComponentType, componentTitle strin
 }
 
 func readFile(location *string) *Config {
-
-	yamlFile, err := ioutil.ReadFile(*location)
+	t, err := template.New(filepath.Base(*location)).ParseFiles(*location)
 	if err != nil {
-		log.Fatalf("Failed to read config file: %s", *location)
+		log.Fatalf("Failed to read config file: %s\nError : %s", *location, err)
+	}
+
+	buf := new(bytes.Buffer)
+	err = t.Execute(buf, nil)
+	if err != nil {
+		log.Fatalf("Error : %s", err)
 	}
 
 	cfg := new(Config)
-	err = yaml.Unmarshal(yamlFile, cfg)
-
+	err = yaml.Unmarshal(buf.Bytes(), cfg)
 	if err != nil {
 		log.Fatalf("Failed to read config file: %v", err)
 	}
