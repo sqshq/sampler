@@ -27,13 +27,16 @@ Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.n
 
 [Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.2/sampler-1.0.2-windows-amd64.exe)
 
+## Why do I need it?
+You can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger deployment process and get notification when it's done.
+
+Sampler is not an alternative to full-scale monitoring systems, it is more like fast and easy to setup development tool. However it can be used as a dashboard for Kubernetes, Github, Spring Boot and anything else - the only limit is your imagination.
+
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.
 
-One can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger deployment process and get notification when it's done. 
-
 Using Sampler is basically a 3-step process:
-- Define your configuration in a YAML file
+- Define your shell commands in a YAML configuration file
 - Run `sampler -c config.yml`
 - Adjust components size and location on UI
 
