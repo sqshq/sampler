@@ -5,6 +5,11 @@ Sampler is a tool for shell commands execution, visualization and alerting. Conf
 
 ![sampler](https://user-images.githubusercontent.com/6069066/56404396-70b14d00-6234-11e9-93cd-54461bf40c96.gif)
 
+## Why do I need it?
+You can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger a deployment script and get notification when it's done. 
+
+If there is a way to get a metric using shell command - then it can be visualized with Sampler momentarily.
+
 ## Installation
 
 ### macOS
@@ -27,11 +32,6 @@ Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.n
 
 [Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.2/sampler-1.0.2-windows-amd64.exe)
 
-## Why do I need it?
-You can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger a deployment script and get notification when it's done.
-
-Sampler is not an alternative to full-scale monitoring systems, it is more like fast and easy to setup development tool. However it can be used as a dashboard for Kubernetes, Github, Spring Boot and anything else - the only limit is your imagination.
-
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.
 
@@ -39,6 +39,14 @@ Using Sampler is basically a 3-step process:
 - Define your shell commands in a YAML configuration file
 - Run `sampler -c config.yml`
 - Adjust components size and location on UI
+
+## But there are so many monitoring systems already
+Sampler is not an alternative to full-scale monitoring systems, but rather fast and easy to setup development tool.
+
+If spinning up and configuring [Prometheous with Grafana](https://prometheus.io) is complete overkill for you task, Sampler might be the right solution. No servers, no databases, no deploy - you specify shell commands, and it just works.
+
+## Ok, then it should be installed on every server I monitor?
+No, you can run Sampler on local, but still gather telemetry from multiple remote machines. Any visualization might have `init` command, where you can ssh to a remote server. See [SSH example](https://github.com/sqshq/sampler#ssh).
 
 ## Contents
 
