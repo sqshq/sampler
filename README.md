@@ -18,19 +18,19 @@ brew cask install sampler
 ```
 or
 ```bash
-sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v1.0.2/sampler-1.0.2-darwin-amd64
+sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v1.0.3/sampler-1.0.3-darwin-amd64
 sudo chmod +x /usr/local/bin/sampler
 ```
 ### Linux
 ```bash
-sudo wget https://github.com/sqshq/sampler/releases/download/v1.0.2/sampler-1.0.2-linux-amd64 -O /usr/local/bin/sampler
+sudo wget https://github.com/sqshq/sampler/releases/download/v1.0.3/sampler-1.0.3-linux-amd64 -O /usr/local/bin/sampler
 sudo chmod +x /usr/local/bin/sampler
 ```
 Note: `libasound2-dev` system library is required to be installed for Sampler to play a [trigger](https://github.com/sqshq/sampler#triggers) sound tone. Usually the library is in place, but if not - you can install it with your favorite package manager, e.g `apt install libasound2-dev`
 ### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
-[Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.2/sampler-1.0.2-windows-amd64.exe)
+[Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.3/sampler-1.0.3-windows-amd64.exe)
 
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.
