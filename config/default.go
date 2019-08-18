@@ -111,7 +111,7 @@ func (c *Config) setDefaultValues() {
 			box.RateMs = &r
 		}
 		if box.Label == nil {
-			label := string(i)
+			label := box.Title
 			box.Label = &label
 		}
 		if box.Font == nil {
@@ -135,7 +135,7 @@ func (c *Config) setDefaultValues() {
 			box.RateMs = &r
 		}
 		if box.Label == nil {
-			label := string(i)
+			label := box.Title
 			box.Label = &label
 		}
 		if box.Border == nil {

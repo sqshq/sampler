@@ -47,8 +47,8 @@ func (n *NagWindow) Draw(buffer *ui.Buffer) {
 			buffer)
 	}
 
-	buffer.SetString(string(buttonOk), ui.NewStyle(n.palette.ReverseColor, n.palette.BaseColor),
-		util.GetMiddlePoint(n.Block.Rectangle, string(buttonOk), 4))
+	buffer.SetString(buttonOk, ui.NewStyle(n.palette.ReverseColor, n.palette.BaseColor),
+		util.GetMiddlePoint(n.Block.Rectangle, buttonOk, 4))
 
 	n.Block.Draw(buffer)
 }
