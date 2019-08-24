@@ -17,7 +17,6 @@ type AsciiBox struct {
 	*ui.Block
 	*data.Consumer
 	alert   *data.Alert
-	text    string
 	ascii   string
 	style   ui.Style
 	render  *fl.AsciiRender
@@ -58,8 +57,7 @@ func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 		for {
 			select {
 			case sample := <-box.SampleChannel:
-				box.text = strings.TrimSpace(sample.Value)
-				box.ascii, _ = box.render.RenderOpts(box.text, box.options)
+				box.renderText(sample)
 			case alert := <-box.AlertChannel:
 				box.alert = alert
 			}
@@ -67,6 +65,16 @@ func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 	}()
 
 	return &box
+}
+
+func (a *AsciiBox) renderText(sample *data.Sample) {
+	text := strings.TrimSpace(sample.Value)
+	lines := strings.Split(text, "\n")
+	a.ascii = ""
+	for _, line := range lines {
+		ascii, _ := a.render.RenderOpts(line, a.options)
+		a.ascii += ascii + "\n"
+	}
 }
 
 func (a *AsciiBox) Draw(buffer *ui.Buffer) {
