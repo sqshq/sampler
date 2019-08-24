@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/lunixbochs/vtclean"
 	"io"
 	"os/exec"
 	"strings"
@@ -118,7 +119,7 @@ func (s *BasicInteractiveShell) execute() (string, error) {
 			if errorText.Len() > 0 {
 				return "", errors.New(errorText.String())
 			}
-			return s.item.transform(resultText.String())
+			return s.item.transform(vtclean.Clean(resultText.String(), false))
 		}
 	}
 }
