@@ -82,10 +82,7 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 
 	g.Block.Draw(buffer)
 
-	percent := 0.0
-	if g.curValue != 0 && g.maxValue != g.minValue {
-		percent = (100 * g.curValue) / (g.maxValue - g.minValue)
-	}
+	percent := calculatePercent(g)
 
 	var label string
 	if g.percentOnly {
@@ -120,4 +117,11 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 	}
 
 	component.RenderAlert(g.Alert, g.Rectangle, buffer)
+}
+
+func calculatePercent(g *Gauge) float64 {
+	if g.curValue != g.minValue && g.maxValue != g.minValue {
+		return (100 * (g.curValue - g.minValue)) / (g.maxValue - g.minValue)
+	}
+	return 0
 }
