@@ -2,8 +2,9 @@ package console
 
 import (
 	"fmt"
-	ui "github.com/gizak/termui/v3"
 	"runtime"
+
+	ui "github.com/gizak/termui/v3"
 )
 
 type Theme string
@@ -46,6 +47,7 @@ type Palette struct {
 	ReverseColor   ui.Color
 }
 
+// GetPalette returns a color palette based on specified theme
 func GetPalette(theme Theme) Palette {
 	switch theme {
 	case ThemeDark:
@@ -69,6 +71,8 @@ func GetPalette(theme Theme) Palette {
 	}
 }
 
+// GetMenuColor returns a color based on the
+// operating system target
 func GetMenuColor() ui.Color {
 	switch runtime.GOOS {
 	case "windows":
@@ -78,6 +82,8 @@ func GetMenuColor() ui.Color {
 	}
 }
 
+// GetMenuColorReverse returns a color based on the
+// operating system target
 func GetMenuColorReverse() ui.Color {
 	switch runtime.GOOS {
 	case "windows":
