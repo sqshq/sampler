@@ -2,33 +2,52 @@ package console
 
 import (
 	"fmt"
-	ui "github.com/gizak/termui/v3"
 	"runtime"
+
+	ui "github.com/gizak/termui/v3"
 )
 
+// Theme is a representation of a theme
 type Theme string
 
 const (
-	ThemeDark  Theme = "dark"
+	// ThemeDark represents dark theme
+	ThemeDark Theme = "dark"
+	// ThemeLight represents light theme
 	ThemeLight Theme = "light"
 )
 
 const (
-	ColorOlive       ui.Color = 178
+	// ColorOlive represents color olive
+	ColorOlive ui.Color = 178
+	// ColorDeepSkyBlue represents color deepsky blue
 	ColorDeepSkyBlue ui.Color = 39
-	ColorDeepPink    ui.Color = 198
-	ColorCian        ui.Color = 43
-	ColorOrange      ui.Color = 166
-	ColorPurple      ui.Color = 129
-	ColorGreen       ui.Color = 64
-	ColorDarkRed     ui.Color = 88
-	ColorBlueViolet  ui.Color = 57
-	ColorDarkGrey    ui.Color = 238
-	ColorLightGrey   ui.Color = 254
-	ColorGrey        ui.Color = 242
-	ColorWhite       ui.Color = 15
-	ColorBlack       ui.Color = 0
-	ColorClear       ui.Color = -1
+	// ColorDeepPink represents color deep pink
+	ColorDeepPink ui.Color = 198
+	// ColorCian represents color cyan
+	ColorCian ui.Color = 43
+	// ColorOrange represents color orange
+	ColorOrange ui.Color = 166
+	// ColorPurple represents color purple
+	ColorPurple ui.Color = 129
+	// ColorGreen represents color green
+	ColorGreen ui.Color = 64
+	// ColorDarkRed represents color dark red
+	ColorDarkRed ui.Color = 88
+	// ColorBlueViolet represents color blue violet
+	ColorBlueViolet ui.Color = 57
+	// ColorDarkGrey represents color dark grey
+	ColorDarkGrey ui.Color = 238
+	// ColorLightGrey represents color light grey
+	ColorLightGrey ui.Color = 254
+	// ColorGrey represents color grey
+	ColorGrey ui.Color = 242
+	// ColorWhite represents color white
+	ColorWhite ui.Color = 15
+	// ColorBlack represents color black
+	ColorBlack ui.Color = 0
+	// ColorClear represents color clear
+	ColorClear ui.Color = -1
 )
 
 const (
@@ -38,6 +57,7 @@ const (
 	menuColorReverseWindows ui.Color = 0
 )
 
+// Palette represents a color palette
 type Palette struct {
 	ContentColors  []ui.Color
 	GradientColors [][]ui.Color
@@ -46,6 +66,7 @@ type Palette struct {
 	ReverseColor   ui.Color
 }
 
+// GetPalette returns a color palette based on specified theme
 func GetPalette(theme Theme) Palette {
 	switch theme {
 	case ThemeDark:
@@ -69,6 +90,8 @@ func GetPalette(theme Theme) Palette {
 	}
 }
 
+// GetMenuColor returns a color based on the
+// operating system target
 func GetMenuColor() ui.Color {
 	switch runtime.GOOS {
 	case "windows":
@@ -78,6 +101,8 @@ func GetMenuColor() ui.Color {
 	}
 }
 
+// GetMenuColorReverse returns a color based on the
+// operating system target
 func GetMenuColorReverse() ui.Color {
 	switch runtime.GOOS {
 	case "windows":
