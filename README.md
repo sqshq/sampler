@@ -1,4 +1,4 @@
-# Sampler. Visualization for any shell command. 
+# Sampler. Visualization for any shell command.
 [![Build Status](https://travis-ci.com/sqshq/sampler.svg?token=LdyRhxxjDFnAz1bJg8fq&branch=master)](https://travis-ci.com/sqshq/sampler) [![Go Report Card](https://goreportcard.com/badge/github.com/sqshq/sampler)](https://goreportcard.com/report/github.com/sqshq/sampler)
 
 Sampler is a tool for shell commands execution, visualization and alerting. Configured with a simple YAML file.
@@ -8,7 +8,7 @@ Sampler is a tool for shell commands execution, visualization and alerting. Conf
 ## Why do I need it?
 One can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger a deployment script and get notification when it's done. 
 
-If there is a way to get a metric using shell command - then it can be visualized with Sampler momentarily.
+If there is a way to get a metric using a shell command - then it can be visualized with Sampler momentarily.
 
 ## Installation
 
@@ -41,7 +41,7 @@ Using Sampler is basically a 3-step process:
 - Adjust components size and location on UI
 
 ## But there are so many monitoring systems already
-Sampler is by no means an alternative to full-scale monitoring systems, but rather easy to setup development tool.
+Sampler is by no means an alternative to full-scale monitoring systems, but rather an easy to setup development tool.
 
 If spinning up and configuring [Prometheus with Grafana](https://prometheus.io) is complete overkill for you task, Sampler might be the right solution. No servers, no databases, no deploy - you specify shell commands, and it just works.
 
