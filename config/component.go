@@ -71,7 +71,6 @@ type SparkLineConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Scale           *int        `yaml:"scale,omitempty"`
 	Item            Item        `yaml:",inline"`
-	Gradient        *[]ui.Color `yaml:",omitempty"`
 }
 
 type BarChartConfig struct {

@@ -19,21 +19,23 @@ type SparkLine struct {
 	maxValue float64
 	minValue float64
 	scale    int
-	gradient []ui.Color
 	palette  console.Palette
 	mutex    *sync.Mutex
+	color       ui.Color
 }
 
 func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine {
-
+	// fmt.Printf("%+v\n", c.Item)
+	// os.Exit(0)
 	line := &SparkLine{
 		Block:    component.NewBlock(c.Title, true, palette),
 		Consumer: data.NewConsumer(),
 		values:   []float64{},
 		scale:    *c.Scale,
-		gradient: *c.Gradient,
 		palette:  palette,
 		mutex:    &sync.Mutex{},
+		color:       *c.Item.Color,
+
 	}
 
 	go func() {
@@ -125,7 +127,8 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 		}
 
 		for j := 0; j <= top; j++ {
-			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(console.GetGradientColor(s.gradient, j, height))), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j-1))
+			col := console.GetGradientColor(s.color, j, height)
+			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(col)), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j-1))
 		}
 
 		if i == len(s.values)-1 {

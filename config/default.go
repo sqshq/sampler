@@ -205,9 +205,12 @@ func (c *Config) setDefaultItemSettings() {
 	}
 
 	for i, s := range c.SparkLines {
-		s.Gradient = &palette.GradientColors[i%(len(palette.GradientColors))]
 		if s.Item.Pty == nil {
 			s.Item.Pty = &defaultPty
+		}
+
+		if s.Item.Color == nil {
+			s.Item.Color = &palette.ContentColors[i%colorsCount]
 		}
 		c.SparkLines[i] = s
 	}

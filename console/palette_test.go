@@ -48,52 +48,84 @@ func TestGetPaletteInvalidTheme(t *testing.T) {
 }
 
 func TestGetGradientColor(t *testing.T) {
-	type args struct {
-		gradient []ui.Color
+	type testArgs struct {
+		color    ui.Color
 		cur      int
 		max      int
+		want     ui.Color
 	}
 
-	var (
-		lightThemeGradientInput = args{
-			gradient: []ui.Color{
-				250, 248, 246, 244, 242, 240, 238, 236, 234, 232, 16,
-			},
-			cur: 200,
-			max: 250,
-		}
-
-		darkThemeGradientInput = args{
-			gradient: []ui.Color{
-				39, 33, 62, 93, 164, 161,
-			},
-			cur: 40,
-			max: 180,
-		}
-
-		grey ui.Color = 234
-
-		blue ui.Color = 33
-	)
-
-	tests := []struct {
-		name string
-		args
-		want ui.Color
-	}{
-		{"should return color grey", lightThemeGradientInput, grey},
-		{"should return color blue", darkThemeGradientInput, blue},
+	var tests = []testArgs{
+		{
+			color: 2,
+			cur: 55,
+			max: 60,
+			want: 39,
+		},
+		{
+			color: 6,
+			cur: 12,
+			max: 60,
+			want: 29,
+		},
+		{
+			color: 233,
+			cur: 19,
+			max: 60,
+			want: 233,
+		},
+		{
+			color: 109,
+			cur: 8,
+			max: 60,
+			want: 106,
+		},
+		{
+			color: 14,
+			cur: 34,
+			max: 60,
+			want: 49,
+		},
+		{
+			color: 201,
+			cur: 10,
+			max: 20,
+			want: 199,
+		},
+		{
+			color: 201,
+			cur: 15,
+			max: 30,
+			want: 199,
+		},
+		{
+			color: 201,
+			cur: 82,
+			max: 260,
+			want: 197,
+		},
+		{
+			color: 201,
+			cur: 9388,
+			max: 100032,
+			want: 196,
+		},
+		{
+			color: 201,
+			cur: 2,
+			max: 302,
+			want: 196,
+		},
 	}
 
-	for _, test := range tests {
+	for i := 0; i<len(tests); i++ {
 		gradientColor := GetGradientColor(
-			test.gradient,
-			test.cur,
-			test.max,
+			tests[i].color,
+			tests[i].cur,
+			tests[i].max,
 		)
-
-		if got := gradientColor; got != test.want {
-			t.Errorf("GetGradientColor(%v) = %d, want %d", test.args, got, test.want)
+		if got := gradientColor; got != tests[i].want {
+			t.Errorf("GetGradientColor(%d, %d, %d) = %d, want %d", tests[i].color, tests[i].cur, tests[i].max, got, tests[i].want)
 		}
 	}
 }
