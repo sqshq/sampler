@@ -17,7 +17,7 @@ type Sampler struct {
 
 func NewSampler(consumer *Consumer, items []*Item, triggers []*Trigger, options config.Options, fileVariables map[string]string, rateMs int) *Sampler {
 
-	ticker := time.NewTicker(time.Duration(rateMs * int(time.Millisecond)))
+	ticker := time.NewTicker(time.Duration(uint32(rateMs) * uint32(time.Millisecond)))
 
 	sampler := &Sampler{
 		consumer,
