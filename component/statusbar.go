@@ -4,7 +4,6 @@ import (
 	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/console"
-	"github.com/sqshq/sampler/metadata"
 	"image"
 )
 
@@ -20,24 +19,11 @@ type StatusBar struct {
 	pause       bool
 }
 
-func NewStatusBar(configFileName string, palette console.Palette, license *metadata.License) *StatusBar {
+func NewStatusBar(configFileName string, palette console.Palette) *StatusBar {
 
 	block := *ui.NewBlock()
 	block.Border = false
-	text := fmt.Sprintf(" %s %s | ", console.AppTitle, console.AppVersion)
-
-	if license == nil || !license.Valid || license.Type == nil {
-		text += console.AppLicenseWarning
-	} else if *license.Type == metadata.TypePersonal {
-		text += fmt.Sprintf("%s | personal license: %s", configFileName, *license.Username)
-	} else if license.Username != nil {
-		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Username)
-		if license.Company != nil {
-			text += fmt.Sprintf(", %s", *license.Company)
-		}
-	} else {
-		text += fmt.Sprintf("%s | licensed to %s", configFileName, *license.Company)
-	}
+	text := fmt.Sprintf(" %s %s | %s", console.AppTitle, console.AppVersion, configFileName)
 
 	return &StatusBar{
 		Block: NewBlock("", false, palette),
