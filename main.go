@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/asset"
-	"github.com/sqshq/sampler/client"
 	"github.com/sqshq/sampler/component"
 	"github.com/sqshq/sampler/component/asciibox"
 	"github.com/sqshq/sampler/component/barchart"
@@ -17,8 +15,6 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
-	"github.com/sqshq/sampler/metadata"
-	"runtime/debug"
 	"time"
 )
 
@@ -71,14 +67,6 @@ func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, component
 func main() {
 
 	cfg, opt := config.LoadConfig()
-	bc := client.NewBackendClient()
-
-	statistics := metadata.GetStatistics(cfg)
-	license := metadata.GetLicense()
-
-	if opt.LicenseKey != nil {
-		registerLicense(statistics, opt, bc)
-	}
 
 	console.Init()
 	defer console.Close()
@@ -88,63 +76,12 @@ func main() {
 		defer player.Close()
 	}
 
-	defer handleCrash(statistics, opt, bc)
-	defer updateStatistics(cfg, time.Now())
-
 	palette := console.GetPalette(*cfg.Theme)
-	lout := layout.NewLayout(component.NewStatusBar(*opt.ConfigFile, palette, license),
-		component.NewMenu(palette), component.NewIntro(palette), component.NewNagWindow(palette))
-
-	if statistics.LaunchCount == 0 {
-		if !opt.DisableTelemetry {
-			go bc.ReportInstallation(statistics)
-		}
-		lout.StartWithIntro()
-	} else if statistics.LaunchCount%20 == 0 { // once in a while
-		if license == nil || !license.Valid {
-			lout.StartWithNagWindow()
-		} else {
-			go verifyLicense(license, bc)
-		}
-		if !opt.DisableTelemetry {
-			go bc.ReportStatistics(statistics)
-		}
-	}
+	lout := layout.NewLayout(component.NewStatusBar(*opt.ConfigFile, palette), component.NewMenu(palette))
 
 	starter := &Starter{player, lout, palette, opt, *cfg}
 	samplers := starter.startAll()
 
 	handler := event.NewHandler(samplers, opt, lout)
 	handler.HandleEvents()
-}
-
-func handleCrash(statistics *metadata.Statistics, opt config.Options, bc *client.BackendClient) {
-	if rec := recover(); rec != nil {
-		err := rec.(error)
-		if !opt.DisableTelemetry {
-			bc.ReportCrash(fmt.Sprintf("%s\n%s", err.Error(), string(debug.Stack())), statistics)
-		}
-		panic(err)
-	}
-}
-
-func updateStatistics(cfg *config.Config, startTime time.Time) {
-	metadata.PersistStatistics(cfg, time.Since(startTime))
-}
-
-func registerLicense(statistics *metadata.Statistics, opt config.Options, bc *client.BackendClient) {
-	lc, err := bc.RegisterLicenseKey(*opt.LicenseKey, statistics)
-	if err != nil {
-		console.Exit("License registration failed: " + err.Error())
-	} else {
-		metadata.SaveLicense(*lc)
-		console.Exit("License successfully verified, Sampler can be restarted without --license flag now. Thank you.")
-	}
-}
-
-func verifyLicense(license *metadata.License, bc *client.BackendClient) {
-	verifiedLicense, _ := bc.VerifyLicenseKey(*license.Key)
-	if verifiedLicense != nil {
-		metadata.SaveLicense(*verifiedLicense)
-	}
 }

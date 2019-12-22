@@ -34,12 +34,8 @@ func LoadConfig() (*Config, Options) {
 		console.Exit(console.AppVersion)
 	}
 
-	if opt.ConfigFile == nil && opt.LicenseKey == nil {
+	if opt.ConfigFile == nil {
 		console.Exit("Please specify config file using --config flag. Example: sampler --config example.yml")
-	}
-
-	if opt.LicenseKey != nil {
-		return nil, opt
 	}
 
 	cfg := readFile(opt.ConfigFile)
