@@ -6,9 +6,9 @@ Sampler is a tool for shell commands execution, visualization and alerting. Conf
 ![sampler](https://user-images.githubusercontent.com/6069066/56404396-70b14d00-6234-11e9-93cd-54461bf40c96.gif)
 
 ## Why do I need it?
-One can sample any dynamic process right from the terminal - observe changes in the database, monitor MQ in-flight messages,  trigger a deployment script and get notification when it's done. 
+One can sample any dynamic process right from the terminal — observe changes in the database, monitor MQ in-flight messages,  trigger a deployment script and get notification when it's done. 
 
-If there is a way to get a metric using a shell command - then it can be visualized with Sampler momentarily.
+If there is a way to get a metric using a shell command, then it can be visualized with Sampler momentarily.
 
 ## Installation
 
