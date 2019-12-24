@@ -23,7 +23,7 @@ func NewStatusBar(configFileName string, palette console.Palette) *StatusBar {
 
 	block := *ui.NewBlock()
 	block.Border = false
-	text := fmt.Sprintf(" %s %s | %s", console.AppTitle, console.AppVersion, configFileName)
+	text := fmt.Sprintf(" %s %s @ %s", console.AppTitle, console.AppVersion, configFileName)
 
 	return &StatusBar{
 		Block: NewBlock("", false, palette),
