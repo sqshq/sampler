@@ -30,7 +30,7 @@ Note: `libasound2-dev` system library is required to be installed for Sampler to
 ### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
-[Download .exe](https://github.com/sqshq/sampler/releases/download/v1.0.3/sampler-1.0.3-windows-amd64.exe)
+[Download .exe](https://github.com/sqshq/sampler/releases/download/v1.1.0/sampler-1.1.0-windows-amd64.exe)
 
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.
