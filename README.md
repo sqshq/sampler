@@ -14,7 +14,7 @@ If there is a way to get a metric using a shell command, then it can be visualiz
 
 ### macOS
 ```bash
-brew cask install sampler
+brew install sampler
 ```
 or
 ```bash
