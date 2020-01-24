@@ -32,6 +32,12 @@ Note: `libasound2-dev` system library is required to be installed for Sampler to
 ### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
+Via [Chocolatey](https://chocolatey.org/docs)
+```powershell
+choco install sampler
+```
+or
+
 [Download .exe](https://github.com/sqshq/sampler/releases/download/v1.1.0/sampler-1.1.0-windows-amd64.exe)
 
 ## Usage
