@@ -91,21 +91,21 @@ textboxes:
     position: [[0, 29], [45, 10]]
     rate-ms: 500
     sample: docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.PIDs}}"
-  - title: Local weather
+  - title: Berlin weather
     position: [[69, 31], [13, 7]]
     rate-ms: 10000
-    sample: curl wttr.in?0ATQF
+    sample: curl wttr.in/Berlin?0ATQF
     border: false
-  - title: New York weather
+  - title: Munich weather
     position: [[45, 31], [13, 7]]
     rate-ms: 10000
-    sample: curl wttr.in/newyork?0ATQF
+    sample: curl wttr.in/Munich?0ATQF
     transform: echo 1
     border: false
-  - title: San Francisco weather
+  - title: Augsburg weather
     position: [[56, 31], [13, 7]]
     rate-ms: 10000
-    sample: curl wttr.in/sanfrancisco?0ATQF
+    sample: curl wttr.in/Augsburg?0ATQF
     border: false
 asciiboxes:
   - title: UTC time
