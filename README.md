@@ -40,6 +40,19 @@ or
 
 [Download .exe](https://github.com/sqshq/sampler/releases/download/v1.1.0/sampler-1.1.0-windows-amd64.exe)
 
+### Docker
+
+```
+# Create a configuration file
+vim config.yml
+
+# Build the container image
+docker build --tag sampler .
+
+# Run a container
+docker run --interactive --tty --volume $(pwd)/config.yml:/root/config.yml sampler --config /root/config.yml
+```
+
 ## Usage
 You specify shell commands, Sampler executes them with a required rate. The output is used for visualization.
 
