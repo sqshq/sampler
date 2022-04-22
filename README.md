@@ -29,6 +29,7 @@ sudo chmod +x /usr/local/bin/sampler
 Note: `libasound2-dev` system library is required to be installed for Sampler to play a [trigger](https://github.com/sqshq/sampler#triggers) sound tone. Usually the library is in place, but if not - you can install it with your favorite package manager, e.g `apt install libasound2-dev`
 #### Packaging status
 - [Fedora](https://apps.fedoraproject.org/packages/golang-github-sqshq-sampler) `sudo dnf install golang-github-sqshq-sampler` (F31+)
+- [Arch](https://aur.archlinux.org/packages/sampler) `yay -S sampler`
 ### Windows (experimental)
 Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
 
