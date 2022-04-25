@@ -13,14 +13,23 @@ If there is a way to get a metric using a shell command, then it can be visualiz
 ## Installation
 
 ### macOS
+
+[HomeBrew](https://brew.sh):
 ```bash
 brew install sampler
 ```
+
+[MacPorts](https://www.macports.org):
+```bash
+sudo port install sampler
+```
+
 or
 ```bash
 sudo curl -Lo /usr/local/bin/sampler https://github.com/sqshq/sampler/releases/download/v1.1.0/sampler-1.1.0-darwin-amd64
 sudo chmod +x /usr/local/bin/sampler
 ```
+
 ### Linux
 ```bash
 sudo wget https://github.com/sqshq/sampler/releases/download/v1.1.0/sampler-1.1.0-linux-amd64 -O /usr/local/bin/sampler
