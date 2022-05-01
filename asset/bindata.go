@@ -226,10 +226,10 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"data": &bintree{nil, map[string]*bintree{
-		"3d.flf":           &bintree{data3dFlf, map[string]*bintree{}},
-		"2d.flf":           &bintree{data2dFlf, map[string]*bintree{}},
-		"quindar-tone.mp3": &bintree{dataQuindarToneMp3, map[string]*bintree{}},
+	"data": {nil, map[string]*bintree{
+		"2d.flf":           {data2dFlf, map[string]*bintree{}},
+		"3d.flf":           {data3dFlf, map[string]*bintree{}},
+		"quindar-tone.mp3": {dataQuindarToneMp3, map[string]*bintree{}},
 	}},
 }}
 

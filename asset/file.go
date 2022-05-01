@@ -5,18 +5,18 @@ import (
 	"io"
 )
 
-type AssetFile struct {
+type File struct {
 	reader io.Reader
 }
 
-func NewAssetFile(data []byte) AssetFile {
-	return AssetFile{bytes.NewReader(data)}
+func NewAssetFile(data []byte) File {
+	return File{bytes.NewReader(data)}
 }
 
-func (a AssetFile) Read(p []byte) (n int, err error) {
+func (a File) Read(p []byte) (n int, err error) {
 	return a.reader.Read(p)
 }
 
-func (a AssetFile) Close() error {
+func (a File) Close() error {
 	return nil
 }
