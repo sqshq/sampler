@@ -40,7 +40,7 @@ Note: `libasound2-dev` system library is required to be installed for Sampler to
 - [Fedora](https://apps.fedoraproject.org/packages/golang-github-sqshq-sampler) `sudo dnf install golang-github-sqshq-sampler` (F31+)
 - [Arch](https://aur.archlinux.org/packages/sampler) `yay -S sampler`
 ### Windows (experimental)
-Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.net/)
+Recommended to use with advanced console emulators, e.g. [Cmder](https://cmder.app/)
 
 Via [Chocolatey](https://chocolatey.org/docs)
 ```powershell
