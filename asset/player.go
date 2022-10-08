@@ -19,7 +19,7 @@ func NewAudioPlayer() *AudioPlayer {
 		log.Fatal("Failed to find audio file")
 	}
 
-	player, err := oto.NewPlayer(44100, 2, 2, 8192)
+	c, err := oto.NewContext(44100, 2, 2, 8192)
 	if err != nil {
 		// it is expected to fail when some of the system
 		// libraries are not available (e.g. libasound2)
@@ -27,6 +27,7 @@ func NewAudioPlayer() *AudioPlayer {
 		// so we allow startup in no-sound mode
 		return nil
 	}
+	player := c.NewPlayer()
 
 	return &AudioPlayer{
 		player: player,
