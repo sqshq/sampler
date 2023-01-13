@@ -320,6 +320,27 @@ sparklines:
 ```
 
 ## Real-world recipes
+
+### PowerShell
+
+You can call [PowerShell](https://github.com/powershell/powershell) commands from sampler, in order to gather and display data.
+
+<details><summary>Graph Number of Running Processes</summary>
+
+This example demonstrates how to obtain the number of currently running processes, and graph it using a simple line chart.
+
+```yml
+runcharts:
+  - title: Processes
+    rate-ms: 1000
+    scale: 0
+    items:
+    - label: processes
+      sample: pwsh -Command "(Get-Process).Count"
+      color: 178
+```
+</details>
+
 ### Databases
 The following are different database connection examples. Interactive shell (init script) usage is recommended to establish connection only once and then reuse it during sampling.
 
