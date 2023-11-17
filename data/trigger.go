@@ -122,9 +122,7 @@ func (t *Trigger) runScript(script, label string, data Values) ([]byte, error) {
 	cmd := exec.Command("sh", "-c", script)
 	cmd.Env = os.Environ()
 
-	for _, variable := range t.options.Environment {
-		cmd.Env = append(cmd.Env, variable)
-	}
+	cmd.Env = append(cmd.Env, t.options.Environment...)
 
 	cmd.Env = append(cmd.Env,
 		fmt.Sprintf("prev=%v", data.previous),
