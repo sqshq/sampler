@@ -101,9 +101,7 @@ func (i *Item) transform(sample string) (string, error) {
 
 func enrichEnvVariables(cmd *exec.Cmd, variables []string) {
 	cmd.Env = os.Environ()
-	for _, variable := range variables {
-		cmd.Env = append(cmd.Env, variable)
-	}
+	cmd.Env = append(cmd.Env, variables...)
 }
 
 func getInitScripts(item config.Item) []string {
