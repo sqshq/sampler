@@ -1,16 +1,18 @@
-//+build !windows
+//go:build !windows
+// +build !windows
 
 package data
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/kr/pty"
-	"github.com/lunixbochs/vtclean"
 	"io"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/creack/pty"
+	"github.com/lunixbochs/vtclean"
 )
 
 // PtyInteractiveShell represents PTY interactive shell sampling metadata
