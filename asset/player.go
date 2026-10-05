@@ -1,15 +1,16 @@
 package asset
 
 import (
-	"github.com/hajimehoshi/go-mp3"
-	"github.com/hajimehoshi/oto"
-	"io"
 	"log"
+	"time"
+
+	"github.com/ebitengine/oto/v3"
+	"github.com/hajimehoshi/go-mp3"
 )
 
 type AudioPlayer struct {
-	player *oto.Player
-	beep   []byte
+	context *oto.Context
+	beep    []byte
 }
 
 func NewAudioPlayer() *AudioPlayer {
@@ -19,18 +20,23 @@ func NewAudioPlayer() *AudioPlayer {
 		log.Fatal("Failed to find audio file")
 	}
 
-	player, err := oto.NewPlayer(44100, 2, 2, 8192)
+	// Trigger audio is optional, so keep the application usable without a device.
+	context, ready, err := oto.NewContext(&oto.NewContextOptions{
+		SampleRate:   44100,
+		ChannelCount: 2,
+		Format:       oto.FormatSignedInt16LE,
+	})
 	if err != nil {
-		// it is expected to fail when some of the system
-		// libraries are not available (e.g. libasound2)
-		// it is not the main functionality of the application,
-		// so we allow startup in no-sound mode
+		return nil
+	}
+	<-ready
+	if context.Err() != nil {
 		return nil
 	}
 
 	return &AudioPlayer{
-		player: player,
-		beep:   bytes,
+		context: context,
+		beep:    bytes,
 	}
 }
 
@@ -41,11 +47,15 @@ func (a *AudioPlayer) Beep() {
 		panic(err)
 	}
 
-	if _, err := io.Copy(a.player, decoder); err != nil {
+	player := a.context.NewPlayer(decoder)
+	player.Play()
+	for player.IsPlaying() {
+		if err := player.Err(); err != nil {
+			panic(err)
+		}
+		time.Sleep(time.Millisecond)
+	}
+	if err := player.Err(); err != nil {
 		panic(err)
 	}
-}
-
-func (a *AudioPlayer) Close() {
-	_ = a.player.Close()
 }

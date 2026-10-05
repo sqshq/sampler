@@ -1,26 +1,26 @@
 module github.com/sqshq/sampler
 
-go 1.17
+go 1.26.0
 
 require (
-	github.com/gizak/termui/v3 v3.0.0
-	github.com/hajimehoshi/go-mp3 v0.1.1
-	github.com/hajimehoshi/oto v0.1.1
-	github.com/jessevdk/go-flags v1.4.0
-	github.com/kr/pty v1.1.5
+	github.com/ebitengine/oto/v3 v3.5.1
+	github.com/gizak/termui/v3 v3.1.0
+	github.com/hajimehoshi/go-mp3 v0.3.4
+	github.com/jessevdk/go-flags v1.6.1
+	github.com/kr/pty v1.1.8
 	github.com/lunixbochs/vtclean v1.0.0
-	github.com/mattn/go-runewidth v0.0.4
+	github.com/mattn/go-runewidth v0.0.30
 	github.com/mbndr/figlet4go v0.0.0-20190224160619-d6cef5b186ea
-	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/cjbassi/drawille-go v0.0.0-20190126131713-27dc511fe6fd // indirect
-	github.com/gopherjs/gopherjs v0.0.0-20180628210949-0892b62f0d9f // indirect
-	github.com/gopherjs/gopherwasm v0.1.1 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
-	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
-	golang.org/x/arch v0.0.0-20181203225421-5a4828bb7045 // indirect
-	gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/creack/pty v1.1.24 // indirect
+	github.com/ebitengine/purego v0.11.1 // indirect
+	github.com/jfreymuth/pulse v0.1.3 // indirect
+	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/nsf/termbox-go v1.1.2 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )

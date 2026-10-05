@@ -1,0 +1,5 @@
+.git
+.github
+.idea
+*.out
+*.test

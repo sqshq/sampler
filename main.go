@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/component"
@@ -15,7 +17,6 @@ import (
 	"github.com/sqshq/sampler/console"
 	"github.com/sqshq/sampler/data"
 	"github.com/sqshq/sampler/event"
-	"time"
 )
 
 type Starter struct {
@@ -72,9 +73,6 @@ func main() {
 	defer console.Close()
 
 	player := asset.NewAudioPlayer()
-	if player != nil {
-		defer player.Close()
-	}
 
 	palette := console.GetPalette(*cfg.Theme)
 	lout := layout.NewLayout(component.NewStatusBar(*opt.ConfigFile, palette), component.NewMenu(palette))

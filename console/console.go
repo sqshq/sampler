@@ -15,7 +15,7 @@ const (
 	ColumnsCount      = 80
 	RowsCount         = 40
 	AppTitle          = "sampler"
-	AppVersion        = "1.1.0"
+	AppVersion        = "1.1.1"
 )
 
 const (
