@@ -47,12 +47,9 @@ const (
 func NewLayout(statusline *component.StatusBar, menu *component.Menu) *Layout {
 
 	width, height := ui.TerminalDimensions()
-	block := *ui.NewBlock()
-	block.SetRect(0, 0, width, height)
 	statusline.SetRect(0, height-statusbarHeight, width, height)
 
-	return &Layout{
-		Block:            block,
+	l := &Layout{
 		Components:       make([]*component.Component, 0),
 		statusbar:        statusline,
 		menu:             menu,
@@ -61,6 +58,15 @@ func NewLayout(statusline *component.StatusBar, menu *component.Menu) *Layout {
 		ChangeModeEvents: make(chan Mode, 10),
 		startupTime:      time.Now(),
 	}
+	l.Border = true
+	l.BorderStyle = ui.Theme.Block.Border
+	l.BorderLeft = true
+	l.BorderRight = true
+	l.BorderTop = true
+	l.BorderBottom = true
+	l.SetRect(0, 0, width, height)
+
+	return l
 }
 
 func (l *Layout) AddComponent(cpt *component.Component) {
