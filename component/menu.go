@@ -215,8 +215,8 @@ func (m *Menu) updateDimensions() {
 
 func (m *Menu) drawInnerBorder(buffer *ui.Buffer) {
 
-	verticalCell := ui.Cell{ui.VERTICAL_LINE, m.BorderStyle}
-	horizontalCell := ui.Cell{ui.HORIZONTAL_LINE, m.BorderStyle}
+	verticalCell := ui.Cell{Rune: ui.VERTICAL_LINE, Style: m.BorderStyle}
+	horizontalCell := ui.Cell{Rune: ui.HORIZONTAL_LINE, Style: m.BorderStyle}
 
 	// draw lines
 	buffer.Fill(horizontalCell, image.Rect(m.Min.X+2, m.Min.Y+2, m.Max.X-2, m.Min.Y))
@@ -225,8 +225,8 @@ func (m *Menu) drawInnerBorder(buffer *ui.Buffer) {
 	buffer.Fill(verticalCell, image.Rect(m.Max.X-2, m.Min.Y, m.Max.X-3, m.Max.Y))
 
 	// draw corners
-	buffer.SetCell(ui.Cell{ui.TOP_LEFT, m.BorderStyle}, image.Pt(m.Min.X+2, m.Min.Y+1))
-	buffer.SetCell(ui.Cell{ui.TOP_RIGHT, m.BorderStyle}, image.Pt(m.Max.X-3, m.Min.Y+1))
-	buffer.SetCell(ui.Cell{ui.BOTTOM_LEFT, m.BorderStyle}, image.Pt(m.Min.X+2, m.Max.Y-2))
-	buffer.SetCell(ui.Cell{ui.BOTTOM_RIGHT, m.BorderStyle}, image.Pt(m.Max.X-3, m.Max.Y-2))
+	buffer.SetCell(ui.Cell{Rune: ui.TOP_LEFT, Style: m.BorderStyle}, image.Pt(m.Min.X+2, m.Min.Y+1))
+	buffer.SetCell(ui.Cell{Rune: ui.TOP_RIGHT, Style: m.BorderStyle}, image.Pt(m.Max.X-3, m.Min.Y+1))
+	buffer.SetCell(ui.Cell{Rune: ui.BOTTOM_LEFT, Style: m.BorderStyle}, image.Pt(m.Min.X+2, m.Max.Y-2))
+	buffer.SetCell(ui.Cell{Rune: ui.BOTTOM_RIGHT, Style: m.BorderStyle}, image.Pt(m.Max.X-3, m.Max.Y-2))
 }

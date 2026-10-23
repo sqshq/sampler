@@ -53,14 +53,17 @@ or
 ### Docker
 
 ```
-# Create a configuration file
-vim config.yml
-
 # Build the container image
 docker build --tag sampler .
 
-# Run a container
-docker run --interactive --tty --volume $(pwd)/config.yml:/root/config.yml sampler --config /root/config.yml
+# Run with bundled example configuration
+docker run --interactive --tty sampler
+
+# Or run using Makefile
+make example
+
+# Or mount your own configuration file
+docker run --interactive --tty --volume $(pwd)/config.yml:/app/config.yml sampler --config config.yml
 ```
 
 ## Usage
