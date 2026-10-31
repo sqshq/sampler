@@ -27,9 +27,10 @@ func NewTextBox(c config.TextBoxConfig, palette console.Palette) *TextBox {
 	}
 
 	box := TextBox{
-		Block:    component.NewBlock(c.Title, *c.Border, palette),
+		Block:    component.NewComponentBlock(c.Title, c.IsTitleVisible(), *c.Border, palette),
 		Consumer: data.NewConsumer(),
 		style:    ui.NewStyle(*color),
+		border:   *c.Border,
 	}
 
 	go func() {
@@ -55,15 +56,20 @@ func (t *TextBox) Draw(buffer *ui.Buffer) {
 
 	rows := ui.SplitCells(cells, '\n')
 
+	marginY := 0
+	if t.border {
+		marginY = 1
+	}
+
 	for y, row := range rows {
-		if y+t.Inner.Min.Y >= t.Inner.Max.Y-1 {
+		if y+t.Inner.Min.Y+marginY >= t.Inner.Max.Y-marginY {
 			break
 		}
 		row = ui.TrimCells(row, t.Inner.Dx()-2)
 		for _, cx := range ui.BuildCellWithXArray(row) {
 			x, cell := cx.X, cx.Cell
 			cell.Style = t.style
-			buffer.SetCell(cell, image.Pt(x+1, y+1).Add(t.Inner.Min))
+			buffer.SetCell(cell, image.Pt(x+1, y+marginY).Add(t.Inner.Min))
 		}
 	}
 
