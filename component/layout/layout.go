@@ -353,8 +353,8 @@ func calculateComponentCoordinates(c *component.Component, columnWidth float64, 
 		x2 = x1 + minDimension
 	}
 
-	if y2-y1 < minDimension {
-		y2 = y1 + minDimension
+	if minHeight := float64(c.MinHeight()); y2-y1 < minHeight {
+		y2 = y1 + minHeight
 	}
 
 	return image.Rectangle{Min: image.Point{

@@ -40,7 +40,11 @@ func (c *Config) setDefaultValues() {
 			chart.Legend = &LegendConfig{true, true}
 			c.RunCharts[i] = chart
 		}
-		c.RunCharts[i] = chart
+		if chart.Border == nil {
+			border := true
+			chart.Border = &border
+		}
+        c.RunCharts[i] = chart
 	}
 
 	for i, line := range c.SparkLines {
@@ -57,6 +61,10 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			line.Scale = &p
 		}
+        if line.Border == nil {
+			border := true
+			line.Border = &border
+		}
 		c.SparkLines[i] = line
 	}
 
@@ -72,6 +80,10 @@ func (c *Config) setDefaultValues() {
 		if chart.Scale == nil {
 			p := defaultScale
 			chart.Scale = &p
+		}
+        if chart.Border == nil {
+			border := true
+			chart.Border = &border
 		}
 		c.BarCharts[i] = chart
 	}
@@ -97,7 +109,11 @@ func (c *Config) setDefaultValues() {
 		g.Cur.Label = &cur
 		g.Max.Label = &max
 		g.Min.Label = &min
-
+        
+        if g.Border == nil {
+			border := true
+			g.Border = &border
+		}
 		c.Gauges[i] = g
 	}
 

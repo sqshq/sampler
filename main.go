@@ -30,33 +30,33 @@ func (s *Starter) startAll() []*data.Sampler {
 	samplers := make([]*data.Sampler, 0)
 	for _, c := range s.cfg.RunCharts {
 		cpt := runchart.NewRunChart(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers))
 	}
 	for _, c := range s.cfg.SparkLines {
 		cpt := sparkline.NewSparkLine(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
 	}
 	for _, c := range s.cfg.BarCharts {
 		cpt := barchart.NewBarChart(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, c.Items, c.Triggers))
 	}
 	for _, c := range s.cfg.Gauges {
 		cpt := gauge.NewGauge(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers))
 	}
 	for _, c := range s.cfg.AsciiBoxes {
 		cpt := asciibox.NewAsciiBox(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
 	}
 	for _, c := range s.cfg.TextBoxes {
 		cpt := textbox.NewTextBox(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, []config.Item{c.Item}, c.Triggers))
 	}
 	return samplers
 }
 
-func (s *Starter) start(drawable ui.Drawable, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) *data.Sampler {
-	cpt := component.NewComponent(drawable, consumer, componentConfig)
+func (s *Starter) start(drawable ui.Drawable, block *ui.Block, consumer *data.Consumer, componentConfig config.ComponentConfig, itemsConfig []config.Item, triggersConfig []config.TriggerConfig) *data.Sampler {
+	cpt := component.NewComponent(drawable, block, consumer, componentConfig)
 	triggers := data.NewTriggers(triggersConfig, consumer, s.opt, s.player)
 	items := data.NewItems(itemsConfig, *componentConfig.RateMs)
 	s.lout.AddComponent(cpt)
