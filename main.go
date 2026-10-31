@@ -42,7 +42,7 @@ func (s *Starter) startAll() []*data.Sampler {
 	}
 	for _, c := range s.cfg.Gauges {
 		cpt := gauge.NewGauge(c, s.palette)
-		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, []config.Item{c.Cur, c.Min, c.Max}, c.Triggers))
+		samplers = append(samplers, s.start(cpt, cpt.Block, cpt.Consumer, c.ComponentConfig, c.DataItems(), c.Triggers))
 	}
 	for _, c := range s.cfg.AsciiBoxes {
 		cpt := asciibox.NewAsciiBox(c, s.palette)

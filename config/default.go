@@ -44,7 +44,7 @@ func (c *Config) setDefaultValues() {
 			border := true
 			chart.Border = &border
 		}
-        c.RunCharts[i] = chart
+		c.RunCharts[i] = chart
 	}
 
 	for i, line := range c.SparkLines {
@@ -61,7 +61,7 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			line.Scale = &p
 		}
-        if line.Border == nil {
+		if line.Border == nil {
 			border := true
 			line.Border = &border
 		}
@@ -81,7 +81,7 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			chart.Scale = &p
 		}
-        if chart.Border == nil {
+		if chart.Border == nil {
 			border := true
 			chart.Border = &border
 		}
@@ -102,15 +102,17 @@ func (c *Config) setDefaultValues() {
 			g.Scale = &p
 		}
 
-		cur := "cur"
-		max := "max"
-		min := "min"
+		if !g.IsMulti() {
+			cur := "cur"
+			max := "max"
+			min := "min"
 
-		g.Cur.Label = &cur
-		g.Max.Label = &max
-		g.Min.Label = &min
-        
-        if g.Border == nil {
+			g.Cur.Label = &cur
+			g.Max.Label = &max
+			g.Min.Label = &min
+		}
+
+		if g.Border == nil {
 			border := true
 			g.Border = &border
 		}
@@ -229,14 +231,26 @@ func (c *Config) setDefaultItemSettings() {
 	}
 
 	for i, g := range c.Gauges {
-		if g.Min.Pty == nil {
-			g.Min.Pty = &defaultPty
+		if !g.IsMulti() {
+			if g.Min.Pty == nil {
+				g.Min.Pty = &defaultPty
+			}
+			if g.Max.Pty == nil {
+				g.Max.Pty = &defaultPty
+			}
+			if g.Cur.Pty == nil {
+				g.Cur.Pty = &defaultPty
+			}
 		}
-		if g.Max.Pty == nil {
-			g.Max.Pty = &defaultPty
-		}
-		if g.Cur.Pty == nil {
-			g.Cur.Pty = &defaultPty
+		for j, it := range g.Items {
+			if it.Color == nil {
+				if g.Color != nil {
+					it.Color = g.Color
+				} else {
+					it.Color = &palette.ContentColors[(i+j)%colorsCount]
+				}
+			}
+			g.Items[j] = it
 		}
 		if g.Color == nil {
 			g.Color = &palette.ContentColors[i%colorsCount]
