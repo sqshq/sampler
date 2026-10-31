@@ -38,7 +38,7 @@ type bar struct {
 func NewBarChart(c config.BarChartConfig, palette console.Palette) *BarChart {
 
 	chart := BarChart{
-		Block:    component.NewBlock(c.Title, true, palette),
+		Block:    component.NewBlock(c.Title, *c.Border, palette),
 		Consumer: data.NewConsumer(),
 		bars:     []bar{},
 		scale:    *c.Scale,

@@ -27,7 +27,7 @@ type SparkLine struct {
 func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine {
 
 	line := &SparkLine{
-		Block:    component.NewBlock(c.Title, true, palette),
+		Block:    component.NewBlock(c.Title, *c.Border, palette),
 		Consumer: data.NewConsumer(),
 		values:   []float64{},
 		scale:    *c.Scale,

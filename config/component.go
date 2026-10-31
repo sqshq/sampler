@@ -65,6 +65,7 @@ type GaugeConfig struct {
 	Cur             Item      `yaml:"cur"`
 	Max             Item      `yaml:"max"`
 	Min             Item      `yaml:"min"`
+    Border          *bool     `yaml:"border,omitempty"`
 }
 
 type SparkLineConfig struct {
@@ -72,12 +73,14 @@ type SparkLineConfig struct {
 	Scale           *int        `yaml:"scale,omitempty"`
 	Item            Item        `yaml:",inline"`
 	Gradient        *[]ui.Color `yaml:",omitempty"`
+    Border          *bool       `yaml:"border,omitempty"`
 }
 
 type BarChartConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Scale           *int   `yaml:"scale,omitempty"`
 	Items           []Item `yaml:"items"`
+    Border          *bool  `yaml:"border,omitempty"`
 }
 
 type AsciiBoxConfig struct {
@@ -98,6 +101,7 @@ type RunChartConfig struct {
 	Legend          *LegendConfig `yaml:"legend,omitempty"`
 	Scale           *int          `yaml:"scale,omitempty"`
 	Items           []Item        `yaml:"items"`
+    Border          *bool         `yaml:"border,omitempty"`
 }
 
 type LegendConfig struct {

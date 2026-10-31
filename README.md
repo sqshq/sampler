@@ -113,6 +113,7 @@ runcharts:
     legend:
       enabled: true     # enables item labels, default = true
       details: false    # enables item statistics: cur/min/max/dlt values, default = true
+    border: true       # border around the item, default = true
     items:
       - label: GOOGLE
         sample: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
@@ -130,6 +131,7 @@ sparklines:
     rate-ms: 200
     scale: 0
     sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+    border: true       # border around the item, default = true
   - title: Free memory pages
     rate-ms: 200
     scale: 0
@@ -142,6 +144,7 @@ barcharts:
   - title: Local network activity
     rate-ms: 500        # sampling rate, default = 1000
     scale: 0            # number of digits after sample decimal point, default = 1
+    border: true       # border around the item, default = true
     items:
       - label: UDP bytes in
         sample: nettop -J bytes_in -l 1 -m udp | awk '{sum += $4} END {print sum}'
@@ -168,6 +171,7 @@ gauges:
     min:
       sample: echo 0    # sample script for min value
   - title: Year progress
+    border: true       # border around the item, default = true
     cur:
       sample: date +%j
     max:

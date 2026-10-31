@@ -81,7 +81,7 @@ type ValueExtrema struct {
 func NewRunChart(c config.RunChartConfig, palette console.Palette) *RunChart {
 
 	chart := RunChart{
-		Block:     component.NewBlock(c.Title, true, palette),
+		Block:     component.NewBlock(c.Title, *c.Border, palette),
 		Consumer:  data.NewConsumer(),
 		lines:     []TimeLine{},
 		timescale: calculateTimescale(*c.RateMs),
