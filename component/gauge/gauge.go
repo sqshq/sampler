@@ -33,7 +33,7 @@ type Gauge struct {
 func NewGauge(c config.GaugeConfig, palette console.Palette) *Gauge {
 
 	g := Gauge{
-		Block:       component.NewBlock(c.Title, true, palette),
+		Block:       component.NewComponentBlock(c.Title, c.IsTitleVisible(), *c.Border, palette),
 		Consumer:    data.NewConsumer(),
 		color:       *c.Color,
 		scale:       *c.Scale,

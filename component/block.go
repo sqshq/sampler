@@ -17,3 +17,17 @@ func NewBlock(title string, border bool, palette console.Palette) *ui.Block {
 	}
 	return block
 }
+
+func NewComponentBlock(title string, showTitle bool, border bool, palette console.Palette) *ui.Block {
+	if !showTitle {
+		title = ""
+	}
+	block := NewBlock(title, border, palette)
+	if !border {
+		block.PaddingBottom = -1
+		if !showTitle {
+			block.PaddingTop = -1
+		}
+	}
+	return block
+}

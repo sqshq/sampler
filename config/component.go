@@ -18,11 +18,12 @@ const (
 )
 
 type ComponentConfig struct {
-	Title    string          `yaml:"title"`
-	Position [][]int         `yaml:"position,flow"`
-	RateMs   *int            `yaml:"rate-ms,omitempty"`
-	Triggers []TriggerConfig `yaml:"triggers,omitempty"`
-	Type     ComponentType   `yaml:",omitempty"`
+	Title     string          `yaml:"title"`
+	Position  [][]int         `yaml:"position,flow"`
+	RateMs    *int            `yaml:"rate-ms,omitempty"`
+	Triggers  []TriggerConfig `yaml:"triggers,omitempty"`
+	Type      ComponentType   `yaml:",omitempty"`
+	ShowTitle *bool           `yaml:"show-title,omitempty"`
 }
 
 func (c *ComponentConfig) GetLocation() Location {
@@ -65,6 +66,7 @@ type GaugeConfig struct {
 	Cur             Item      `yaml:"cur"`
 	Max             Item      `yaml:"max"`
 	Min             Item      `yaml:"min"`
+	Border          *bool     `yaml:"border,omitempty"`
 }
 
 type SparkLineConfig struct {
@@ -72,12 +74,14 @@ type SparkLineConfig struct {
 	Scale           *int        `yaml:"scale,omitempty"`
 	Item            Item        `yaml:",inline"`
 	Gradient        *[]ui.Color `yaml:",omitempty"`
+	Border          *bool       `yaml:"border,omitempty"`
 }
 
 type BarChartConfig struct {
 	ComponentConfig `yaml:",inline"`
 	Scale           *int   `yaml:"scale,omitempty"`
 	Items           []Item `yaml:"items"`
+	Border          *bool  `yaml:"border,omitempty"`
 }
 
 type AsciiBoxConfig struct {
@@ -98,6 +102,7 @@ type RunChartConfig struct {
 	Legend          *LegendConfig `yaml:"legend,omitempty"`
 	Scale           *int          `yaml:"scale,omitempty"`
 	Items           []Item        `yaml:"items"`
+	Border          *bool         `yaml:"border,omitempty"`
 }
 
 type LegendConfig struct {
@@ -137,4 +142,8 @@ func getPosition(location Location, size Size) [][]int {
 		{location.X, location.Y},
 		{size.X, size.Y},
 	}
+}
+
+func (c *ComponentConfig) IsTitleVisible() bool {
+	return c.ShowTitle == nil || *c.ShowTitle
 }

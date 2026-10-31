@@ -14,11 +14,13 @@ type Component struct {
 	Location config.Location
 	Size     config.Size
 	RateMs   int
+	block    *ui.Block
 }
 
-func NewComponent(dbl ui.Drawable, cmr *data.Consumer, cfg config.ComponentConfig) *Component {
+func NewComponent(dbl ui.Drawable, block *ui.Block, cmr *data.Consumer, cfg config.ComponentConfig) *Component {
 	return &Component{
 		Drawable: dbl,
+		block:    block,
 		Consumer: cmr,
 		Type:     cfg.Type,
 		Title:    cfg.Title,
@@ -40,7 +42,17 @@ func (c *Component) Resize(x, y int) {
 	c.normalize()
 }
 
+func (c *Component) MinHeight() int {
+	return 3 + c.block.PaddingTop + c.block.PaddingBottom
+}
+
 func (c *Component) normalize() {
+	if c.Size.X < 1 {
+		c.Size.X = 1
+	}
+	if c.Size.Y < 1 {
+		c.Size.Y = 1
+	}
 	if c.Location.X < 0 {
 		c.Location.X = 0
 	}
