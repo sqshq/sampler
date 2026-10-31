@@ -60,13 +60,84 @@ type ActionsConfig struct {
 
 type GaugeConfig struct {
 	ComponentConfig `yaml:",inline"`
-	Scale           *int      `yaml:"scale,omitempty"`
-	Color           *ui.Color `yaml:"color,omitempty"`
-	PercentOnly     *bool     `yaml:"percent-only,omitempty"`
-	Cur             Item      `yaml:"cur"`
-	Max             Item      `yaml:"max"`
-	Min             Item      `yaml:"min"`
-	Border          *bool     `yaml:"border,omitempty"`
+	Scale           *int              `yaml:"scale,omitempty"`
+	Color           *ui.Color         `yaml:"color,omitempty"`
+	PercentOnly     *bool             `yaml:"percent-only,omitempty"`
+	Cur             Item              `yaml:"cur,omitempty"`
+	Max             Item              `yaml:"max,omitempty"`
+	Min             Item              `yaml:"min,omitempty"`
+	Items           []GaugeItemConfig `yaml:"items,omitempty"`
+	Border          *bool             `yaml:"border,omitempty"`
+}
+
+type GaugeItemConfig struct {
+	Item        `yaml:",inline"`
+	Scale       *int  `yaml:"scale,omitempty"`
+	PercentOnly *bool `yaml:"percent-only,omitempty"`
+	Cur         *Item `yaml:"cur,omitempty"`
+	Min         *Item `yaml:"min,omitempty"`
+	Max         *Item `yaml:"max,omitempty"`
+}
+
+func (it *GaugeItemConfig) CurItem() Item {
+	if it.Cur == nil {
+		return it.Item
+	}
+	cur := *it.Cur
+	cur.Label = it.Label
+	cur.Color = it.Color
+	return cur
+}
+
+const (
+	GaugeCurLabel       = "cur"
+	GaugeMinLabel       = "min"
+	GaugeMaxLabel       = "max"
+	GaugeLabelSeparator = ":"
+)
+
+func GaugeItemMinLabel(label string) string {
+	return label + GaugeLabelSeparator + GaugeMinLabel
+}
+
+func GaugeItemMaxLabel(label string) string {
+	return label + GaugeLabelSeparator + GaugeMaxLabel
+}
+
+func (g *GaugeConfig) IsMulti() bool {
+	return len(g.Items) > 0
+}
+
+func (g *GaugeConfig) DataItems() []Item {
+	if !g.IsMulti() {
+		return []Item{g.Cur, g.Min, g.Max}
+	}
+	items := make([]Item, 0)
+	if g.Min.SampleScript != nil {
+		items = append(items, withLabel(g.Min, GaugeMinLabel))
+	}
+	if g.Max.SampleScript != nil {
+		items = append(items, withLabel(g.Max, GaugeMaxLabel))
+	}
+	for _, it := range g.Items {
+		items = append(items, withLabel(it.CurItem(), *it.Label))
+		if it.Min != nil {
+			items = append(items, withLabel(*it.Min, GaugeItemMinLabel(*it.Label)))
+		}
+		if it.Max != nil {
+			items = append(items, withLabel(*it.Max, GaugeItemMaxLabel(*it.Label)))
+		}
+	}
+	return items
+}
+
+func withLabel(i Item, label string) Item {
+	i.Label = &label
+	if i.Pty == nil {
+		pty := false
+		i.Pty = &pty
+	}
+	return i
 }
 
 type SparkLineConfig struct {
