@@ -130,6 +130,8 @@ sparklines:
     rate-ms: 200
     scale: 0
     sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+    min: 0
+    max: 100
   - title: Free memory pages
     rate-ms: 200
     scale: 0
