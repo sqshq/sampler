@@ -22,6 +22,9 @@ func (c *Config) validate() {
 	for _, c := range c.SparkLines {
 		components = append(components, c.ComponentConfig)
 		validateItemScripts(c.Title, c.Item)
+		if c.Min != nil && c.Max != nil && *c.Min >= *c.Max {
+			console.Exit(fmt.Sprintf("Config validation error: sparkline '%s' has min (%v) greater than or equal to max (%v)", c.Title, *c.Min, *c.Max))
+		}
 	}
 	for _, c := range c.Gauges {
 		components = append(components, c.ComponentConfig)
