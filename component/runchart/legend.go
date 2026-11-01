@@ -54,7 +54,7 @@ func (c *RunChart) renderLegend(buffer *ui.Buffer, rectangle image.Rectangle) {
 			x := c.Inner.Max.X - (columnWidth+xAxisLegendIndent)*(col+1)
 			y := c.Inner.Min.Y + yAxisLegendIndent + row*height
 
-			titleStyle := ui.NewStyle(line.color)
+			titleStyle := ui.NewStyle(c.ColorFor(line.label, line.color))
 			detailsStyle := ui.NewStyle(c.palette.BaseColor)
 
 			buffer.SetString(string(ui.DOT), titleStyle, image.Pt(x-2, y))

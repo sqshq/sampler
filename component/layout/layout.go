@@ -18,6 +18,7 @@ type Layout struct {
 	ui.Block
 	Components       []*component.Component
 	statusbar        *component.StatusBar
+	statusbarHeight  int
 	menu             *component.Menu
 	ChangeModeEvents chan Mode
 	mode             Mode
@@ -40,12 +41,16 @@ const (
 )
 
 const (
-	minDimension    = 3
-	statusbarHeight = 1
+	minDimension           = 3
+	defaultStatusbarHeight = 1
 )
 
-func NewLayout(statusline *component.StatusBar, menu *component.Menu) *Layout {
+func NewLayout(statusline *component.StatusBar, menu *component.Menu, hideStatusBar bool) *Layout {
 
+	statusbarHeight := defaultStatusbarHeight
+	if hideStatusBar {
+		statusbarHeight = 0
+	}
 	width, height := ui.TerminalDimensions()
 	block := *ui.NewBlock()
 	block.SetRect(0, 0, width, height)
@@ -60,6 +65,7 @@ func NewLayout(statusline *component.StatusBar, menu *component.Menu) *Layout {
 		selection:        0,
 		ChangeModeEvents: make(chan Mode, 10),
 		startupTime:      time.Now(),
+		statusbarHeight:  statusbarHeight,
 	}
 }
 
@@ -298,7 +304,7 @@ func (l *Layout) moveSelection(direction string) {
 func (l *Layout) Draw(buffer *ui.Buffer) {
 
 	columnWidth := float64(l.GetRect().Dx()) / float64(console.ColumnsCount)
-	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(console.RowsCount)
+	rowHeight := float64(l.GetRect().Dy()-l.statusbarHeight) / float64(console.RowsCount)
 
 	for _, c := range l.Components {
 		rectangle := calculateComponentCoordinates(c, columnWidth, rowHeight)
@@ -309,18 +315,20 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 		c.Draw(buffer)
 	}
 
-	l.statusbar.SetRect(
-		0, l.GetRect().Dy()-statusbarHeight,
-		l.GetRect().Dx(), l.GetRect().Dy())
+	if l.statusbarHeight > 0 {
+		l.statusbar.SetRect(
+			0, l.GetRect().Dy()-l.statusbarHeight,
+			l.GetRect().Dx(), l.GetRect().Dy())
 
-	l.statusbar.Draw(buffer)
+		l.statusbar.Draw(buffer)
+	}
 	l.menu.Draw(buffer)
 }
 
 func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, int) {
 
 	columnWidth := float64(l.GetRect().Dx()) / float64(console.ColumnsCount)
-	rowHeight := float64(l.GetRect().Dy()-statusbarHeight) / float64(console.RowsCount)
+	rowHeight := float64(l.GetRect().Dy()-l.statusbarHeight) / float64(console.RowsCount)
 
 	for i, c := range l.Components {
 
@@ -345,8 +353,8 @@ func calculateComponentCoordinates(c *component.Component, columnWidth float64, 
 		x2 = x1 + minDimension
 	}
 
-	if y2-y1 < minDimension {
-		y2 = y1 + minDimension
+	if minHeight := float64(c.MinHeight()); y2-y1 < minHeight {
+		y2 = y1 + minHeight
 	}
 
 	return image.Rectangle{Min: image.Point{

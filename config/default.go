@@ -40,6 +40,10 @@ func (c *Config) setDefaultValues() {
 			chart.Legend = &LegendConfig{true, true}
 			c.RunCharts[i] = chart
 		}
+		if chart.Border == nil {
+			border := true
+			chart.Border = &border
+		}
 		c.RunCharts[i] = chart
 	}
 
@@ -57,6 +61,10 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			line.Scale = &p
 		}
+		if line.Border == nil {
+			border := true
+			line.Border = &border
+		}
 		c.SparkLines[i] = line
 	}
 
@@ -73,13 +81,20 @@ func (c *Config) setDefaultValues() {
 			p := defaultScale
 			chart.Scale = &p
 		}
+		if chart.Border == nil {
+			border := true
+			chart.Border = &border
+		}
 		c.BarCharts[i] = chart
 	}
 
 	for i, g := range c.Gauges {
 
 		setDefaultTriggersValues(g.Triggers)
-		g.ComponentConfig.Type = TypeGauge
+		for _, it := range g.Items {
+			setDefaultTriggersValues(it.Triggers)
+		}
+        g.ComponentConfig.Type = TypeGauge
 
 		if g.RateMs == nil {
 			r := defaultRateMs
@@ -90,14 +105,20 @@ func (c *Config) setDefaultValues() {
 			g.Scale = &p
 		}
 
-		cur := "cur"
-		max := "max"
-		min := "min"
+		if !g.IsMulti() {
+			cur := "cur"
+			max := "max"
+			min := "min"
 
-		g.Cur.Label = &cur
-		g.Max.Label = &max
-		g.Min.Label = &min
+			g.Cur.Label = &cur
+			g.Max.Label = &max
+			g.Min.Label = &min
+		}
 
+		if g.Border == nil {
+			border := true
+			g.Border = &border
+		}
 		c.Gauges[i] = g
 	}
 
@@ -213,14 +234,26 @@ func (c *Config) setDefaultItemSettings() {
 	}
 
 	for i, g := range c.Gauges {
-		if g.Min.Pty == nil {
-			g.Min.Pty = &defaultPty
+		if !g.IsMulti() {
+			if g.Min.Pty == nil {
+				g.Min.Pty = &defaultPty
+			}
+			if g.Max.Pty == nil {
+				g.Max.Pty = &defaultPty
+			}
+			if g.Cur.Pty == nil {
+				g.Cur.Pty = &defaultPty
+			}
 		}
-		if g.Max.Pty == nil {
-			g.Max.Pty = &defaultPty
-		}
-		if g.Cur.Pty == nil {
-			g.Cur.Pty = &defaultPty
+		for j, it := range g.Items {
+			if it.Color == nil {
+				if g.Color != nil {
+					it.Color = g.Color
+				} else {
+					it.Color = &palette.ContentColors[(i+j)%colorsCount]
+				}
+			}
+			g.Items[j] = it
 		}
 		if g.Color == nil {
 			g.Color = &palette.ContentColors[i%colorsCount]
