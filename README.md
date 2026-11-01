@@ -272,6 +272,7 @@ gauges:
           terminal-bell: true  # standard terminal bell, default = false
           sound: true    # NASA quindar tone, default = false
           visual: false  # notification with current value on top of the component area, default = false
+          color: 196     # color applied to the item while the condition is true, default = no change
           script: say -v samantha `date +%I:%M%p`  # an arbitrary script, which can use $cur, $prev and $label variables
 ```
 
@@ -295,6 +296,35 @@ runcharts:
           visual: true  # visual notification on top of the component area, default = false
           script: 'say alert: ${label} latency exceeded ${cur} second' # an arbitrary script, which can use $cur, $prev and $label variables
 ```
+
+#### CPU gauge, which turns orange above 80% and red above 90%
+
+```yml
+gauges:
+  - title: CPU usage
+    color: 33        # regular color, used while no color trigger is active
+    cur:
+      sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+    max:
+      sample: echo 100
+    min:
+      sample: echo 0
+    triggers:
+      - title: CPU HIGH
+        condition: echo "$cur > 80" | bc -l
+        actions:
+          color: 208   # orange
+      - title: CPU CRITICAL
+        condition: echo "$cur > 90" | bc -l
+        actions:
+          color: 196   # red
+          visual: true # actions can be combined
+```
+
+The `color` action changes the color of the item which triggered the condition, as long as the condition is true. Once it becomes false again, the regular color is restored. A few things to keep in mind:
+- if several color triggers are true at the same time, the last one in the list wins: above, a value of 95 is red, not orange
+- it works for all components; in components with several items (runchart lines, barchart bars, gauge items), only the matching item changes color, identified by `$label`
+- for a sparkline, the color replaces the default gradient
 
 ### Interactive shell support
 In addition to the `sample` command, one can specify `init` command (executed only once before sampling) and `transform` command (to post-process `sample` command output). That covers interactive shell use case, e.g. to establish connection to a database only once, and then perform polling within interactive shell session.

@@ -19,7 +19,7 @@ type Layout struct {
 	Components       []*component.Component
 	statusbar        *component.StatusBar
 	statusbarHeight  int
-    menu             *component.Menu
+	menu             *component.Menu
 	ChangeModeEvents chan Mode
 	mode             Mode
 	selection        int
@@ -41,13 +41,13 @@ const (
 )
 
 const (
-	minDimension    = 3
+	minDimension           = 3
 	defaultStatusbarHeight = 1
 )
 
 func NewLayout(statusline *component.StatusBar, menu *component.Menu, hideStatusBar bool) *Layout {
 
-    statusbarHeight := defaultStatusbarHeight
+	statusbarHeight := defaultStatusbarHeight
 	if hideStatusBar {
 		statusbarHeight = 0
 	}
@@ -65,7 +65,7 @@ func NewLayout(statusline *component.StatusBar, menu *component.Menu, hideStatus
 		selection:        0,
 		ChangeModeEvents: make(chan Mode, 10),
 		startupTime:      time.Now(),
-        statusbarHeight: statusbarHeight,
+		statusbarHeight:  statusbarHeight,
 	}
 }
 
@@ -316,13 +316,13 @@ func (l *Layout) Draw(buffer *ui.Buffer) {
 	}
 
 	if l.statusbarHeight > 0 {
-        l.statusbar.SetRect(
-		    0, l.GetRect().Dy()-l.statusbarHeight,
-		    l.GetRect().Dx(), l.GetRect().Dy())
+		l.statusbar.SetRect(
+			0, l.GetRect().Dy()-l.statusbarHeight,
+			l.GetRect().Dx(), l.GetRect().Dy())
 
-	    l.statusbar.Draw(buffer)
+		l.statusbar.Draw(buffer)
 	}
-    l.menu.Draw(buffer)
+	l.menu.Draw(buffer)
 }
 
 func (l *Layout) findComponentAtPoint(point image.Point) (*component.Component, int) {

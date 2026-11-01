@@ -210,6 +210,7 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 
 	for i, line := range c.lines {
 
+		color := c.ColorFor(line.label, line.color)
 		xPoint := make(map[int]image.Point)
 		xOrder := make([]int, 0)
 
@@ -270,7 +271,7 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 			canvas.SetLine(
 				braillePoint(previousPoint),
 				braillePoint(currentPoint),
-				line.color,
+				color,
 			)
 		}
 	}
@@ -279,7 +280,7 @@ func (c *RunChart) renderLines(buffer *ui.Buffer, drawArea image.Rectangle) {
 
 	if c.mode == ModePinpoint {
 		for lineIndex, point := range selectionPoints {
-			buffer.SetCell(ui.NewCell(console.SymbolSelection, ui.NewStyle(c.lines[lineIndex].color)), point)
+			buffer.SetCell(ui.NewCell(console.SymbolSelection, ui.NewStyle(c.ColorFor(c.lines[lineIndex].label, c.lines[lineIndex].color))), point)
 			if c.lines[lineIndex].selectionCoordinate == 0 {
 				c.lines[lineIndex].selectionCoordinate = point.X
 			}

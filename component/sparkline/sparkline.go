@@ -15,6 +15,7 @@ import (
 type SparkLine struct {
 	*ui.Block
 	*data.Consumer
+	label    string
 	values   []float64
 	maxValue float64
 	minValue float64
@@ -31,6 +32,7 @@ func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine 
 	line := &SparkLine{
 		Block:    component.NewComponentBlock(c.Title, c.IsTitleVisible(), *c.Border, palette),
 		Consumer: data.NewConsumer(),
+		label:    *c.Item.Label,
 		values:   []float64{},
 		scale:    *c.Scale,
 		minFloor: c.Min,
@@ -117,6 +119,8 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 		curValue = util.FormatValue(s.values[len(s.values)-1], s.scale)
 	}
 
+	overrideColor, hasOverride := s.ColorOverride(s.label)
+
 	indent := 2 + util.Max([]int{
 		len(minValue), len(maxValue), len(curValue),
 	})
@@ -136,7 +140,11 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 		}
 
 		for j := 0; j <= top; j++ {
-			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(console.GetGradientColor(s.gradient, j, height))), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j-1))
+			color := console.GetGradientColor(s.gradient, j, height)
+			if hasOverride {
+				color = overrideColor
+			}
+			buffer.SetCell(ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(color)), image.Pt(s.Inner.Max.X-n-indent, s.Inner.Max.Y-j-1))
 		}
 
 		if i == len(s.values)-1 {

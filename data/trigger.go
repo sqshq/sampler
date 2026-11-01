@@ -2,12 +2,14 @@ package data
 
 import (
 	"fmt"
+	ui "github.com/gizak/termui/v3"
 	"github.com/sqshq/sampler/asset"
 	"github.com/sqshq/sampler/config"
 	"github.com/sqshq/sampler/console"
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -16,7 +18,9 @@ const (
 )
 
 type Trigger struct {
-	title         string
+	index         int
+	label         string
+    title         string
 	condition     string
 	actions       *Actions
 	consumer      *Consumer
@@ -31,6 +35,7 @@ type Actions struct {
 	sound        bool
 	visual       bool
 	script       *string
+	color        *ui.Color
 }
 
 type Values struct {
@@ -42,8 +47,10 @@ func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, options config
 
 	triggers := make([]*Trigger, 0)
 
-	for _, cfg := range cfgs {
-		triggers = append(triggers, NewTrigger(cfg, consumer, options, player))
+	for i, cfg := range cfgs {
+		trigger := NewTrigger(cfg, consumer, options, player)
+		trigger.index = i
+		triggers = append(triggers, trigger)
 	}
 
 	return triggers
@@ -52,7 +59,8 @@ func NewTriggers(cfgs []config.TriggerConfig, consumer *Consumer, options config
 func NewTrigger(config config.TriggerConfig, consumer *Consumer, options config.Options, player *asset.AudioPlayer) *Trigger {
 	return &Trigger{
 		title:         config.Title,
-		condition:     config.Condition,
+		label:         config.Label,
+        condition:     config.Condition,
 		consumer:      consumer,
 		valuesByLabel: make(map[string]Values),
 		options:       options,
@@ -63,13 +71,28 @@ func NewTrigger(config config.TriggerConfig, consumer *Consumer, options config.
 			sound:        *config.Actions.Sound,
 			visual:       *config.Actions.Visual,
 			script:       config.Actions.Script,
+			color:        config.Actions.Color,
 		},
 	}
 }
 
 func (t *Trigger) Execute(sample *Sample) {
-	if t.evaluate(sample) {
 
+    if t.label != "" && sample.Label != t.label {
+		return
+	}
+
+	active := t.evaluate(sample)
+
+	if t.actions.color != nil {
+		if active {
+			t.consumer.SetColorOverride(sample.Label, t.index, t.actions.color)
+		} else {
+			t.consumer.SetColorOverride(sample.Label, t.index, nil)
+		}
+	}
+
+	if active {
 		if t.actions.terminalBell {
 			fmt.Print(console.BellCharacter)
 		}
@@ -95,12 +118,14 @@ func (t *Trigger) Execute(sample *Sample) {
 
 func (t *Trigger) evaluate(sample *Sample) bool {
 
+	value := strings.TrimSpace(sample.Value)
+
 	if values, ok := t.valuesByLabel[sample.Label]; ok {
 		values.previous = values.current
-		values.current = sample.Value
+		values.current = value
 		t.valuesByLabel[sample.Label] = values
 	} else {
-		t.valuesByLabel[sample.Label] = Values{previous: InitialValue, current: sample.Value}
+		t.valuesByLabel[sample.Label] = Values{previous: InitialValue, current: value}
 	}
 
 	output, err := t.runScript(t.condition, sample.Label, t.valuesByLabel[sample.Label])

@@ -16,6 +16,7 @@ import (
 type AsciiBox struct {
 	*ui.Block
 	*data.Consumer
+	label   string
 	alert   *data.Alert
 	ascii   string
 	style   ui.Style
@@ -47,6 +48,7 @@ func NewAsciiBox(c config.AsciiBoxConfig, palette console.Palette) *AsciiBox {
 	box := AsciiBox{
 		Block:    component.NewComponentBlock(c.Title, c.IsTitleVisible(), *c.Border, palette),
 		Consumer: data.NewConsumer(),
+		label:    *c.Label,
 		style:    ui.NewStyle(*color),
 		render:   render,
 		options:  options,
@@ -83,7 +85,11 @@ func (a *AsciiBox) Draw(buffer *ui.Buffer) {
 	a.Block.Draw(buffer)
 
 	point := a.Inner.Min
-	cells := ui.ParseStyles(a.ascii, a.style)
+	style := a.style
+	if color, ok := a.ColorOverride(a.label); ok {
+		style = ui.NewStyle(color)
+	}
+	cells := ui.ParseStyles(a.ascii, style)
 
 	for i := 0; i < len(cells) && point.Y < a.Inner.Max.Y; i++ {
 		if cells[i].Rune == '\n' {

@@ -133,7 +133,7 @@ func (b *BarChart) Draw(buffer *ui.Buffer) {
 		maxYCoordinate := b.Inner.Max.Y - height
 		for x := barXCoordinate; x < ui.MinInt(barXCoordinate+barWidth, b.Inner.Max.X-barIndent); x++ {
 			for y := b.Inner.Max.Y - 2; y >= maxYCoordinate; y-- {
-				c := ui.NewCell(console.SymbolHorizontalBar, ui.NewStyle(bar.color))
+				c := ui.NewCell(console.SymbolHorizontalBar, ui.NewStyle(b.ColorFor(bar.label, bar.color)))
 				buffer.SetCell(c, image.Pt(x, y))
 			}
 		}

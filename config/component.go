@@ -49,13 +49,15 @@ type TriggerConfig struct {
 	Title     string         `yaml:"title"`
 	Condition string         `yaml:"condition"`
 	Actions   *ActionsConfig `yaml:"actions,omitempty"`
+	Label     string         `yaml:"-"`
 }
 
 type ActionsConfig struct {
-	TerminalBell *bool   `yaml:"terminal-bell,omitempty"`
-	Sound        *bool   `yaml:"sound,omitempty"`
-	Visual       *bool   `yaml:"visual,omitempty"`
-	Script       *string `yaml:"script,omitempty"`
+	TerminalBell *bool     `yaml:"terminal-bell,omitempty"`
+	Sound        *bool     `yaml:"sound,omitempty"`
+	Visual       *bool     `yaml:"visual,omitempty"`
+	Script       *string   `yaml:"script,omitempty"`
+	Color        *ui.Color `yaml:"color,omitempty"`
 }
 
 type GaugeConfig struct {
@@ -72,11 +74,12 @@ type GaugeConfig struct {
 
 type GaugeItemConfig struct {
 	Item        `yaml:",inline"`
-	Scale       *int  `yaml:"scale,omitempty"`
-	PercentOnly *bool `yaml:"percent-only,omitempty"`
-	Cur         *Item `yaml:"cur,omitempty"`
-	Min         *Item `yaml:"min,omitempty"`
-	Max         *Item `yaml:"max,omitempty"`
+	Scale       *int            `yaml:"scale,omitempty"`
+	PercentOnly *bool           `yaml:"percent-only,omitempty"`
+	Cur         *Item           `yaml:"cur,omitempty"`
+	Min         *Item           `yaml:"min,omitempty"`
+	Max         *Item           `yaml:"max,omitempty"`
+	Triggers    []TriggerConfig `yaml:"triggers,omitempty"`
 }
 
 func (it *GaugeItemConfig) CurItem() Item {
@@ -129,6 +132,17 @@ func (g *GaugeConfig) DataItems() []Item {
 		}
 	}
 	return items
+}
+
+func (g *GaugeConfig) AllTriggers() []TriggerConfig {
+	triggers := append([]TriggerConfig{}, g.Triggers...)
+	for _, it := range g.Items {
+		for _, t := range it.Triggers {
+			t.Label = *it.Label
+			triggers = append(triggers, t)
+		}
+	}
+	return triggers
 }
 
 func withLabel(i Item, label string) Item {
@@ -189,7 +203,7 @@ type Item struct {
 	Pty                 *bool     `yaml:"pty,omitempty"`
 	InitScript          *string   `yaml:"init,omitempty"`
 	MultiStepInitScript *[]string `yaml:"multistep-init,omitempty"`
-	SampleScript        *string   `yaml:"sample"`
+	SampleScript        *string   `yaml:"sample,omitempty"`
 	TransformScript     *string   `yaml:"transform,omitempty"`
 }
 

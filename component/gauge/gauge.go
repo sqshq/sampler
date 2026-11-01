@@ -145,7 +145,6 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 		area := image.Rect(g.Inner.Min.X+1, g.Inner.Min.Y, g.Inner.Max.X, g.Inner.Max.Y)
 		g.drawGauge(buffer, g.gauges[0], area)
 	} else {
-		// colonne des titres à gauche, aussi large que le plus long titre
 		titleWidth := 0
 		for _, s := range g.gauges {
 			if w := utf8.RuneCountInString(s.title); w > titleWidth {
@@ -153,9 +152,6 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 			}
 		}
 
-		// la hauteur disponible est répartie entre les jauges ; les lignes en
-		// trop vont aux premières jauges, et s'il n'y a pas assez de lignes
-		// pour toutes, ce sont les dernières qui ne sont pas affichées
 		count := len(g.gauges)
 		y1 := g.Inner.Min.Y
 		for i, s := range g.gauges {
@@ -180,7 +176,6 @@ func (g *Gauge) Draw(buffer *ui.Buffer) {
 	component.RenderAlert(g.Alert, g.Rectangle, buffer)
 }
 
-// drawGauge dessine une jauge (barre + valeur) dans la zone indiquée
 func (g *Gauge) drawGauge(buffer *ui.Buffer, s *subGauge, area image.Rectangle) {
 
 	if area.Dx() <= 0 || area.Dy() <= 0 {
@@ -212,7 +207,7 @@ func (g *Gauge) drawGauge(buffer *ui.Buffer, s *subGauge, area image.Rectangle) 
 		barWidth = area.Dx()
 	}
 	buffer.Fill(
-		ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(s.color)),
+		ui.NewCell(console.SymbolVerticalBar, ui.NewStyle(g.ColorFor(s.curLabel, s.color))),
 		image.Rect(area.Min.X, area.Min.Y, area.Min.X+barWidth, area.Max.Y),
 	)
 

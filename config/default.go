@@ -91,7 +91,10 @@ func (c *Config) setDefaultValues() {
 	for i, g := range c.Gauges {
 
 		setDefaultTriggersValues(g.Triggers)
-		g.ComponentConfig.Type = TypeGauge
+		for _, it := range g.Items {
+			setDefaultTriggersValues(it.Triggers)
+		}
+        g.ComponentConfig.Type = TypeGauge
 
 		if g.RateMs == nil {
 			r := defaultRateMs
