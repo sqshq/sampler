@@ -113,6 +113,7 @@ runcharts:
     legend:
       enabled: true     # enables item labels, default = true
       details: false    # enables item statistics: cur/min/max/dlt values, default = true
+    border: true       # border around the item, default = true
     items:
       - label: GOOGLE
         sample: curl -o /dev/null -s -w '%{time_total}'  https://www.google.com
@@ -130,6 +131,9 @@ sparklines:
     rate-ms: 200
     scale: 0
     sample: ps -A -o %cpu | awk '{s+=$1} END {print s}'
+    min: 0
+    max: 100
+    border: true       # border around the item, default = true
   - title: Free memory pages
     rate-ms: 200
     scale: 0
@@ -142,6 +146,7 @@ barcharts:
   - title: Local network activity
     rate-ms: 500        # sampling rate, default = 1000
     scale: 0            # number of digits after sample decimal point, default = 1
+    border: true       # border around the item, default = true
     items:
       - label: UDP bytes in
         sample: nettop -J bytes_in -l 1 -m udp | awk '{sum += $4} END {print sum}'
@@ -168,6 +173,7 @@ gauges:
     min:
       sample: echo 0    # sample script for min value
   - title: Year progress
+    border: true       # border around the item, default = true
     cur:
       sample: date +%j
     max:
@@ -175,6 +181,47 @@ gauges:
     min:
       sample: echo 0
 ```
+#### Multiple gauges in one component
+
+A single gauge component can display several gauges, one per line, each with its own sample script and title. Add an `items` list: values set on the component (`scale`, `percent-only`, `color`, `min`, `max`) are used as defaults, and each item can override them.
+
+```yml
+gauges:
+  - title: System
+    scale: 0                   # default for all items
+    percent-only: true         # default for all items
+    min:
+      sample: echo 0           # default min script for all items, optional (0 if not set)
+    max:
+      sample: echo 100         # default max script for all items
+    items:
+      - label: CPU             # gauge title, displayed on the left of the bar
+        sample: vmstat 1 2 | tail -1 | awk '{print 100-$15}'
+      - label: Memory
+        color: 82              # overrides the component color
+        cur:                   # the "cur" block syntax is also accepted
+          sample: awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{print (t-a)/t*100}' /proc/meminfo
+      - label: Swap (MB)
+        percent-only: false    # overrides the component value
+        sample: awk '/SwapTotal/{t=$2} /SwapFree/{f=$2} END{print (t-f)/1024}' /proc/meminfo
+        max:
+          sample: awk '/SwapTotal/{print $2/1024}' /proc/meminfo  # overrides the component max
+      - label: Temperature
+        scale: 1
+        sample: cat /sys/class/thermal/thermal_zone0/temp | awk '{print $1/1000}'
+        min:
+          sample: echo 20      # overrides the component min
+        max:
+          sample: echo 90
+```
+
+Notes:
+- each item needs a `max`, either its own or the component one
+- if no `color` is set on the item or on the component, each item gets a different color from the palette
+- item labels must be unique, and can't be `min`, `max` or contain `:`
+- the component height is shared between items; if there is not enough room, the last items are not displayed
+- in [triggers](#triggers), `$label` is the item label (e.g. `CPU`), or `CPU:min` / `CPU:max` for an item's own min and max scripts
+
 ### Textbox
 ![textbox](https://user-images.githubusercontent.com/6069066/59168949-192db000-8b06-11e9-900b-0e92ff494f62.png)
 ```yml

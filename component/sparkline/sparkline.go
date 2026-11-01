@@ -18,6 +18,8 @@ type SparkLine struct {
 	values   []float64
 	maxValue float64
 	minValue float64
+	minFloor *float64
+	maxFloor *float64
 	scale    int
 	gradient []ui.Color
 	palette  console.Palette
@@ -27,10 +29,12 @@ type SparkLine struct {
 func NewSparkLine(c config.SparkLineConfig, palette console.Palette) *SparkLine {
 
 	line := &SparkLine{
-		Block:    component.NewBlock(c.Title, true, palette),
+		Block:    component.NewComponentBlock(c.Title, c.IsTitleVisible(), *c.Border, palette),
 		Consumer: data.NewConsumer(),
 		values:   []float64{},
 		scale:    *c.Scale,
+		minFloor: c.Min,
+		maxFloor: c.Max,
 		gradient: *c.Gradient,
 		palette:  palette,
 		mutex:    &sync.Mutex{},
@@ -75,6 +79,13 @@ func (s *SparkLine) consumeSample(sample *data.Sample) {
 		}
 	}
 
+	if s.maxFloor != nil && *s.maxFloor > max {
+		max = *s.maxFloor
+	}
+	if s.minFloor != nil && *s.minFloor < min {
+		min = *s.minFloor
+	}
+
 	s.maxValue = max
 	s.minValue = min
 
@@ -97,7 +108,7 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 
 	textStyle := ui.NewStyle(s.palette.BaseColor)
 
-	height := s.Dy() - 2
+	height := s.Inner.Dy()
 	minValue := util.FormatValue(s.minValue, s.scale)
 	maxValue := util.FormatValue(s.maxValue, s.scale)
 	curValue := util.FormatValue(0, s.scale)
@@ -131,8 +142,8 @@ func (s *SparkLine) Draw(buffer *ui.Buffer) {
 		if i == len(s.values)-1 {
 			buffer.SetString(curValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Max.Y-top-1))
 			if s.maxValue != s.minValue {
-				buffer.SetString(minValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Max.Y-2))
-				buffer.SetString(maxValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Min.Y+1))
+				buffer.SetString(minValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Max.Y-1))
+				buffer.SetString(maxValue, textStyle, image.Pt(s.Inner.Max.X-n-indent+2, s.Inner.Min.Y))
 			}
 		}
 	}
